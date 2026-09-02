@@ -4,13 +4,13 @@
  */
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAOIUkyCR_88wGGXb10qmdyK13xWPDSOCU",
-  authDomain: "jccbgold.firebaseapp.com",
-  projectId: "jccbgold",
-  storageBucket: "jccbgold.firebasestorage.app",
-  messagingSenderId: "665851575048",
-  appId: "1:665851575048:web:a823afb8824c80abe14abd",
-  measurementId: "G-KGRPF845CW"
+  apiKey: "AIzaSyAdIRywb7xDw9xbTzgE2fl9sn2d4LduTKs",
+  authDomain: "project-484328444876485620.firebaseapp.com",
+  projectId: "project-484328444876485620",
+  storageBucket: "project-484328444876485620.firebasestorage.app",
+  messagingSenderId: "811112744598",
+  appId: "1:811112744598:web:165dfd8dd9e0b648f0a4b7",
+  measurementId: "G-VRGC863RKH"
 };
 
 // Default static branch list used for initial seed / offline fallback
