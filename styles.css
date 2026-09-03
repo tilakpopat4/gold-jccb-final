@@ -2706,9 +2706,10 @@ label.required::after,
 }
 
 @media print {
-    * {
+    *, *:before, *:after {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
+        box-sizing: border-box !important;
     }
     @page {
         size: A4 portrait !important;
@@ -2720,6 +2721,9 @@ label.required::after,
         padding: 0 !important;
         background: #ffffff !important;
         color: #000000 !important;
+        height: auto !important;
+        min-height: 100% !important;
+        overflow: visible !important;
     }
     body > *:not(#print-area) {
         display: none !important;
@@ -2729,13 +2733,14 @@ label.required::after,
         width: 210mm !important;
         margin: 0 !important;
         padding: 0 !important;
+        height: auto !important;
+        overflow: visible !important;
     }
 
     /* Print utility styles */
     .print-voucher, .print-page, .print-requisition-form, .print-pledge-letter, .print-sanction-letter-page, .print-vouchers-page {
         width: 210mm !important;
-        height: 297mm !important;
-        max-height: 297mm !important;
+        min-height: 296mm !important;
         box-sizing: border-box !important;
         border: none !important;
         padding-top: 0.50in !important;     /* 0.50 inch Top Margin */
@@ -2749,31 +2754,30 @@ label.required::after,
         break-inside: avoid !important;
         page-break-after: always !important;
         break-after: page !important;
-        overflow: hidden !important;
-        display: flex !important;
-        flex-direction: column !important;
-        justify-content: space-between !important;
-    }
-
-    .print-page:last-child, .print-voucher:last-child, .print-requisition-form:last-child {
-        page-break-after: avoid !important;
-        break-after: avoid !important;
-    }
-
-    .print-page-frame {
-        border: 3.5px double #000000 !important;
-        height: 100% !important;
-        max-height: 271.6mm !important;
-        box-sizing: border-box !important;
-        display: flex !important;
-        flex-direction: column !important;
-        justify-content: space-between !important;
+        display: block !important;
+        position: relative !important;
     }
 
     .print-page-break {
         page-break-before: always !important;
         break-before: page !important;
     }
+
+    .print-page:last-child {
+        page-break-after: auto !important;
+        break-after: auto !important;
+    }
+
+    .print-page-frame {
+        border: 3.5px double #000000 !important;
+        box-sizing: border-box !important;
+        width: 100% !important;
+        min-height: 270mm !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+    }
+}
 
     /* Single A4 style */
     .print-a4-single {
