@@ -775,31 +775,44 @@ input[readonly] {
     margin-top: 2px;
 }
 
-/* Center Header Gold Rate Badge */
+/* Sub-Header Gold Rate Strip */
+.gold-rate-substrip {
+    background: linear-gradient(135deg, #0b142d 0%, #151371 100%);
+    padding: 7px 30px;
+    border-bottom: 2px solid rgba(212, 175, 55, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+    position: sticky;
+    top: 79px;
+    z-index: 40;
+}
+
 .header-gold-rate-badge {
     display: flex;
     align-items: center;
-    gap: 8px;
-    background-color: #151371;
-    border: 2px solid var(--gold);
-    padding: 7px 20px;
+    gap: 10px;
+    background-color: rgba(255, 255, 255, 0.08);
+    border: 1.5px solid var(--gold);
+    padding: 5px 24px;
     border-radius: 50px;
-    box-shadow: 0 4px 16px rgba(21, 19, 113, 0.25);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3), inset 0 0 10px rgba(212, 175, 55, 0.2);
     white-space: nowrap;
     animation: goldPulseGlow 3s infinite alternate ease-in-out;
 }
 
 @keyframes goldPulseGlow {
     0% {
-        box-shadow: 0 4px 14px rgba(212, 175, 55, 0.3), inset 0 0 8px rgba(212, 175, 55, 0.1);
+        box-shadow: 0 3px 12px rgba(212, 175, 55, 0.3), inset 0 0 8px rgba(212, 175, 55, 0.1);
     }
     100% {
-        box-shadow: 0 4px 22px rgba(212, 175, 55, 0.6), inset 0 0 16px rgba(212, 175, 55, 0.25);
+        box-shadow: 0 4px 20px rgba(212, 175, 55, 0.6), inset 0 0 14px rgba(212, 175, 55, 0.25);
     }
 }
 
 .header-gold-rate-badge .h-rate-label {
-    font-size: 14.5px;
+    font-size: 14px;
     font-weight: 800;
     color: #ffffff;
     letter-spacing: 0.3px;
@@ -807,7 +820,7 @@ input[readonly] {
 }
 
 .header-gold-rate-badge .h-rate-value {
-    font-size: 20px;
+    font-size: 19px;
     font-weight: 900;
     color: #ffd700;
     letter-spacing: 0.8px;
