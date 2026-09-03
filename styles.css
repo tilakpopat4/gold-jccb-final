@@ -3269,7 +3269,7 @@ input.admin-editable:focus, select.admin-editable:focus {
         margin: 0 !important;
         padding: 0 !important;
     }
-    .print-voucher, .print-requisition-form {
+    .print-voucher, .print-requisition-form, .print-pledge-letter {
         display: block !important;
         width: 100% !important;
         font-family: 'Outfit', 'Noto Sans Gujarati', sans-serif !important;
@@ -3346,18 +3346,19 @@ input.admin-editable:focus, select.admin-editable:focus {
         page-break-inside: avoid !important;
         break-inside: avoid !important;
     }
-    .print-page:last-child, .print-voucher:last-child, .print-requisition-form:last-child, .print-vouchers-page:last-child, .print-report-landscape-container:last-child, .print-sanction-letter-page:last-child {
+    .print-page:last-child, .print-voucher:last-child, .print-requisition-form:last-child, .print-vouchers-page:last-child, .print-report-landscape-container:last-child, .print-sanction-letter-page:last-child, .print-pledge-letter:last-child {
         page-break-after: avoid !important;
         break-after: avoid !important;
         margin-bottom: 0 !important;
     }
 }
 
-.print-requisition-form {
+.print-requisition-form, .print-pledge-letter {
     display: none;
 }
 
-#print-area .print-requisition-form {
+#print-area .print-requisition-form, #print-area .print-pledge-letter {
+    display: block;
     background-color: #ffffff;
     color: #000000;
     padding: 0;

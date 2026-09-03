@@ -10197,13 +10197,18 @@ async function print4PageDocument(loan) {
             return;
         }
 
-        const sanctionedAmt = Math.round(parseFloat(loan.sanctionedAmount || 0));
-        const valuationAmt = parseFloat(loan.valuationAmount || 0);
+        const rawAmt = loan.sanctionedAmount !== undefined && loan.sanctionedAmount !== null ? loan.sanctionedAmount :
+                       (loan.loanAmount !== undefined && loan.loanAmount !== null ? loan.loanAmount :
+                       (loan.amount !== undefined && loan.amount !== null ? loan.amount : (loan.sanctionedAmt || 0)));
+        const sanctionedAmt = Math.round(parseFloat(rawAmt || 0));
+        const valuationAmt = parseFloat(loan.valuationAmount || loan.valuationAmt || 0);
         const ltv = valuationAmt > 0 ? (sanctionedAmt / valuationAmt) * 100 : 75;
 
         const hasShareGroupA = parseFloat(loan.shareA || 0) > 0;
         const hasShareGroupB = parseFloat(loan.shareB || 0) > 0;
-        const hasPledgeLetter = (sanctionedAmt < 50000);
+        
+        // Automatic Letter of Pledge attachment if loan amount is <= 50,000
+        const hasPledgeLetter = (sanctionedAmt <= 50000);
 
         // Fast pre-optimization of photos if uncompressed (>80KB)
         let custPhoto = loan.customerPhoto || loan.photo || "";
@@ -10222,6 +10227,7 @@ async function print4PageDocument(loan) {
 
         const loanForPrint = {
             ...loan,
+            sanctionedAmount: sanctionedAmt,
             customerPhoto: custPhoto,
             photo: custPhoto,
             ornamentPhoto: ornPhoto,
@@ -10229,18 +10235,23 @@ async function print4PageDocument(loan) {
         };
 
         let html = "";
-        // If loan amount is < 50,000, automatically attach Letter of Pledge on top
+        // 1. If loan amount is <= 50,000, automatically attach Letter of Pledge on top (as Page 1)
         if (hasPledgeLetter) {
             html += generateLetterOfPledgeHTML(loanForPrint, true);
         }
-        html += generatePage1KarajManganiHTML(loanForPrint, false);
+        // 2. Karaj Mangani Application Form
+        html += generatePage1KarajManganiHTML(loanForPrint, true);
+        // 3. Valuation Report & Demand Promissory Note
         html += generatePage2ValuationReportHTML(loanForPrint, ltv, true);
+        // 4. Customer Receipt & Voucher
         html += generatePage3ReceiptsHTML(loanForPrint, true);
-        html += generatePage4KFSHTML(loanForPrint, ltv, true);
+        // 5. Key Facts Statement (KFS)
+        html += generatePage4KFSHTML(loanForPrint, ltv, hasShareGroupA || hasShareGroupB);
+        // 6. Membership Form (if applicable)
         if (hasShareGroupA) {
-            html += generatePage5MembershipGroupAHTML(loanForPrint, true);
+            html += generatePage5MembershipGroupAHTML(loanForPrint, false);
         } else if (hasShareGroupB) {
-            html += generatePage5MembershipGroupBHTML(loanForPrint, true);
+            html += generatePage5MembershipGroupBHTML(loanForPrint, false);
         }
         await printContent(html);
     } catch (err) {
