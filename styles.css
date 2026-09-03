@@ -2705,6 +2705,23 @@ label.required::after,
     display: none;
 }
 
+body.printing-mode #login-container,
+body.printing-mode #app-container,
+body.printing-mode .modal,
+body.printing-mode .modal-overlay,
+body.printing-mode .sync-overlay {
+    display: none !important;
+}
+
+body.printing-mode #print-area {
+    display: block !important;
+    width: 210mm !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    height: auto !important;
+    overflow: visible !important;
+}
+
 @media print {
     *, *:before, *:after {
         -webkit-print-color-adjust: exact !important;
@@ -2725,7 +2742,7 @@ label.required::after,
         min-height: 100% !important;
         overflow: visible !important;
     }
-    body > *:not(#print-area) {
+    #login-container, #app-container, .modal, .modal-overlay, .sync-overlay {
         display: none !important;
     }
     #print-area {
@@ -2740,7 +2757,7 @@ label.required::after,
     /* Print utility styles */
     .print-voucher, .print-page, .print-requisition-form, .print-pledge-letter, .print-sanction-letter-page, .print-vouchers-page {
         width: 210mm !important;
-        min-height: 296mm !important;
+        height: 297mm !important;
         box-sizing: border-box !important;
         border: none !important;
         padding-top: 0.50in !important;     /* 0.50 inch Top Margin */
@@ -2752,15 +2769,17 @@ label.required::after,
         font-family: 'Outfit', 'Noto Sans Gujarati', sans-serif !important;
         page-break-inside: avoid !important;
         break-inside: avoid !important;
+        page-break-before: always !important;
+        break-before: page !important;
         page-break-after: always !important;
         break-after: page !important;
         display: block !important;
         position: relative !important;
     }
 
-    .print-page-break {
-        page-break-before: always !important;
-        break-before: page !important;
+    .print-page:first-child {
+        page-break-before: auto !important;
+        break-before: auto !important;
     }
 
     .print-page:last-child {
@@ -2772,7 +2791,7 @@ label.required::after,
         border: 3.5px double #000000 !important;
         box-sizing: border-box !important;
         width: 100% !important;
-        min-height: 270mm !important;
+        height: 100% !important;
         display: flex !important;
         flex-direction: column !important;
         justify-content: space-between !important;

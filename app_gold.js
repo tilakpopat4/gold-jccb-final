@@ -10669,6 +10669,9 @@ async function printContent(contentHtml, isLandscape = false) {
                     min-height: 100% !important;
                     overflow: visible !important;
                 }
+                #login-container, #app-container, .modal, .modal-overlay, .sync-overlay {
+                    display: none !important;
+                }
                 #print-area {
                     display: block !important;
                     width: ${bodyWidth} !important;
@@ -10679,7 +10682,7 @@ async function printContent(contentHtml, isLandscape = false) {
                 }
                 .print-page, .print-voucher, .print-requisition-form, .print-sanction-letter-page, .print-vouchers-page, .print-pledge-letter {
                     width: 210mm !important;
-                    min-height: 296mm !important;
+                    height: 297mm !important;
                     box-sizing: border-box !important;
                     border: none !important;
                     padding-top: 0.50in !important;     /* 0.50 inch Top Margin */
@@ -10690,14 +10693,16 @@ async function printContent(contentHtml, isLandscape = false) {
                     background: #ffffff !important;
                     page-break-inside: avoid !important;
                     break-inside: avoid !important;
+                    page-break-before: always !important;
+                    break-before: page !important;
                     page-break-after: always !important;
                     break-after: page !important;
                     display: block !important;
                     position: relative !important;
                 }
-                .print-page-break {
-                    page-break-before: always !important;
-                    break-before: page !important;
+                .print-page:first-child {
+                    page-break-before: auto !important;
+                    break-before: auto !important;
                 }
                 .print-page:last-child {
                     page-break-after: auto !important;
@@ -10707,7 +10712,7 @@ async function printContent(contentHtml, isLandscape = false) {
                     border: 3.5px double #000000 !important;
                     box-sizing: border-box !important;
                     width: 100% !important;
-                    min-height: 270mm !important;
+                    height: 100% !important;
                     display: flex !important;
                     flex-direction: column !important;
                     justify-content: space-between !important;
@@ -10734,10 +10739,20 @@ async function printContent(contentHtml, isLandscape = false) {
         }));
     }
 
+    // Set printing-mode class on body to ensure DOM rendering tree is 100% active before browser triggers print
+    document.body.classList.add("printing-mode");
+
+    const cleanup = () => {
+        document.body.classList.remove("printing-mode");
+        window.removeEventListener("afterprint", cleanup);
+    };
+    window.addEventListener("afterprint", cleanup);
+
     requestAnimationFrame(() => {
         setTimeout(() => {
             window.print();
-        }, 50);
+            setTimeout(cleanup, 2000);
+        }, 100);
     });
 }
 
