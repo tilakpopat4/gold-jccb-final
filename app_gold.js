@@ -10210,19 +10210,24 @@ async function print4PageDocument(loan) {
         // Automatic Letter of Pledge attachment if loan amount is <= 50,000
         const hasPledgeLetter = (sanctionedAmt <= 50000);
 
-        // Fast pre-optimization of photos if uncompressed (>80KB)
-        let custPhoto = loan.customerPhoto || loan.photo || "";
-        let ornPhoto = loan.ornamentPhoto || loan.goldPhoto || "";
-
-        if (custPhoto && custPhoto.length > 80000) {
-            custPhoto = await compressBase64Image(custPhoto, 500, 0.85);
-            loan.customerPhoto = custPhoto;
-            loan.photo = custPhoto;
+        // Robust retrieval of customer and ornament photos from all possible fields
+        let custPhoto = loan.customerPhoto || loan.photo || loan.applicantPhoto || loan.custPhoto || "";
+        if (!custPhoto && loan.customerNo && state.customers) {
+            const matchedCust = state.customers.find(c => c.customerNo === loan.customerNo || c.id === loan.customerNo || c.customerId === loan.customerNo);
+            if (matchedCust) {
+                custPhoto = matchedCust.customerPhoto || matchedCust.photo || matchedCust.applicantPhoto || "";
+            }
         }
-        if (ornPhoto && ornPhoto.length > 80000) {
-            ornPhoto = await compressBase64Image(ornPhoto, 800, 0.85);
-            loan.ornamentPhoto = ornPhoto;
-            loan.goldPhoto = ornPhoto;
+        let ornPhoto = loan.ornamentPhoto || loan.goldPhoto || loan.ornamentsPhoto || "";
+        if (!ornPhoto && loan.goldPhotos && Array.isArray(loan.goldPhotos) && loan.goldPhotos.length > 0) {
+            ornPhoto = loan.goldPhotos[0];
+        }
+
+        if (custPhoto && custPhoto.length > 150000) {
+            try { custPhoto = await compressBase64Image(custPhoto, 600, 0.88); } catch(e) {}
+        }
+        if (ornPhoto && ornPhoto.length > 150000) {
+            try { ornPhoto = await compressBase64Image(ornPhoto, 900, 0.88); } catch(e) {}
         }
 
         const loanForPrint = {
@@ -10645,7 +10650,7 @@ async function printContent(contentHtml, isLandscape = false) {
     }
     printArea.innerHTML = contentHtml;
 
-    // Use isolated iframe for 100% reliable multi-page printing across all browsers
+    // Use isolated iframe with real dimensions off-screen for 100% reliable image decoding and multi-page rendering
     let printFrame = document.getElementById("jccb-print-frame");
     if (printFrame) {
         try { printFrame.remove(); } catch(e) {}
@@ -10654,12 +10659,14 @@ async function printContent(contentHtml, isLandscape = false) {
     printFrame = document.createElement("iframe");
     printFrame.id = "jccb-print-frame";
     printFrame.style.position = "fixed";
-    printFrame.style.right = "0";
-    printFrame.style.bottom = "0";
-    printFrame.style.width = "0";
-    printFrame.style.height = "0";
+    printFrame.style.top = "-10000px";
+    printFrame.style.left = "-10000px";
+    printFrame.style.width = "210mm";
+    printFrame.style.height = "297mm";
     printFrame.style.border = "0";
-    printFrame.style.visibility = "hidden";
+    printFrame.style.opacity = "0";
+    printFrame.style.pointerEvents = "none";
+    printFrame.style.zIndex = "-9999";
     document.body.appendChild(printFrame);
 
     const frameDoc = printFrame.contentWindow.document;
@@ -10673,7 +10680,7 @@ async function printContent(contentHtml, isLandscape = false) {
     <style>
         @page {
             size: ${pageSize};
-            margin: 0;
+            margin: 6mm 8mm; /* Perfectly straight, symmetrical printable margins */
         }
         *, *:before, *:after {
             -webkit-print-color-adjust: exact !important;
@@ -10690,33 +10697,42 @@ async function printContent(contentHtml, isLandscape = false) {
             overflow: visible !important;
         }
         .print-page, .print-voucher, .print-requisition-form, .print-sanction-letter-page, .print-vouchers-page, .print-pledge-letter {
-            width: ${bodyWidth} !important;
-            height: 297mm !important;
-            max-height: 297mm !important;
+            width: 100% !important;
+            height: 284mm !important;
+            min-height: 284mm !important;
+            max-height: 284mm !important;
             box-sizing: border-box !important;
-            border: none !important;
-            padding: 0.40in 0.50in 0.40in 0.50in !important; /* Perfectly straight, centered balanced margins */
+            border: 3.5px double #000000 !important;
+            padding: 10px 14px !important;
             margin: 0 auto !important;
             background: #ffffff !important;
             page-break-after: always !important;
             break-after: page !important;
             page-break-inside: avoid !important;
             break-inside: avoid !important;
-            display: block !important;
-            position: relative !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: space-between !important;
+            overflow: hidden !important;
         }
         .print-page:last-child {
             page-break-after: auto !important;
             break-after: auto !important;
         }
         .print-page-frame {
-            border: 3.5px double #000000 !important;
+            border: none !important;
             box-sizing: border-box !important;
             width: 100% !important;
-            min-height: 270mm !important;
+            height: 100% !important;
             display: flex !important;
             flex-direction: column !important;
             justify-content: space-between !important;
+        }
+        img {
+            display: block !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            image-rendering: -webkit-optimize-contrast !important;
         }
     </style>
 </head>
@@ -10726,18 +10742,18 @@ async function printContent(contentHtml, isLandscape = false) {
 </html>`);
     frameDoc.close();
 
-    // Fast image decoding check inside the iframe
+    // Ensure all images are fully loaded & decoded inside the iframe
     const frameImages = Array.from(frameDoc.querySelectorAll("img"));
     if (frameImages.length > 0) {
         await Promise.all(frameImages.map(img => {
-            if (img.complete) return Promise.resolve();
+            if (img.complete && img.naturalWidth > 0) return Promise.resolve();
             if (img.decode) {
                 return img.decode().catch(() => {});
             }
             return new Promise(resolve => {
                 img.onload = resolve;
                 img.onerror = resolve;
-                setTimeout(resolve, 300);
+                setTimeout(resolve, 400);
             });
         }));
     }
@@ -10750,7 +10766,7 @@ async function printContent(contentHtml, isLandscape = false) {
             console.warn("Iframe print failed, falling back to window.print()", err);
             window.print();
         }
-    }, 150);
+    }, 250);
 }
 
 // --- Extra: લેટર ઓફ પ્લેજ (Letter of Pledge for Loans <= ₹50,000) ---
