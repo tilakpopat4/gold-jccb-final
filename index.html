@@ -11,7 +11,7 @@
     <!-- FontAwesome for Premium Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Style Sheet -->
-    <link rel="stylesheet" href="styles.css?v=20260903_v64">
+    <link rel="stylesheet" href="styles.css?v=20260903_v65">
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="jccb-logo.png">
     <link rel="shortcut icon" type="image/png" href="jccb-logo.png">
@@ -1044,36 +1044,36 @@
                     </div>
 
                     <!-- Live KPI Metrics Summary Grid -->
-                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap:12px; margin-top:15px; margin-bottom:15px;">
-                        <div class="stat-card" style="padding:12px 14px; border-left:4px solid #0284c7; background:#ffffff;">
-                            <div style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase;">Total Loans (કુલ લોન)</div>
-                            <div id="rep-kpi-count" style="font-size:20px; font-weight:900; color:#0f172a; margin-top:2px;">0</div>
-                            <div style="font-size:10.5px; color:#64748b;">Loans in Filter</div>
+                    <div class="rep-kpi-grid">
+                        <div class="rep-kpi-card" style="border-left:4px solid #0284c7;">
+                            <div class="rep-kpi-title">Total Loans (કુલ લોન)</div>
+                            <div id="rep-kpi-count" class="rep-kpi-val" style="color:#0f172a;">0</div>
+                            <div class="rep-kpi-sub">Loans in Filter</div>
                         </div>
-                        <div class="stat-card" style="padding:12px 14px; border-left:4px solid #d4af37; background:#ffffff;">
-                            <div style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase;">Sanctioned (મંજૂર રકમ)</div>
-                            <div id="rep-kpi-sanctioned" style="font-size:19px; font-weight:900; color:#b45309; margin-top:2px;">₹ 0</div>
-                            <div style="font-size:10.5px; color:#64748b;">Total Approved</div>
+                        <div class="rep-kpi-card" style="border-left:4px solid #d4af37;">
+                            <div class="rep-kpi-title">Sanctioned (મંજૂર રકમ)</div>
+                            <div id="rep-kpi-sanctioned" class="rep-kpi-val" style="color:#b45309;">₹ 0</div>
+                            <div class="rep-kpi-sub">Total Approved</div>
                         </div>
-                        <div class="stat-card" style="padding:12px 14px; border-left:4px solid #f59e0b; background:#ffffff;">
-                            <div style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase;">Net Gold Wt (ચોખ્ખું સોનું)</div>
-                            <div id="rep-kpi-weight" style="font-size:19px; font-weight:900; color:#d97706; margin-top:2px;">0.000 g</div>
-                            <div style="font-size:10.5px; color:#64748b;">Total Net Weight</div>
+                        <div class="rep-kpi-card" style="border-left:4px solid #f59e0b;">
+                            <div class="rep-kpi-title">Net Gold Wt (ચોખ્ખું સોનું)</div>
+                            <div id="rep-kpi-weight" class="rep-kpi-val" style="color:#d97706;">0.000 g</div>
+                            <div class="rep-kpi-sub">Total Net Weight</div>
                         </div>
-                        <div class="stat-card" style="padding:12px 14px; border-left:4px solid #6366f1; background:#ffffff;">
-                            <div style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase;">Valuation (બજાર કિંમત)</div>
-                            <div id="rep-kpi-valuation" style="font-size:19px; font-weight:900; color:#4338ca; margin-top:2px;">₹ 0</div>
-                            <div style="font-size:10.5px; color:#64748b;">Market Valuation</div>
+                        <div class="rep-kpi-card" style="border-left:4px solid #6366f1;">
+                            <div class="rep-kpi-title">Valuation (બજાર કિંમત)</div>
+                            <div id="rep-kpi-valuation" class="rep-kpi-val" style="color:#4338ca;">₹ 0</div>
+                            <div class="rep-kpi-sub">Market Valuation</div>
                         </div>
-                        <div class="stat-card" style="padding:12px 14px; border-left:4px solid #ef4444; background:#ffffff;">
-                            <div style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase;">Deductions (કુલ કપાત)</div>
-                            <div id="rep-kpi-deductions" style="font-size:19px; font-weight:900; color:#b91c1c; margin-top:2px;">₹ 0</div>
-                            <div style="font-size:10.5px; color:#64748b;">Charges Collected</div>
+                        <div class="rep-kpi-card" style="border-left:4px solid #ef4444;">
+                            <div class="rep-kpi-title">Deductions (કુલ કપાત)</div>
+                            <div id="rep-kpi-deductions" class="rep-kpi-val" style="color:#b91c1c;">₹ 0</div>
+                            <div class="rep-kpi-sub">Charges Collected</div>
                         </div>
-                        <div class="stat-card" style="padding:12px 14px; border-left:4px solid #10b981; background:#ffffff;">
-                            <div style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase;">Net Disbursed (ચોખ્ખી ચૂકવેલ)</div>
-                            <div id="rep-kpi-net" style="font-size:19px; font-weight:900; color:#15803d; margin-top:2px;">₹ 0</div>
-                            <div style="font-size:10.5px; color:#64748b;">Disbursed to Borrowers</div>
+                        <div class="rep-kpi-card" style="border-left:4px solid #10b981;">
+                            <div class="rep-kpi-title">Net Disbursed (ચોખ્ખી ચૂકવેલ)</div>
+                            <div id="rep-kpi-net" class="rep-kpi-val" style="color:#15803d;">₹ 0</div>
+                            <div class="rep-kpi-sub">Disbursed to Borrowers</div>
                         </div>
                     </div>
 
@@ -2598,7 +2598,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics-compat.js"></script>
-    <script src="firebase-config.js?v=20260903_v64"></script>
-    <script src="app_gold.js?v=20260903_v64"></script>
+    <script src="firebase-config.js?v=20260903_v65"></script>
+    <script src="app_gold.js?v=20260903_v65"></script>
 </body>
 </html>

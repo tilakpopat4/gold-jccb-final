@@ -1118,6 +1118,81 @@ input[readonly] {
     box-shadow: var(--shadow-md);
 }
 
+/* Reports KPI Cards */
+.rep-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+@media (max-width: 1400px) {
+    .rep-kpi-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .rep-kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .rep-kpi-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.rep-kpi-card {
+    background: #ffffff;
+    border-radius: var(--border-radius-md);
+    border: 1.5px solid var(--border-color);
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.rep-kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.rep-kpi-title {
+    font-size: 11px;
+    font-weight: 800;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    white-space: normal;
+    line-height: 1.3;
+}
+
+.rep-kpi-val {
+    font-size: 18px;
+    font-weight: 900;
+    margin: 4px 0 2px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.rep-kpi-sub {
+    font-size: 11px;
+    color: #64748b;
+    font-weight: 600;
+    white-space: normal;
+    line-height: 1.2;
+}
+
 .gold-grad-card {
     background-color: #151371;
     color: white;
