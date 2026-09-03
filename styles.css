@@ -121,7 +121,7 @@ body {
 }
 
 .btn-gold-success {
-    background: linear-gradient(135deg, #10b981 0%, var(--gold) 100%);
+    background: #059669;
     color: white;
     font-weight: 700;
     border: none;
@@ -479,10 +479,7 @@ input[readonly] {
     font-size: 26px;
     font-weight: 900;
     letter-spacing: 1px;
-    background: linear-gradient(135deg, #ffe066 0%, #ffffff 40%, #ffd700 80%, #d4af37 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-shadow: 0 2px 10px rgba(212, 175, 55, 0.35);
+    color: #ffffff;
     line-height: 1.1;
 }
 
@@ -492,10 +489,10 @@ input[readonly] {
     gap: 10px;
     margin-top: 12px;
     padding: 8px 12px;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.05) 100%);
+    background: rgba(255, 255, 255, 0.08);
     border-radius: 8px;
-    border: 1.5px solid rgba(212, 175, 55, 0.45);
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 #current-user-branch {
@@ -677,7 +674,7 @@ input[readonly] {
 }
 
 .nav-item.active {
-    background: linear-gradient(90deg, rgba(157, 171, 218, 0.28) 0%, rgba(157, 171, 218, 0.08) 100%);
+    background: rgba(157, 171, 218, 0.2);
     color: #ffffff;
     font-weight: 800;
     border-left: 4px solid var(--gold);
@@ -1496,7 +1493,7 @@ label.required::after,
     align-items: center;
     gap: 9px;
     padding: 7px 12px;
-    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    background: #fffbeb;
     border: 2px solid #f59e0b;
     border-radius: 8px;
     cursor: pointer;
@@ -1506,14 +1503,14 @@ label.required::after,
 }
 
 .compulsory-od-card:hover {
-    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    background: #fef3c7;
     border-color: #d97706;
     transform: translateY(-1px);
     box-shadow: 0 4px 10px rgba(217, 119, 6, 0.25);
 }
 
 .compulsory-od-card.active, .compulsory-od-card:has(input:checked) {
-    background: linear-gradient(135deg, #fef08a 0%, #fde047 100%) !important;
+    background: #fde047 !important;
     border-color: #b45309 !important;
     box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.35), 0 4px 12px rgba(180, 83, 9, 0.25) !important;
 }
@@ -1644,7 +1641,7 @@ label.required::after,
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: linear-gradient(135deg, #facc15 0%, #eab308 50%, #ca8a04 100%) !important;
+    background: #eab308 !important;
     color: #000000 !important;
     margin: -15px -16px 14px -16px;
     padding: 8px 14px;
@@ -1813,12 +1810,12 @@ label.required::after,
 /* Individual card accents */
 #val-rate-card {
     border-top: 3px solid #64748b;
-    background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+    background: #f8fafc;
 }
 
 #val-market-card {
     border-top: 3px solid #d97706;
-    background: linear-gradient(180deg, #fffbeb 0%, #ffffff 100%);
+    background: #fffbeb;
 }
 
 #val-market-card .val-metric-value {
@@ -1827,7 +1824,7 @@ label.required::after,
 
 #val-eligible-card {
     border-top: 3px solid #16a34a;
-    background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%);
+    background: #f0fdf4;
 }
 
 #val-eligible-card .val-metric-value {
@@ -1836,7 +1833,7 @@ label.required::after,
 
 #val-ltv-card {
     border-top: 3px solid #0284c7;
-    background: linear-gradient(180deg, #f0f9ff 0%, #ffffff 100%);
+    background: #f0f9ff;
 }
 
 #val-ltv-card .val-metric-value {
@@ -1845,7 +1842,7 @@ label.required::after,
 
 #val-margin-card {
     border-top: 3px solid #16a34a;
-    background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%);
+    background: #f0fdf4;
 }
 
 #val-margin-card .val-metric-value {
@@ -1881,7 +1878,7 @@ label.required::after,
 }
 
 .val-metric-card.metric-safe-green {
-    background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%);
+    background: #f0fdf4;
     border: 1.5px solid #86efac;
     border-top: 3px solid #16a34a;
 }
@@ -1891,7 +1888,7 @@ label.required::after,
 }
 
 .val-metric-card.metric-safe-blue {
-    background: linear-gradient(180deg, #f0f9ff 0%, #ffffff 100%);
+    background: #f0f9ff;
     border: 1.5px solid #bae6fd;
     border-top: 3px solid #0284c7;
 }
@@ -2126,7 +2123,7 @@ label.required::after,
 .btn-choose-photo {
     width: 100%;
     padding: 7px 12px;
-    background: linear-gradient(180deg, #ffffff 0%, #f0f9ff 100%);
+    background: #f0f9ff;
     color: #0284c7;
     border: 1.5px solid #0284c7 !important;
     border-radius: 6px;
@@ -2227,7 +2224,7 @@ label.required::after,
 }
 
 .btn-green-add-row, .btn-gold-add-row {
-    background: linear-gradient(135deg, #16a34a 0%, #15803d 100%) !important;
+    background: #16a34a !important;
     color: #ffffff !important;
     border: 1.5px solid #14532d !important;
     font-weight: 800 !important;
@@ -2248,14 +2245,14 @@ label.required::after,
 }
 
 .btn-green-add-row:hover, .btn-gold-add-row:hover {
-    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%) !important;
+    background: #15803d !important;
     transform: translateY(-1px);
     box-shadow: 0 4px 10px rgba(22, 163, 74, 0.45) !important;
 }
 
-/* Right Side Actions Card & Big Submit Button (Golden Reverse Theme) */
+/* Right Side Actions Card & Big Submit Button */
 .right-actions-card {
-    background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+    background: #ffffff;
     border: 1.5px solid #eab308;
     border-top: 4px solid #eab308;
     display: flex;
@@ -2276,7 +2273,7 @@ label.required::after,
     align-items: center;
     justify-content: center;
     gap: 10px;
-    background: linear-gradient(135deg, #facc15 0%, #eab308 50%, #ca8a04 100%) !important;
+    background: #eab308 !important;
     color: #000000 !important;
     box-shadow: 0 4px 14px rgba(202, 138, 4, 0.35);
     border: 2px solid #a16207 !important;
@@ -2293,7 +2290,7 @@ label.required::after,
 
 .right-save-big-btn:hover {
     transform: translateY(-2px);
-    background: linear-gradient(135deg, #fde047 0%, #facc15 50%, #eab308 100%) !important;
+    background: #ca8a04 !important;
     box-shadow: 0 8px 20px rgba(202, 138, 4, 0.5);
     border-color: #854d0e !important;
 }
@@ -2612,7 +2609,7 @@ label.required::after,
 .delete-loan-btn:hover,
 .delete-rate-btn:hover,
 .remove-orn-row-btn:hover {
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+    background: #dc2626 !important;
     color: #ffffff !important;
     border-color: #dc2626 !important;
     box-shadow: 0 4px 10px rgba(220, 38, 38, 0.35) !important;
@@ -2660,7 +2657,7 @@ label.required::after,
 }
 
 .print-4page-btn:hover {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    background: #059669 !important;
     color: #ffffff !important;
     border-color: #059669 !important;
     box-shadow: 0 4px 10px rgba(16, 185, 129, 0.35) !important;

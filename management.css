@@ -9,7 +9,7 @@
     --accent-blue: #9DABDA;
     --gold: #F4C300;
     --gold-dark: #d4a500;
-    --gold-gradient: linear-gradient(135deg, #F4C300 0%, #e6b400 50%, #ffd426 100%);
+    --gold-gradient: #F4C300;
     --bg-page: #f4f6fa;
     --bg-card: #ffffff;
     --text-main: #1e293b;
@@ -39,7 +39,7 @@ body {
 
 /* ==================== HEADER ==================== */
 .mgmt-header {
-    background: linear-gradient(135deg, #002840 0%, #003B5C 100%);
+    background: #002840;
     color: #ffffff;
     padding: 16px 28px;
     display: flex;
@@ -140,7 +140,7 @@ body {
 }
 
 .btn-gold {
-    background: var(--gold-gradient);
+    background: #F4C300;
     color: #002840;
     box-shadow: 0 2px 6px rgba(244, 195, 0, 0.3);
 }

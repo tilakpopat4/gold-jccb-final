@@ -8524,7 +8524,7 @@ function showRestoreProgressModal(title = "ડેટાબેઝ રીસ્ટ
                 <p id="restore-prog-subtitle" style="margin: 0 0 20px; font-size: 13px; color: #64748b;">${subtitle}</p>
                 
                 <div style="background: #f1f5f9; border-radius: 999px; height: 12px; width: 100%; overflow: hidden; margin-bottom: 12px; border: 1px solid #cbd5e1;">
-                    <div id="restore-prog-bar" style="background: linear-gradient(90deg, #2563eb, #3b82f6); height: 100%; width: 5%; transition: width 0.3s ease; border-radius: 999px;"></div>
+                    <div id="restore-prog-bar" style="background: #2563eb; height: 100%; width: 5%; transition: width 0.3s ease; border-radius: 999px;"></div>
                 </div>
                 
                 <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 14px;">
