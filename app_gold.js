@@ -10237,21 +10237,29 @@ async function print4PageDocument(loan) {
         let html = "";
         // 1. If loan amount is <= 50,000, automatically attach Letter of Pledge on top (as Page 1)
         if (hasPledgeLetter) {
-            html += generateLetterOfPledgeHTML(loanForPrint, true);
+            // Page 1: Letter of Pledge (first page, no break before)
+            html += generateLetterOfPledgeHTML(loanForPrint, false);
+            // Page 2: Karaj Mangani Application Form (break before)
+            html += generatePage1KarajManganiHTML(loanForPrint, true);
+        } else {
+            // Page 1: Karaj Mangani Application Form (first page, no break before)
+            html += generatePage1KarajManganiHTML(loanForPrint, false);
         }
-        // 2. Karaj Mangani Application Form
-        html += generatePage1KarajManganiHTML(loanForPrint, true);
-        // 3. Valuation Report & Demand Promissory Note
+        
+        // Page 2 (or 3): Valuation Report & Demand Promissory Note
         html += generatePage2ValuationReportHTML(loanForPrint, ltv, true);
-        // 4. Customer Receipt & Voucher
+        
+        // Page 3 (or 4): Customer Receipt & Gold Return Voucher
         html += generatePage3ReceiptsHTML(loanForPrint, true);
-        // 5. Key Facts Statement (KFS)
-        html += generatePage4KFSHTML(loanForPrint, ltv, hasShareGroupA || hasShareGroupB);
-        // 6. Membership Form (if applicable)
+        
+        // Page 4 (or 5): Key Facts Statement (KFS)
+        html += generatePage4KFSHTML(loanForPrint, ltv, true);
+        
+        // Page 5 (or 6): Membership Application Form (Group A if shareA > 0, otherwise Group B nominal membership)
         if (hasShareGroupA) {
-            html += generatePage5MembershipGroupAHTML(loanForPrint, false);
-        } else if (hasShareGroupB) {
-            html += generatePage5MembershipGroupBHTML(loanForPrint, false);
+            html += generatePage5MembershipGroupAHTML(loanForPrint, true);
+        } else {
+            html += generatePage5MembershipGroupBHTML(loanForPrint, true);
         }
         await printContent(html);
     } catch (err) {
@@ -10665,11 +10673,11 @@ async function printContent(contentHtml, isLandscape = false) {
                 height: 297mm !important;
                 max-height: 297mm !important;
                 box-sizing: border-box !important;
-                border: 3.5px double #000000 !important;
-                padding-top: 0.35in !important;     /* 0.35 inch Top Margin */
-                padding-left: 0.75in !important;    /* 0.75 inch Left Margin */
-                padding-right: 0.40in !important;   /* 0.40 inch Right Margin */
-                padding-bottom: 0.35in !important;  /* 0.35 inch Bottom Margin */
+                border: none !important;
+                padding-top: 0.50in !important;     /* 0.50 inch (12.7mm) Top Margin */
+                padding-left: 1.00in !important;    /* 1.00 inch (25.4mm) Left Margin (Binding Margin) */
+                padding-right: 0.50in !important;   /* 0.50 inch (12.7mm) Right Margin */
+                padding-bottom: 0.50in !important;  /* 0.50 inch (12.7mm) Bottom Margin */
                 margin: 0 auto !important;
                 background: #ffffff !important;
                 page-break-inside: avoid !important;
@@ -10682,15 +10690,30 @@ async function printContent(contentHtml, isLandscape = false) {
                 justify-content: space-between !important;
             }
             .print-pledge-letter {
-                padding: 0.35in 0.45in 0.35in 0.45in !important;
+                padding-top: 0.50in !important;
+                padding-left: 1.00in !important;
+                padding-right: 0.50in !important;
+                padding-bottom: 0.50in !important;
+            }
+            .print-page-frame {
+                border: 3.5px double #000000 !important;
+                height: 100% !important;
+                max-height: 271.6mm !important;
+                box-sizing: border-box !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: space-between !important;
             }
             .print-sanction-letter-page {
                 width: 210mm !important;
                 height: 297mm !important;
                 max-height: 297mm !important;
                 box-sizing: border-box !important;
-                border: 3.5px double #000000 !important;
-                padding: 0.30in 0.40in 0.30in 0.40in !important;
+                border: none !important;
+                padding-top: 0.50in !important;
+                padding-left: 1.00in !important;
+                padding-right: 0.50in !important;
+                padding-bottom: 0.50in !important;
                 page-break-inside: avoid !important;
                 break-inside: avoid !important;
                 page-break-after: always !important;
@@ -10705,8 +10728,11 @@ async function printContent(contentHtml, isLandscape = false) {
                 height: 297mm !important;
                 max-height: 297mm !important;
                 box-sizing: border-box !important;
-                border: 3.5px double #000000 !important;
-                padding: 0.30in 0.40in 0.30in 0.40in !important;
+                border: none !important;
+                padding-top: 0.50in !important;
+                padding-left: 1.00in !important;
+                padding-right: 0.50in !important;
+                padding-bottom: 0.50in !important;
                 page-break-inside: avoid !important;
                 break-inside: avoid !important;
                 page-break-after: always !important;
@@ -10717,8 +10743,8 @@ async function printContent(contentHtml, isLandscape = false) {
                 justify-content: space-between !important;
             }
             .print-page-break {
-                page-break-after: always !important;
-                break-after: page !important;
+                page-break-before: always !important;
+                break-before: page !important;
             }
             .print-page:last-child, .print-voucher:last-child, .print-requisition-form:last-child, .print-vouchers-page:last-child, .print-report-landscape-container:last-child, .print-sanction-letter-page:last-child, .print-pledge-letter:last-child {
                 page-break-after: avoid !important;
@@ -10773,81 +10799,82 @@ function generateLetterOfPledgeHTML(loan, isPageBreak = true) {
     const address = loan.address || "-";
 
     return `
-    <div class="print-page print-voucher print-pledge-letter ${pageBreakClass}" style="width:210mm; height:297mm; max-height:297mm; box-sizing:border-box; padding:0.35in 0.50in 0.35in 0.50in; font-family:'Outfit', 'Noto Sans Gujarati', sans-serif; color:#000000; line-height:1.75; background-color:#ffffff; font-size:13.5px; overflow:hidden; page-break-inside:avoid; break-inside:avoid; display:flex; flex-direction:column; justify-content:space-between;">
-        
-        <div>
-            <!-- Title Header -->
-            <div style="text-align:center; margin-bottom:12px;">
-                <h2 style="font-size:25px; font-weight:800; margin:0; letter-spacing:0.8px; color:#000000;">:: લેટર ઓફ પ્લેજ ::</h2>
-                <p style="font-size:14.5px; font-weight:700; margin:5px 0 0 0; color:#000000;">(બુલેટ રિપેમેન્ટ માટે રૂ. એક લાખ વીસ હજાર સુધી)</p>
+    <div class="print-page print-voucher print-pledge-letter ${pageBreakClass}" style="width:210mm; height:297mm; max-height:297mm; box-sizing:border-box; padding:0.50in 0.50in 0.50in 1.00in; font-family:'Outfit', 'Noto Sans Gujarati', sans-serif; color:#000000; line-height:1.75; background-color:#ffffff; font-size:13px; overflow:hidden;">
+        <div class="print-page-frame" style="border:3.5px double #000000; height:100%; max-height:271.6mm; box-sizing:border-box; padding:14px 18px; display:flex; flex-direction:column; justify-content:space-between;">
+            
+            <div>
+                <!-- Title Header -->
+                <div style="text-align:center; margin-bottom:10px;">
+                    <h2 style="font-size:23px; font-weight:800; margin:0; letter-spacing:0.8px; color:#000000;">:: લેટર ઓફ પ્લેજ ::</h2>
+                </div>
+
+                <!-- Date Top Right -->
+                <div style="text-align:right; font-size:13.5px; font-weight:700; margin-bottom:8px;">
+                    તારીખ :- <strong>${dateFormatted}</strong>
+                </div>
+
+                <!-- Recipient Left -->
+                <div style="font-size:13.5px; font-weight:700; line-height:1.55; margin-bottom:10px;">
+                    પ્રતિ,<br>
+                    મેનેજર સાહેબ,<br>
+                    ધી જૂનાગઢ કોમર્શિયલ કો-ઓપરેટિવ બેંક લિ.<br>
+                    શાખા :- <strong>${cleanBranch}</strong>
+                </div>
+
+                <!-- Borrower Declaration Header -->
+                <div style="font-size:13.2px; line-height:1.7; text-align:justify; margin-bottom:10px;">
+                    હું <strong>${borrowerName}</strong> ધંધો : <strong>${occupation}</strong>, ઉ.વ. <strong>${age}</strong>, જ્ઞાતિ <strong>${caste}</strong>, ધર્મ : <strong>${religion}</strong>, રહેવાસી : <strong>${address}</strong> નીચે પ્રમાણે લખી બંધાઉં છું કે :-
+                </div>
+
+                <!-- 10 Detailed Points -->
+                <div style="font-size:12.5px; line-height:1.68; text-align:justify;">
+                    <div style="margin-bottom:8px;">
+                        <strong>૧.</strong> આજરોજ મારી પોતાની માલિકીના સોનાના દાગીના કે જેની નોંધ બેંક તરફથી મને મળેલ જુદી પહોંચમાં કરેલ છે, તે બેંકને થાણમાં આપી મેં રૂ. <strong>${sanctionedAmt}/-</strong> અંકે <strong>${amountInWords}</strong> નું ધિરાણ મેળવેલ છે.
+                    </div>
+                    <div style="margin-bottom:8px;">
+                        <strong>૨.</strong> સદરહુ રકમની આજરોજ મેં જુદી વચન ચિઠ્ઠી લખી છે અને ધિરાણની રકમ પર <strong>${interestRate} %</strong> ના વાર્ષિક વ્યાજ દરે, માસિક ચક્રવૃદ્ધિ લેખે ભરપાઈ કરવું છે.
+                    </div>
+                    <div style="margin-bottom:8px;">
+                        <strong>૩.</strong> સદરહુ ધિરાણની રકમ ૧ વર્ષમાં ચડત વ્યાજ સહિત બેંકને ભરપાઈ કરી આપવાની છે અને વ્યાજ દર મહિને જમા કરાવી આપવાનું છે, અન્યથા બેંક દર વર્ષે દર સેંકડે ૨.૦૦ % લેખે દંડનીય વ્યાજ સદર વ્યાજની રકમ ઉપરાંત વસુલ કરશે તે મને કબુલ-મંજુર છે.
+                    </div>
+                    <div style="margin-bottom:8px;">
+                        <strong>૪.</strong> બેંક દ્વારા વ્યાજ દરમાં વધારા / ઘટાડાની જાહેરાત બેંકના નોટીસ બોર્ડ પર કરી તેની અમલવારી જાહેરાતમાં દર્શાવેલી તારીખથી કરશે જે મને કબુલ-મંજૂર છે અને આવા વધારા / ઘટાડા અનુસાર બેંકને જે તે તારીખથી વ્યાજ ચુકવવા બંધાઉં છું.
+                    </div>
+                    <div style="margin-bottom:8px;">
+                        <strong>૫.</strong> હું બેંકનો સભાસદ / નોમિનલ સભાસદ છું અને બેંકના નિયમો તથા પેટા નિયમો વાંચ્યા અને સમજ્યા છે અને તે મને બંધનકર્તા છે અને તેમાં વખતોવખત જે ફેરફાર થાય તે પાળવા બંધાઉં છું.
+                    </div>
+                    <div style="margin-bottom:8px;">
+                        <strong>૬.</strong> મેં સોંપેલ દાગીના પર વારસનો હક છે. પરંતુ તેમને તે ખાતર કોઈપણ જાતનો વાંધો કરવાનો અધિકાર નથી.
+                    </div>
+                    <div style="margin-bottom:8px;">
+                        <strong>૭.</strong> બેંક માંગે ત્યારે ધિરાણ મેળવેલ તમામ રકમ વ્યાજ સહીત ભરપાઈ કરવાની છે અને તેમ કરવામાં હું કસુર કરું તો બેંક થાણમાં મુકેલ દાગીના વેંચી શકે છે. આવી રીતે બેંકે વેંચેલ દાગીના પરત્વે મારે કશો વાંધો રહેશે નહિ, આ અંગેની સર્વ જવાબદારી મારી રહેશે અને જે કાંઈપણ ખર્ચ થશે તે મારે શિરે રહેશે, જે મારા વંશ-વારસોને કબુલ-મંજુર છે. દાગીના વેંચાતા ઉપજેલી કિંમતમાંથી બેંક પોતાનું લ્હેણું વસુલ કરી બાકી રકમ મને આપશે અથવા મારા વારસને આપશે.
+                    </div>
+                    <div style="margin-bottom:8px;">
+                        <strong>૮.</strong> મેં થાણમાં મુકેલ દાગીના બેંક ફરીથી થાણમાં મૂકી શકશે.
+                    </div>
+                    <div style="margin-bottom:8px;">
+                        <strong>૯.</strong> મેં બેંકને થાણમાં આપેલાં દાગીનાનું સીલબંધ પેકેટ RBI ના નિર્દેશો અનુસાર રીચેકીંગના હેતુ માટે સક્ષમ અધિકારી સમક્ષ ખોલીને રીચેકીંગ કરાવી શકશે જેમાં મારી હાજરીની જરૂરી રહેશે નહીં.
+                    </div>
+                    <div style="margin-bottom:4px;">
+                        <strong>૧૦.</strong> રીઝર્વ બેંક ઓફ ઇન્ડિયાની સહકારી બેંકો ઉપર વખતોવખત જારી કરેલી ધિરાણ ખાતાઓમાં વ્યાજ ઉધારવા અંગેની સૂચનાઓ અનુસાર આ ધિરાણ ખાતામાં વ્યાજ ઉધારશે તે મને કબુલ અને બંધનકર્તા છે.
+                    </div>
+                </div>
             </div>
 
-            <!-- Date Top Right -->
-            <div style="text-align:right; font-size:14px; font-weight:700; margin-bottom:12px;">
-                તારીખ :-${dateFormatted}
+            <!-- Footer Section with Place, Date and Borrower Signature -->
+            <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:12px; padding-top:4px;">
+                <div style="font-size:13.5px; font-weight:800; line-height:1.7;">
+                    સ્થળ :- <strong>${cleanBranch}</strong><br>
+                    તારીખ :- <strong>${dateFormatted}</strong>
+                </div>
+                <div style="text-align:center; min-width:240px;">
+                    <div style="height:32px;"></div>
+                    <div style="border-bottom:2px solid #000000; width:220px; margin:0 auto 6px auto;"></div>
+                    <div style="font-size:13.5px; font-weight:800; color:#000000; text-transform:uppercase;">${borrowerName}</div>
+                </div>
             </div>
 
-            <!-- Recipient Left -->
-            <div style="font-size:14px; font-weight:700; line-height:1.6; margin-bottom:14px;">
-                પ્રતિ,<br>
-                મેનેજર સાહેબ,<br>
-                ધી જુનાગઢ કોમ. કો-ઓપ. બેંક લિ.<br>
-                ${cleanBranch} જુનાગઢ શાખા
-            </div>
-
-            <!-- Borrower Declaration Header -->
-            <div style="font-size:13.8px; line-height:1.8; text-align:justify; margin-bottom:14px;">
-                હું <strong>${borrowerName}</strong> ધંધો : <strong>${occupation}</strong>, ઉ.વ. <strong>${age}</strong>, જ્ઞાતિ <strong>${caste}</strong>, ધર્મ : <strong>${religion}</strong>, રહેવાસી : <strong>${address}</strong> નીચે પ્રમાણે લખી બંધાઉં છું કે :-
-            </div>
-
-            <!-- 10 Detailed Points -->
-            <div style="font-size:13px; line-height:1.75; text-align:justify;">
-                <div style="margin-bottom:10px;">
-                    <strong>૧.</strong> આજરોજ મારી પોતાની માલિકીના સોનાના દાગીના કે જેની નોંધ બેંક તરફથી મને મળેલ જુદી પહોંચમાં કરેલ છે, તે બેંકને થાણમાં આપી મેં રૂ. <strong>${sanctionedAmt}/-</strong> અંકે <strong>${amountInWords}</strong> નું ધિરાણ મેળવેલ છે.
-                </div>
-                <div style="margin-bottom:10px;">
-                    <strong>૨.</strong> સદરહુ રકમની આજરોજ મેં જુદી વચન ચિઠ્ઠી લખી છે અને ધિરાણની રકમ પર <strong>${interestRate} %</strong> ના વાર્ષિક વ્યાજ દરે, માસિક ચક્રવૃદ્ધિ લેખે ભરપાઈ કરવું છે.
-                </div>
-                <div style="margin-bottom:10px;">
-                    <strong>૩.</strong> સદરહુ ધિરાણની રકમ ૧ વર્ષમાં ચડત વ્યાજ સહિત બેંકને ભરપાઈ કરી આપવાની છે અને વ્યાજ દર મહિને જમા કરાવી આપવાનું છે, અન્યથા બેંક દર વર્ષે દર સેંકડે ૨.૦૦ % લેખે દંડનીય વ્યાજ સદર વ્યાજની રકમ ઉપરાંત વસુલ કરશે તે મને કબુલ-મંજુર છે.
-                </div>
-                <div style="margin-bottom:10px;">
-                    <strong>૪.</strong> બેંક દ્વારા વ્યાજ દરમાં વધારા / ઘટાડાની જાહેરાત બેંકના નોટીસ બોર્ડ પર કરી તેની અમલવારી જાહેરાતમાં દર્શાવેલી તારીખથી કરશે જે મને કબુલ-મંજૂર છે અને આવા વધારા / ઘટાડા અનુસાર બેંકને જે તે તારીખથી વ્યાજ ચુકવવા બંધાઉં છું.
-                </div>
-                <div style="margin-bottom:10px;">
-                    <strong>૫.</strong> હું બેંકનો સભાસદ / નોમિનલ સભાસદ છું અને બેંકના નિયમો તથા પેટા નિયમો વાંચ્યા અને સમજ્યા છે અને તે મને બંધનકર્તા છે અને તેમાં વખતોવખત જે ફેરફાર થાય તે પાળવા બંધાઉં છું.
-                </div>
-                <div style="margin-bottom:10px;">
-                    <strong>૬.</strong> મેં સોંપેલ દાગીના પર વારસનો હક છે. પરંતુ તેમને તે ખાતર કોઈપણ જાતનો વાંધો કરવાનો અધિકાર નથી.
-                </div>
-                <div style="margin-bottom:10px;">
-                    <strong>૭.</strong> બેંક માંગે ત્યારે ધિરાણ મેળવેલ તમામ રકમ વ્યાજ સહીત ભરપાઈ કરવાની છે અને તેમ કરવામાં હું કસુર કરું તો બેંક થાણમાં મુકેલ દાગીના વેંચી શકે છે. આવી રીતે બેંકે વેંચેલ દાગીના પરત્વે મારે કશો વાંધો રહેશે નહિ, આ અંગેની સર્વ જવાબદારી મારી રહેશે અને જે કાંઈપણ ખર્ચ થશે તે મારે શિરે રહેશે, જે મારા વંશ-વારસોને કબુલ-મંજુર છે. દાગીના વેંચાતા ઉપજેલી કિંમતમાંથી બેંક પોતાનું લ્હેણું વસુલ કરી બાકી રકમ મને આપશે અથવા મારા વારસને આપશે.
-                </div>
-                <div style="margin-bottom:10px;">
-                    <strong>૮.</strong> મેં થાણમાં મુકેલ દાગીના બેંક ફરીથી થાણમાં મૂકી શકશે.
-                </div>
-                <div style="margin-bottom:10px;">
-                    <strong>૯.</strong> મેં બેંકને થાણમાં આપેલાં દાગીનાનું સીલબંધ પેકેટ RBI ના નિર્દેશો અનુસાર રીચેકીંગના હેતુ માટે સક્ષમ અધિકારી સમક્ષ ખોલીને રીચેકીંગ કરાવી શકશે જેમાં મારી હાજરીની જરૂરી રહેશે નહીં.
-                </div>
-                <div style="margin-bottom:6px;">
-                    <strong>૧૦.</strong> રીઝર્વ બેંક ઓફ ઇન્ડિયાની સહકારી બેંકો ઉપર વખતોવખત જારી કરેલી ધિરાણ ખાતાઓમાં વ્યાજ ઉધારવા અંગેની સૂચનાઓ અનુસાર આ ધિરાણ ખાતામાં વ્યાજ ઉધારશે તે મને કબુલ અને બંધનકર્તા છે.
-                </div>
-            </div>
         </div>
-
-        <!-- Footer Section with Place, Date and Borrower Signature -->
-        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:16px; padding-top:6px;">
-            <div style="font-size:14px; font-weight:800; line-height:1.7;">
-                સ્થળ :- ${cleanBranch} જુનાગઢ<br>
-                તારીખ :-${dateFormatted}
-            </div>
-            <div style="text-align:center; min-width:260px;">
-                <div style="height:35px;"></div>
-                <div style="border-bottom:2px solid #000000; width:240px; margin:0 auto 8px auto;"></div>
-                <div style="font-size:14px; font-weight:800; color:#000000; text-transform:uppercase;">${borrowerName}</div>
-            </div>
-        </div>
-
     </div>
     `;
 }
@@ -10871,8 +10898,9 @@ function generatePage1KarajManganiHTML(loan, isPageBreak = false) {
 
     return `
     <div class="print-page print-voucher print-requisition-form ${pageBreakClass}" style="width:210mm; height:297mm; max-height:297mm; box-sizing:border-box; padding:0.50in 0.50in 0.50in 1.00in; font-family:'Outfit', 'Noto Sans Gujarati', sans-serif; color:#000000; line-height:1.65; background-color:#ffffff; font-size:11.5px; overflow:hidden;">
-        
-        <!-- Bank Header with Logo and Large Title -->
+        <div class="print-page-frame" style="border:3.5px double #000000; height:100%; max-height:271.6mm; box-sizing:border-box; padding:10px 14px; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+            <!-- Bank Header with Logo and Large Title -->
         <div style="display:flex; align-items:center; gap:12px; margin-bottom:4px;">
             <img src="${LOGO_SRC}" alt="JCCB Logo" loading="eager" decoding="sync" style="width:50px; height:50px; object-fit:contain;">
             <div style="flex:1; text-align:center;">
@@ -10996,6 +11024,7 @@ function generatePage1KarajManganiHTML(loan, isPageBreak = false) {
             </div>
         </div>
 
+        </div>
     </div>
     `;
 }
@@ -11082,8 +11111,9 @@ function generatePage2ValuationReportHTML(loan, ltv, isPageBreak = true) {
 
     return `
     <div class="print-page print-voucher print-requisition-form ${pageBreakClass}" style="width:210mm; height:297mm; max-height:297mm; box-sizing:border-box; padding:0.50in 0.50in 0.50in 1.00in; font-family:'Outfit', 'Noto Sans Gujarati', sans-serif; color:#000000; line-height:1.36; background-color:#ffffff; font-size:10.5px; overflow:hidden;">
-        
-        <!-- Bank Header with Logo and Large Title -->
+        <div class="print-page-frame" style="border:3.5px double #000000; height:100%; max-height:271.6mm; box-sizing:border-box; padding:8px 12px; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+            <!-- Bank Header with Logo and Large Title -->
         <div style="display:flex; align-items:center; gap:12px; margin-bottom:4px;">
             <img src="${LOGO_SRC}" alt="JCCB Logo" loading="eager" decoding="sync" style="width:48px; height:48px; object-fit:contain;">
             <div style="flex:1; text-align:center;">
@@ -11252,6 +11282,7 @@ function generatePage2ValuationReportHTML(loan, ltv, isPageBreak = true) {
             </div>
         </div>
 
+        </div>
     </div>
     `;
 }
@@ -11338,8 +11369,9 @@ function generatePage3ReceiptsHTML(loan, isPageBreak = true) {
 
     return `
     <div class="print-page print-voucher print-requisition-form ${pageBreakClass}" style="width:210mm; height:297mm; max-height:297mm; box-sizing:border-box; padding:0.50in 0.50in 0.50in 1.00in; font-family:'Outfit', 'Noto Sans Gujarati', sans-serif; color:#000000; line-height:1.36; background-color:#ffffff; font-size:10.5px; overflow:hidden;">
-        
-        <!-- Bank Header with Logo and Large Title -->
+        <div class="print-page-frame" style="border:3.5px double #000000; height:100%; max-height:271.6mm; box-sizing:border-box; padding:10px 14px; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+            <!-- Bank Header with Logo and Large Title -->
         <div style="display:flex; align-items:center; gap:12px; margin-bottom:4px;">
             <img src="${LOGO_SRC}" alt="JCCB Logo" loading="eager" decoding="sync" style="width:48px; height:48px; object-fit:contain;">
             <div style="flex:1; text-align:center;">
@@ -11515,6 +11547,7 @@ function generatePage3ReceiptsHTML(loan, isPageBreak = true) {
             <strong>:: નિયમો ::</strong> (૧) આ ધિરાણની મુદત એક વર્ષની છે. (૨) વ્યાજનો દર બેંકનું બોર્ડ વખતોવખત ઠરાવશે તે લાગુ રહેશે. (૩) ખાતે ઉધારેલ માસિક વ્યાજ દર માસે જમા કરાવવાનું છે. અન્યથા ૨ % પેલન ચાર્જ વસુલવામાં આવશે. (૪) ધિરાણ લેનારે વારસદાર નીમવા ફરજીયાત છે. (૫) આ ધિરાણ અંગેના તમામ વ્યવહારો કરતી વખતે આ પહોંચ સાથે રાખવી ફરજીયાત છે. (૬) ધિરાણ લેનાર વ્યક્તિને જ દાગીના પરત સોંપવામાં આવશે.
         </div>
 
+        </div>
     </div>
     `;
 }
@@ -11602,8 +11635,9 @@ function generatePage4KFSHTML(loan, ltv, isPageBreak = false) {
 
         return `
         <div class="print-page print-voucher print-requisition-form ${pageBreakClass}" style="width:210mm; height:297mm; max-height:297mm; box-sizing:border-box; padding:0.50in 0.50in 0.50in 1.00in; font-family:'Outfit', 'Segoe UI', Arial, sans-serif; color:#000000; line-height:1.2; background-color:#ffffff; font-size:8.8px; overflow:hidden;">
-            
-            <!-- Bank Header with Logo on Left -->
+            <div class="print-page-frame" style="border:3.5px double #000000; height:100%; max-height:271.6mm; box-sizing:border-box; padding:8px 12px; display:flex; flex-direction:column; justify-content:space-between;">
+                <div>
+                <!-- Bank Header with Logo on Left -->
             <div style="display:flex; align-items:center; gap:10px; margin-bottom:2px;">
                 <img src="${LOGO_SRC}" alt="JCCB Logo" loading="eager" decoding="sync" style="width:38px; height:38px; object-fit:contain;">
                 <div style="flex:1; text-align:center;">
@@ -11776,6 +11810,7 @@ function generatePage4KFSHTML(loan, ltv, isPageBreak = false) {
                 </div>
             </div>
 
+            </div>
         </div>
         `;
     }
@@ -11789,9 +11824,10 @@ function generatePage4KFSHTML(loan, ltv, isPageBreak = false) {
         const totalPayable = emiAmt * tenureMonths;
 
         return `
-        <div class="print-page print-voucher print-requisition-form ${pageBreakClass}" style="width:100%; box-sizing:border-box; font-family:'Outfit', 'Segoe UI', Arial, sans-serif; color:#000000; line-height:1.25; background-color:#ffffff; font-size:10px;">
-            
-            <!-- Bank Header with Logo on Left -->
+        <div class="print-page print-voucher print-requisition-form ${pageBreakClass}" style="width:210mm; height:297mm; max-height:297mm; box-sizing:border-box; padding:0.50in 0.50in 0.50in 1.00in; font-family:'Outfit', 'Segoe UI', Arial, sans-serif; color:#000000; line-height:1.25; background-color:#ffffff; font-size:10px; overflow:hidden;">
+            <div class="print-page-frame" style="border:3.5px double #000000; height:100%; max-height:271.6mm; box-sizing:border-box; padding:8px 12px; display:flex; flex-direction:column; justify-content:space-between;">
+                <div>
+                <!-- Bank Header with Logo on Left -->
             <div style="display:flex; align-items:center; gap:10px; margin-bottom:2px;">
                 <img src="${LOGO_SRC}" alt="JCCB Logo" loading="eager" decoding="sync" style="width:42px; height:42px; object-fit:contain;">
                 <div style="flex:1; text-align:center;">
@@ -11970,6 +12006,7 @@ function generatePage4KFSHTML(loan, ltv, isPageBreak = false) {
                 </div>
             </div>
 
+            </div>
         </div>
         `;
     }
@@ -11981,8 +12018,9 @@ function generatePage4KFSHTML(loan, ltv, isPageBreak = false) {
 
     return `
     <div class="print-page print-voucher print-requisition-form ${pageBreakClass}" style="width:210mm; height:297mm; max-height:297mm; box-sizing:border-box; padding:0.50in 0.50in 0.50in 1.00in; font-family:'Outfit', 'Segoe UI', Arial, sans-serif; color:#000000; line-height:1.2; background-color:#ffffff; font-size:8.8px; overflow:hidden;">
-        
-        <!-- Bank Header with Logo on Left -->
+        <div class="print-page-frame" style="border:3.5px double #000000; height:100%; max-height:271.6mm; box-sizing:border-box; padding:8px 12px; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+            <!-- Bank Header with Logo on Left -->
         <div style="display:flex; align-items:center; gap:10px; margin-bottom:2px;">
             <img src="${LOGO_SRC}" alt="JCCB Logo" loading="eager" decoding="sync" style="width:38px; height:38px; object-fit:contain;">
             <div style="flex:1; text-align:center;">
@@ -12159,6 +12197,7 @@ function generatePage4KFSHTML(loan, ltv, isPageBreak = false) {
             </div>
         </div>
 
+        </div>
     </div>
     `;
 }
@@ -12189,8 +12228,9 @@ function generatePage5MembershipGroupAHTML(loan, isPageBreak = false) {
 
     return `
     <div class="print-page print-voucher print-requisition-form ${pageBreakClass}" style="width:210mm; height:297mm; max-height:297mm; box-sizing:border-box; padding:0.50in 0.50in 0.50in 1.00in; font-family:'Outfit', 'Noto Sans Gujarati', Arial, sans-serif; color:#000000; line-height:1.32; background-color:#ffffff; font-size:10px; overflow:hidden;">
-        
-        <!-- Bank Header with Logo on Left -->
+        <div class="print-page-frame" style="border:3.5px double #000000; height:100%; max-height:271.6mm; box-sizing:border-box; padding:10px 14px; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+            <!-- Bank Header with Logo on Left -->
         <div style="display:flex; align-items:center; gap:12px; margin-bottom:3px;">
             <img src="${LOGO_SRC}" alt="JCCB Logo" loading="eager" decoding="sync" style="width:46px; height:46px; object-fit:contain;">
             <div style="flex:1; text-align:center;">
@@ -12370,6 +12410,7 @@ function generatePage5MembershipGroupAHTML(loan, isPageBreak = false) {
             નોંધ : સભાસદ અરજી સાથે વ્યક્તિ / ભાગીદારોના ફોટા જોડવાં.
         </div>
 
+        </div>
     </div>
     `;
 }
@@ -12398,8 +12439,9 @@ function generatePage5MembershipGroupBHTML(loan, isPageBreak = false) {
 
     return `
     <div class="print-page print-voucher print-requisition-form ${pageBreakClass}" style="width:210mm; height:297mm; max-height:297mm; box-sizing:border-box; padding:0.50in 0.50in 0.50in 1.00in; font-family:'Outfit', 'Noto Sans Gujarati', Arial, sans-serif; color:#000000; line-height:1.32; background-color:#ffffff; font-size:10px; overflow:hidden;">
-        
-        <!-- Bank Header with Logo on Left -->
+        <div class="print-page-frame" style="border:3.5px double #000000; height:100%; max-height:271.6mm; box-sizing:border-box; padding:10px 14px; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+            <!-- Bank Header with Logo on Left -->
         <div style="display:flex; align-items:center; gap:12px; margin-bottom:3px;">
             <img src="${LOGO_SRC}" alt="JCCB Logo" loading="eager" decoding="sync" style="width:46px; height:46px; object-fit:contain;">
             <div style="flex:1; text-align:center;">
@@ -12579,6 +12621,7 @@ function generatePage5MembershipGroupBHTML(loan, isPageBreak = false) {
             નોંધ : સભાસદ અરજી સાથે વ્યક્તિ / ભાગીદારોના ફોટા જોડવાં.
         </div>
 
+        </div>
     </div>
     `;
 }

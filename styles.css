@@ -2713,7 +2713,7 @@ label.required::after,
     }
     @page {
         size: A4 portrait;
-        margin: 0.50in 0.50in 0.50in 1.00in !important; /* TOP-0.50, RIGHT-0.50, BOTTOM-0.50, LEFT-1.00 */
+        margin: 0 !important;
     }
     /* Hide screen application frame */
     body {
