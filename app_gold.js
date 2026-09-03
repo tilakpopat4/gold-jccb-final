@@ -939,6 +939,11 @@ document.addEventListener("DOMContentLoaded", () => {
                     }
                 });
             }
+
+            // Ensure all 18 branches are seeded into Firebase Firestore branches collection & settings
+            if (typeof window.FirebaseService.saveBranchesList === "function") {
+                window.FirebaseService.saveBranchesList(state.branches && state.branches.length > 0 ? state.branches : DEFAULT_BRANCHES).catch(() => {});
+            }
         }).catch(err => console.warn("[Firebase] Init warning:", err));
     }
 });
@@ -1027,6 +1032,8 @@ async function syncCloudData(isManual = false) {
                 });
                 state.branches = merged;
                 saveState();
+            } else if (Array.isArray(state.branches) && state.branches.length > 0) {
+                window.FirebaseService.saveBranchesList(state.branches).catch(() => { });
             }
         }
 

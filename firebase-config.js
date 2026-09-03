@@ -13,25 +13,26 @@ const firebaseConfig = {
   measurementId: "G-VRGC863RKH"
 };
 
-// Default static branch list used for initial seed / offline fallback
+// Default static branch list used for initial seed / offline fallback (All 18 Branches)
 const DEFAULT_JCCB_BRANCHES = [
-    { branchCode: "99", branchName: "99 HEAD OFFICE", branchNameGuj: "૯૯ હેડ ઓફિસ (મુખ્ય કચેરી)", role: "admin", roleTitle: "Head Office Super Admin", isActive: true, isHeadOffice: true, password: "Rahul#80810" },
-    { branchCode: "01", branchName: "01 AZADCHOWK BRANCH", branchNameGuj: "૦૧ આઝાદચોક શાખા", role: "branch_manager", roleTitle: "Branch Manager", isActive: true, isHeadOffice: false, password: "Admin@123" },
-    { branchCode: "02", branchName: "02 JOSHIPARA BRANCH", branchNameGuj: "૦૨ જોશીપરા શાખા", role: "branch_manager", roleTitle: "Branch Manager", isActive: true, isHeadOffice: false, password: "Admin@123" },
-    { branchCode: "03", branchName: "03 DOLATPARA BRANCH", branchNameGuj: "૦૩ દોલતપરા શાખા", role: "branch_manager", roleTitle: "Branch Manager", isActive: true, isHeadOffice: false, password: "Admin@123" },
-    { branchCode: "04", branchName: "04 KODINAR BRANCH", branchNameGuj: "૦૪ કોડીનાર શાખા", role: "branch_manager", roleTitle: "Branch Manager", isActive: true, isHeadOffice: false, password: "Admin@123" },
-    { branchCode: "05", branchName: "05 KESHOD BRANCH", branchNameGuj: "૦૫ કેશોદ શાખા", role: "branch_manager", roleTitle: "Branch Manager", isActive: true, isHeadOffice: false, password: "Admin@123" },
-    { branchCode: "06", branchName: "06 VANTHALI BRANCH", branchNameGuj: "૦૬ વંથલી શાખા", role: "branch_manager", roleTitle: "Branch Manager", isActive: true, isHeadOffice: false, password: "Admin@123" },
-    { branchCode: "07", branchName: "07 MANAVADAR BRANCH", branchNameGuj: "૦૭ માણાવદર શાખા", role: "branch_manager", roleTitle: "Branch Manager", isActive: true, isHeadOffice: false, password: "Admin@123" },
-    { branchCode: "08", branchName: "08 GANDHINAGAR BRANCH", branchNameGuj: "૦૮ ગાંધીનગર શાખા", role: "branch_manager", roleTitle: "Branch Manager", isActive: true, isHeadOffice: false, password: "Admin@123" },
-    { branchCode: "09", branchName: "09 LIMBDI BRANCH", branchNameGuj: "૦૯ લીંબડી શાખા", role: "branch_manager", roleTitle: "Branch Manager", isActive: true, isHeadOffice: false, password: "Admin@123" },
-    { branchCode: "10", branchName: "10 MENDARDA BRANCH", branchNameGuj: "૧૦ મેંદરડા શાખા", role: "branch_manager", roleTitle: "Branch Manager", isActive: true, isHeadOffice: false, password: "Admin@123" },
-    { branchCode: "11", branchName: "11 VISAVADAR BRANCH", branchNameGuj: "૧૧ વિસાવદર શાખા", role: "branch_manager", roleTitle: "Branch Manager", isActive: true, isHeadOffice: false, password: "Admin@123" },
-    { branchCode: "12", branchName: "12 JAMNAGAR BRANCH", branchNameGuj: "૧૨ જામનગર શાખા", role: "branch_manager", roleTitle: "Branch Manager", isActive: true, isHeadOffice: false, password: "Admin@123" },
-    { branchCode: "13", branchName: "13 BUS STAND BRANCH", branchNameGuj: "૧૩ બસ સ્ટેન્ડ શાખા", role: "branch_manager", roleTitle: "Branch Manager", isActive: true, isHeadOffice: false, password: "Admin@123" },
-    { branchCode: "14", branchName: "14 LATHI BRANCH", branchNameGuj: "૧૪ લાઠી શાખા", role: "branch_manager", roleTitle: "Branch Manager", isActive: true, isHeadOffice: false, password: "Admin@123" },
-    { branchCode: "16", branchName: "16 AHMEDABAD BRANCH", branchNameGuj: "૧૬ અમદાવાદ શાખા", role: "branch_manager", roleTitle: "Branch Manager", isActive: true, isHeadOffice: false, password: "Admin@123" },
-    { branchCode: "17", branchName: "17 RAJKOT BRANCH", branchNameGuj: "૧૭ રાજકોટ શાખા", role: "branch_manager", roleTitle: "Branch Manager", isActive: true, isHeadOffice: false, password: "Admin@123" }
+    { code: "99", branchCode: "99", name: "99 HEAD OFFICE", branchName: "99 HEAD OFFICE", branchNameGuj: "૯૯ હેડ ઓફિસ (મુખ્ય કચેરી)", role: "admin", roleTitle: "Head Office Super Admin", isActive: true, isHO: true, isHeadOffice: true, password: "Rahul#80810" },
+    { code: "01", branchCode: "01", name: "01 AZADCHOWK BRANCH", branchName: "01 AZADCHOWK BRANCH", branchNameGuj: "૦૧ આઝાદચોક શાખા", role: "branch_manager", roleTitle: "Branch Manager", isActive: true, isHO: false, isHeadOffice: false, password: "Admin@123" },
+    { code: "02", branchCode: "02", name: "02 JOSHIPARA BRANCH", branchName: "02 JOSHIPARA BRANCH", branchNameGuj: "૦૨ જોશીપરા શાખા", role: "branch_manager", roleTitle: "Branch Manager", isActive: true, isHO: false, isHeadOffice: false, password: "Admin@123" },
+    { code: "03", branchCode: "03", name: "03 DOLATPARA BRANCH", branchName: "03 DOLATPARA BRANCH", branchNameGuj: "૦૩ દોલતપરા શાખા", role: "branch_manager", roleTitle: "Branch Manager", isActive: true, isHO: false, isHeadOffice: false, password: "Admin@123" },
+    { code: "04", branchCode: "04", name: "04 KODINAR BRANCH", branchName: "04 KODINAR BRANCH", branchNameGuj: "૦૪ કોડીનાર શાખા", role: "branch_manager", roleTitle: "Branch Manager", isActive: true, isHO: false, isHeadOffice: false, password: "Admin@123" },
+    { code: "05", branchCode: "05", name: "05 KESHOD BRANCH", branchName: "05 KESHOD BRANCH", branchNameGuj: "૦૫ કેશોદ શાખા", role: "branch_manager", roleTitle: "Branch Manager", isActive: true, isHO: false, isHeadOffice: false, password: "Admin@123" },
+    { code: "06", branchCode: "06", name: "06 VANTHALI BRANCH", branchName: "06 VANTHALI BRANCH", branchNameGuj: "૦૬ વંથલી શાખા", role: "branch_manager", roleTitle: "Branch Manager", isActive: true, isHO: false, isHeadOffice: false, password: "Admin@123" },
+    { code: "07", branchCode: "07", name: "07 MANAVADAR BRANCH", branchName: "07 MANAVADAR BRANCH", branchNameGuj: "૦૭ માણાવદર શાખા", role: "branch_manager", roleTitle: "Branch Manager", isActive: true, isHO: false, isHeadOffice: false, password: "Admin@123" },
+    { code: "08", branchCode: "08", name: "08 GANDHINAGAR BRANCH", branchName: "08 GANDHINAGAR BRANCH", branchNameGuj: "૦૮ ગાંધીનગર શાખા", role: "branch_manager", roleTitle: "Branch Manager", isActive: true, isHO: false, isHeadOffice: false, password: "Admin@123" },
+    { code: "09", branchCode: "09", name: "09 LIMBDI BRANCH", branchName: "09 LIMBDI BRANCH", branchNameGuj: "૦૯ લીંબડી શાખા", role: "branch_manager", roleTitle: "Branch Manager", isActive: true, isHO: false, isHeadOffice: false, password: "Admin@123" },
+    { code: "10", branchCode: "10", name: "10 MENDARDA BRANCH", branchName: "10 MENDARDA BRANCH", branchNameGuj: "૧૦ મેંદરડા શાખા", role: "branch_manager", roleTitle: "Branch Manager", isActive: true, isHO: false, isHeadOffice: false, password: "Admin@123" },
+    { code: "11", branchCode: "11", name: "11 VISAVADAR BRANCH", branchName: "11 VISAVADAR BRANCH", branchNameGuj: "૧૧ વિસાવદર શાખા", role: "branch_manager", roleTitle: "Branch Manager", isActive: true, isHO: false, isHeadOffice: false, password: "Admin@123" },
+    { code: "12", branchCode: "12", name: "12 JAMNAGAR BRANCH", branchName: "12 JAMNAGAR BRANCH", branchNameGuj: "૧૨ જામનગર શાખા", role: "branch_manager", roleTitle: "Branch Manager", isActive: true, isHO: false, isHeadOffice: false, password: "Admin@123" },
+    { code: "13", branchCode: "13", name: "13 BUS STAND BRANCH", branchName: "13 BUS STAND BRANCH", branchNameGuj: "૧૩ બસ સ્ટેન્ડ શાખા", role: "branch_manager", roleTitle: "Branch Manager", isActive: true, isHO: false, isHeadOffice: false, password: "Admin@123" },
+    { code: "14", branchCode: "14", name: "14 LATHI BRANCH", branchName: "14 LATHI BRANCH", branchNameGuj: "૧૪ લાઠી શાખા", role: "branch_manager", roleTitle: "Branch Manager", isActive: true, isHO: false, isHeadOffice: false, password: "Admin@123" },
+    { code: "16", branchCode: "16", name: "16 AHMEDABAD BRANCH", branchName: "16 AHMEDABAD BRANCH", branchNameGuj: "૧૬ અમદાવાદ શાખા", role: "branch_manager", roleTitle: "Branch Manager", isActive: true, isHO: false, isHeadOffice: false, password: "Admin@123" },
+    { code: "17", branchCode: "17", name: "17 RAJKOT BRANCH", branchName: "17 RAJKOT BRANCH", branchNameGuj: "૧૭ રાજકોટ શાખા", role: "branch_manager", roleTitle: "Branch Manager", isActive: true, isHO: false, isHeadOffice: false, password: "Admin@123" },
+    { code: "18", branchCode: "18", name: "18 ZANZARDA BRANCH", branchName: "18 ZANZARDA BRANCH", branchNameGuj: "૧૮ ઝાંઝરડા શાખા", role: "branch_manager", roleTitle: "Branch Manager", isActive: true, isHO: false, isHeadOffice: false, password: "Admin@123" }
 ];
 
 const FirebaseService = {
@@ -211,17 +212,18 @@ const FirebaseService = {
     getBranches: async function() {
         if (!this.db) return DEFAULT_JCCB_BRANCHES;
         try {
-            const snapshot = await this.db.collection('branches').orderBy('branchCode').get();
-            if (snapshot.empty) {
-                // If branches collection is empty, seed defaults
-                console.log("[Firebase] Seeding initial branch master list...");
+            const snapshot = await this.db.collection('branches').get();
+            const list = [];
+            snapshot.forEach(doc => {
+                if (doc.id !== 'undefined') {
+                    list.push({ id: doc.id, ...doc.data() });
+                }
+            });
+            if (list.length === 0) {
+                console.log("[Firebase] Seeding initial 18 branch master records into Firestore...");
                 await this.seedDefaultBranches();
                 return DEFAULT_JCCB_BRANCHES;
             }
-            const list = [];
-            snapshot.forEach(doc => {
-                list.push({ id: doc.id, ...doc.data() });
-            });
             return list;
         } catch (error) {
             console.warn("[Firebase] Error fetching branches from Firestore:", error);
@@ -230,20 +232,10 @@ const FirebaseService = {
     },
 
     /**
-     * Seed default 17 JCCB branches into Firestore
+     * Seed all 18 default JCCB branches into Firestore branches collection
      */
     seedDefaultBranches: async function() {
-        if (!this.db) return;
-        const batch = this.db.batch();
-        DEFAULT_JCCB_BRANCHES.forEach(branch => {
-            const ref = this.db.collection('branches').doc(branch.branchCode);
-            batch.set(ref, {
-                ...branch,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString()
-            }, { merge: true });
-        });
-        await batch.commit();
+        await this.saveBranchesList(DEFAULT_JCCB_BRANCHES);
     },
 
     /**
@@ -251,11 +243,19 @@ const FirebaseService = {
      */
     saveBranch: async function(branchData) {
         if (!this.db) throw new Error("Firestore not initialized.");
-        const branchCode = String(branchData.branchCode).padStart(2, '0');
+        const rawCode = String(branchData.code || branchData.branchCode || "01").replace(/\D/g, '');
+        const branchCode = rawCode ? rawCode.padStart(2, '0') : "01";
         const docRef = this.db.collection('branches').doc(branchCode);
         const payload = {
             ...branchData,
+            code: branchCode,
             branchCode: branchCode,
+            name: branchData.name || branchData.branchName || `Branch ${branchCode}`,
+            branchName: branchData.branchName || branchData.name || `Branch ${branchCode}`,
+            password: branchData.password || (branchCode === "99" ? "Rahul#80810" : "Admin@123"),
+            isHO: (branchCode === "99" || branchData.isHO === true || branchData.isHeadOffice === true),
+            role: (branchCode === "99" ? "admin" : (branchData.role || "branch_manager")),
+            isActive: (branchData.isActive !== false),
             updatedAt: new Date().toISOString(),
             updatedBy: this.currentUser ? this.currentUser.uid : 'ADMIN'
         };
@@ -271,7 +271,8 @@ const FirebaseService = {
      */
     deleteBranch: async function(branchCode) {
         if (!this.db) throw new Error("Firestore not initialized.");
-        await this.db.collection('branches').doc(String(branchCode)).delete();
+        const cleanCode = String(branchCode).replace(/\D/g, '').padStart(2, '0');
+        await this.db.collection('branches').doc(cleanCode).delete();
     },
 
     /**
@@ -1026,14 +1027,34 @@ const FirebaseService = {
 
     // =================================================================
     // BRANCHES, VALUERS & PRODUCTS MASTER SYNC
-    // =================================================================
-
     /**
-     * Save all branches list to Firestore
+     * Save all branches list to Firestore (Writes both settings/branchesList and individual branches/{code} documents)
      */
     saveBranchesList: async function(branchesList) {
+        if (!Array.isArray(branchesList) || branchesList.length === 0) {
+            branchesList = DEFAULT_JCCB_BRANCHES;
+        }
+
+        const normalizedList = branchesList.map(b => {
+            const rawCode = String(b.code || b.branchCode || "01").replace(/\D/g, '');
+            const bCode = rawCode ? rawCode.padStart(2, '0') : "01";
+            return {
+                ...b,
+                code: bCode,
+                branchCode: bCode,
+                name: b.name || b.branchName || `Branch ${bCode}`,
+                branchName: b.branchName || b.name || `Branch ${bCode}`,
+                password: b.password || (bCode === "99" ? "Rahul#80810" : "Admin@123"),
+                isHO: (bCode === "99" || b.isHO === true || b.isHeadOffice === true),
+                role: (bCode === "99" ? "admin" : (b.role || "branch_manager")),
+                isActive: (b.isActive !== false),
+                updatedAt: new Date().toISOString()
+            };
+        });
+
+        // 1. Bulk document in settings/branchesList
         const payload = {
-            list: branchesList,
+            list: normalizedList,
             updatedAt: new Date().toISOString()
         };
         if (this.db) {
@@ -1047,6 +1068,43 @@ const FirebaseService = {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(fsDoc)
+            });
+        } catch (e) {}
+
+        // 2. Individual documents in collection('branches') for all 18 branches
+        if (this.db) {
+            try {
+                const batch = this.db.batch();
+                // Clean up rogue undefined document
+                batch.delete(this.db.collection('branches').doc('undefined'));
+
+                normalizedList.forEach(nb => {
+                    const docRef = this.db.collection('branches').doc(nb.code);
+                    batch.set(docRef, nb, { merge: true });
+                });
+                await batch.commit();
+                console.log("[Firebase SDK] Seeded/updated all 18 branch docs in branches collection successfully!");
+            } catch (sdkErr) {
+                console.warn("[Firebase SDK] Error batch writing branch docs:", sdkErr);
+            }
+        }
+
+        // 3. REST API writes for individual branch docs (guaranteed cloud fallback)
+        normalizedList.forEach(async (nb) => {
+            try {
+                const fsDoc = this.toFirestoreDocument(nb);
+                await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/branches/${nb.code}`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(fsDoc)
+                });
+            } catch (e) {}
+        });
+
+        // Delete rogue undefined doc via REST
+        try {
+            await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/branches/undefined`, {
+                method: "DELETE"
             });
         } catch (e) {}
     },
