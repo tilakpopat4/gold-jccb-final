@@ -2760,10 +2760,7 @@ body.printing-mode #print-area {
         height: 297mm !important;
         box-sizing: border-box !important;
         border: none !important;
-        padding-top: 0.50in !important;     /* 0.50 inch Top Margin */
-        padding-left: 1.00in !important;    /* 1.00 inch Left Margin (Binding Margin) */
-        padding-right: 0.50in !important;   /* 0.50 inch Right Margin */
-        padding-bottom: 0.50in !important;  /* 0.50 inch Bottom Margin */
+        padding: 0.40in 0.50in 0.40in 0.50in !important; /* Balanced straight centering on A4 */
         margin: 0 auto !important;
         background: #ffffff !important;
         font-family: 'Outfit', 'Noto Sans Gujarati', sans-serif !important;

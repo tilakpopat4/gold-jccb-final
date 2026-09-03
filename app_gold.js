@@ -10691,13 +10691,11 @@ async function printContent(contentHtml, isLandscape = false) {
         }
         .print-page, .print-voucher, .print-requisition-form, .print-sanction-letter-page, .print-vouchers-page, .print-pledge-letter {
             width: ${bodyWidth} !important;
-            min-height: 296mm !important;
+            height: 297mm !important;
+            max-height: 297mm !important;
             box-sizing: border-box !important;
             border: none !important;
-            padding-top: 0.50in !important;     /* 0.50 inch Top Margin */
-            padding-left: 1.00in !important;    /* 1.00 inch Left Margin (Binding Margin) */
-            padding-right: 0.50in !important;   /* 0.50 inch Right Margin */
-            padding-bottom: 0.50in !important;  /* 0.50 inch Bottom Margin */
+            padding: 0.40in 0.50in 0.40in 0.50in !important; /* Perfectly straight, centered balanced margins */
             margin: 0 auto !important;
             background: #ffffff !important;
             page-break-after: always !important;
@@ -10775,8 +10773,8 @@ function generateLetterOfPledgeHTML(loan, isPageBreak = true) {
     const address = loan.address || "-";
 
     return `
-    <div class="print-page print-voucher print-pledge-letter ${pageBreakClass}" style="width:210mm; box-sizing:border-box; padding:0.50in 0.50in 0.50in 1.00in; font-family:'Outfit', 'Noto Sans Gujarati', sans-serif; color:#000000; line-height:1.75; background-color:#ffffff; font-size:13px;">
-        <div class="print-page-frame" style="border:3.5px double #000000; height:100%; max-height:271.6mm; box-sizing:border-box; padding:14px 18px; display:flex; flex-direction:column; justify-content:space-between;">
+    <div class="print-page print-voucher print-pledge-letter ${pageBreakClass}" style="width:210mm; height:297mm; box-sizing:border-box; padding:0.40in 0.50in 0.40in 0.50in; font-family:'Outfit', 'Noto Sans Gujarati', sans-serif; color:#000000; line-height:1.8; background-color:#ffffff; font-size:13px;">
+        <div class="print-page-frame" style="border:3.5px double #000000; height:100%; min-height:276mm; box-sizing:border-box; padding:16px 20px; display:flex; flex-direction:column; justify-content:space-between;">
             
             <div>
                 <!-- Title Header -->
@@ -10873,8 +10871,8 @@ function generatePage1KarajManganiHTML(loan, isPageBreak = false) {
     const photoSrc = loan.customerPhoto || loan.photo || "";
 
     return `
-    <div class="print-page print-voucher print-requisition-form ${pageBreakClass}" style="width:210mm; box-sizing:border-box; padding:0.50in 0.50in 0.50in 1.00in; font-family:'Outfit', 'Noto Sans Gujarati', sans-serif; color:#000000; line-height:1.65; background-color:#ffffff; font-size:11.5px;">
-        <div class="print-page-frame" style="border:3.5px double #000000; height:100%; max-height:271.6mm; box-sizing:border-box; padding:10px 14px; display:flex; flex-direction:column; justify-content:space-between;">
+    <div class="print-page print-voucher print-requisition-form ${pageBreakClass}" style="width:210mm; height:297mm; box-sizing:border-box; padding:0.40in 0.50in 0.40in 0.50in; font-family:'Outfit', 'Noto Sans Gujarati', sans-serif; color:#000000; line-height:1.7; background-color:#ffffff; font-size:11.8px;">
+        <div class="print-page-frame" style="border:3.5px double #000000; height:100%; min-height:276mm; box-sizing:border-box; padding:14px 18px; display:flex; flex-direction:column; justify-content:space-between;">
             <div>
             <!-- Bank Header with Logo and Large Title -->
         <div style="display:flex; align-items:center; gap:12px; margin-bottom:4px;">
@@ -11086,8 +11084,8 @@ function generatePage2ValuationReportHTML(loan, ltv, isPageBreak = true) {
     const normNetMg = totalNetMg % 1000;
 
     return `
-    <div class="print-page print-voucher print-requisition-form ${pageBreakClass}" style="width:210mm; box-sizing:border-box; padding:0.50in 0.50in 0.50in 1.00in; font-family:'Outfit', 'Noto Sans Gujarati', sans-serif; color:#000000; line-height:1.36; background-color:#ffffff; font-size:10.5px;">
-        <div class="print-page-frame" style="border:3.5px double #000000; height:100%; max-height:271.6mm; box-sizing:border-box; padding:8px 12px; display:flex; flex-direction:column; justify-content:space-between;">
+    <div class="print-page print-voucher print-requisition-form ${pageBreakClass}" style="width:210mm; height:297mm; box-sizing:border-box; padding:0.40in 0.50in 0.40in 0.50in; font-family:'Outfit', 'Noto Sans Gujarati', sans-serif; color:#000000; line-height:1.45; background-color:#ffffff; font-size:11px;">
+        <div class="print-page-frame" style="border:3.5px double #000000; height:100%; min-height:276mm; box-sizing:border-box; padding:12px 16px; display:flex; flex-direction:column; justify-content:space-between;">
             <div>
             <!-- Bank Header with Logo and Large Title -->
         <div style="display:flex; align-items:center; gap:12px; margin-bottom:4px;">
@@ -11344,8 +11342,8 @@ function generatePage3ReceiptsHTML(loan, isPageBreak = true) {
     const normNetMg = totalNetMg % 1000;
 
     return `
-    <div class="print-page print-voucher print-requisition-form ${pageBreakClass}" style="width:210mm; box-sizing:border-box; padding:0.50in 0.50in 0.50in 1.00in; font-family:'Outfit', 'Noto Sans Gujarati', sans-serif; color:#000000; line-height:1.36; background-color:#ffffff; font-size:10.5px;">
-        <div class="print-page-frame" style="border:3.5px double #000000; height:100%; max-height:271.6mm; box-sizing:border-box; padding:10px 14px; display:flex; flex-direction:column; justify-content:space-between;">
+    <div class="print-page print-voucher print-requisition-form ${pageBreakClass}" style="width:210mm; height:297mm; box-sizing:border-box; padding:0.40in 0.50in 0.40in 0.50in; font-family:'Outfit', 'Noto Sans Gujarati', sans-serif; color:#000000; line-height:1.42; background-color:#ffffff; font-size:11px;">
+        <div class="print-page-frame" style="border:3.5px double #000000; height:100%; min-height:276mm; box-sizing:border-box; padding:14px 18px; display:flex; flex-direction:column; justify-content:space-between;">
             <div>
             <!-- Bank Header with Logo and Large Title -->
         <div style="display:flex; align-items:center; gap:12px; margin-bottom:4px;">
@@ -11610,8 +11608,8 @@ function generatePage4KFSHTML(loan, ltv, isPageBreak = false) {
         const maturityDate = getMaturityDate(loan.date, 12);
 
         return `
-        <div class="print-page print-voucher print-requisition-form ${pageBreakClass}" style="width:210mm; box-sizing:border-box; padding:0.50in 0.50in 0.50in 1.00in; font-family:'Outfit', 'Segoe UI', Arial, sans-serif; color:#000000; line-height:1.2; background-color:#ffffff; font-size:8.8px;">
-            <div class="print-page-frame" style="border:3.5px double #000000; height:100%; max-height:271.6mm; box-sizing:border-box; padding:8px 12px; display:flex; flex-direction:column; justify-content:space-between;">
+        <div class="print-page print-voucher print-requisition-form ${pageBreakClass}" style="width:210mm; height:297mm; box-sizing:border-box; padding:0.40in 0.50in 0.40in 0.50in; font-family:'Outfit', 'Segoe UI', Arial, sans-serif; color:#000000; line-height:1.35; background-color:#ffffff; font-size:9.5px;">
+            <div class="print-page-frame" style="border:3.5px double #000000; height:100%; min-height:276mm; box-sizing:border-box; padding:12px 16px; display:flex; flex-direction:column; justify-content:space-between;">
                 <div>
                 <!-- Bank Header with Logo on Left -->
             <div style="display:flex; align-items:center; gap:10px; margin-bottom:2px;">
@@ -11800,8 +11798,8 @@ function generatePage4KFSHTML(loan, ltv, isPageBreak = false) {
         const totalPayable = emiAmt * tenureMonths;
 
         return `
-        <div class="print-page print-voucher print-requisition-form ${pageBreakClass}" style="width:210mm; box-sizing:border-box; padding:0.50in 0.50in 0.50in 1.00in; font-family:'Outfit', 'Segoe UI', Arial, sans-serif; color:#000000; line-height:1.25; background-color:#ffffff; font-size:10px;">
-            <div class="print-page-frame" style="border:3.5px double #000000; height:100%; max-height:271.6mm; box-sizing:border-box; padding:8px 12px; display:flex; flex-direction:column; justify-content:space-between;">
+        <div class="print-page print-voucher print-requisition-form ${pageBreakClass}" style="width:210mm; height:297mm; box-sizing:border-box; padding:0.40in 0.50in 0.40in 0.50in; font-family:'Outfit', 'Segoe UI', Arial, sans-serif; color:#000000; line-height:1.35; background-color:#ffffff; font-size:10px;">
+            <div class="print-page-frame" style="border:3.5px double #000000; height:100%; min-height:276mm; box-sizing:border-box; padding:12px 16px; display:flex; flex-direction:column; justify-content:space-between;">
                 <div>
                 <!-- Bank Header with Logo on Left -->
             <div style="display:flex; align-items:center; gap:10px; margin-bottom:2px;">
@@ -11993,8 +11991,8 @@ function generatePage4KFSHTML(loan, ltv, isPageBreak = false) {
     const totalPayable = sanctionedAmt + totalInterest;
 
     return `
-    <div class="print-page print-voucher print-requisition-form ${pageBreakClass}" style="width:210mm; box-sizing:border-box; padding:0.50in 0.50in 0.50in 1.00in; font-family:'Outfit', 'Segoe UI', Arial, sans-serif; color:#000000; line-height:1.2; background-color:#ffffff; font-size:8.8px;">
-        <div class="print-page-frame" style="border:3.5px double #000000; height:100%; max-height:271.6mm; box-sizing:border-box; padding:8px 12px; display:flex; flex-direction:column; justify-content:space-between;">
+    <div class="print-page print-voucher print-requisition-form ${pageBreakClass}" style="width:210mm; height:297mm; box-sizing:border-box; padding:0.40in 0.50in 0.40in 0.50in; font-family:'Outfit', 'Segoe UI', Arial, sans-serif; color:#000000; line-height:1.35; background-color:#ffffff; font-size:9.5px;">
+        <div class="print-page-frame" style="border:3.5px double #000000; height:100%; min-height:276mm; box-sizing:border-box; padding:12px 16px; display:flex; flex-direction:column; justify-content:space-between;">
             <div>
             <!-- Bank Header with Logo on Left -->
         <div style="display:flex; align-items:center; gap:10px; margin-bottom:2px;">
@@ -12203,8 +12201,8 @@ function generatePage5MembershipGroupAHTML(loan, isPageBreak = false) {
     const loanAccFormatted = formatLoanAccountNo(loan.accountNo, loan.branchCode, loan.loanType);
 
     return `
-    <div class="print-page print-voucher print-requisition-form ${pageBreakClass}" style="width:210mm; box-sizing:border-box; padding:0.50in 0.50in 0.50in 1.00in; font-family:'Outfit', 'Noto Sans Gujarati', Arial, sans-serif; color:#000000; line-height:1.32; background-color:#ffffff; font-size:10px;">
-        <div class="print-page-frame" style="border:3.5px double #000000; height:100%; max-height:271.6mm; box-sizing:border-box; padding:10px 14px; display:flex; flex-direction:column; justify-content:space-between;">
+    <div class="print-page print-voucher print-requisition-form ${pageBreakClass}" style="width:210mm; height:297mm; box-sizing:border-box; padding:0.40in 0.50in 0.40in 0.50in; font-family:'Outfit', 'Noto Sans Gujarati', Arial, sans-serif; color:#000000; line-height:1.42; background-color:#ffffff; font-size:10.5px;">
+        <div class="print-page-frame" style="border:3.5px double #000000; height:100%; min-height:276mm; box-sizing:border-box; padding:14px 18px; display:flex; flex-direction:column; justify-content:space-between;">
             <div>
             <!-- Bank Header with Logo on Left -->
         <div style="display:flex; align-items:center; gap:12px; margin-bottom:3px;">
@@ -12414,8 +12412,8 @@ function generatePage5MembershipGroupBHTML(loan, isPageBreak = false) {
     const loanAccFormatted = formatLoanAccountNo(loan.accountNo, loan.branchCode, loan.loanType);
 
     return `
-    <div class="print-page print-voucher print-requisition-form ${pageBreakClass}" style="width:210mm; box-sizing:border-box; padding:0.50in 0.50in 0.50in 1.00in; font-family:'Outfit', 'Noto Sans Gujarati', Arial, sans-serif; color:#000000; line-height:1.32; background-color:#ffffff; font-size:10px;">
-        <div class="print-page-frame" style="border:3.5px double #000000; height:100%; max-height:271.6mm; box-sizing:border-box; padding:10px 14px; display:flex; flex-direction:column; justify-content:space-between;">
+    <div class="print-page print-voucher print-requisition-form ${pageBreakClass}" style="width:210mm; height:297mm; box-sizing:border-box; padding:0.40in 0.50in 0.40in 0.50in; font-family:'Outfit', 'Noto Sans Gujarati', Arial, sans-serif; color:#000000; line-height:1.42; background-color:#ffffff; font-size:10.5px;">
+        <div class="print-page-frame" style="border:3.5px double #000000; height:100%; min-height:276mm; box-sizing:border-box; padding:14px 18px; display:flex; flex-direction:column; justify-content:space-between;">
             <div>
             <!-- Bank Header with Logo on Left -->
         <div style="display:flex; align-items:center; gap:12px; margin-bottom:3px;">
