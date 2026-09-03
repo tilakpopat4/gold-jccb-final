@@ -250,7 +250,7 @@ const DEFAULT_RULES = {
         godAbove2LCap: 5000
     },
     stampDuty: {
-        exemptLimit: 49999,
+        exemptLimit: 50000,
         slabLimit: 119999,
         ratePercent: 0.25,
         roundUpMultiple: 10,
@@ -599,6 +599,9 @@ function loadState() {
             let rules = parsed.rules;
             if (!rules || !rules.membership || !rules.valuation) {
                 rules = JSON.parse(JSON.stringify(DEFAULT_RULES));
+            }
+            if (rules && rules.stampDuty && (rules.stampDuty.exemptLimit === 49999 || rules.stampDuty.exemptLimit === undefined)) {
+                rules.stampDuty.exemptLimit = 50000;
             }
             if (!Array.isArray(rules.customCharges)) {
                 rules.customCharges = [];
@@ -3286,7 +3289,7 @@ function calculateAllCharges() {
     let stampDuty = 0;
     const stRules = rules.stampDuty || DEFAULT_RULES.stampDuty;
     if (loanAmt > 0) {
-        const exempt = parseFloat(stRules.exemptLimit ?? 49999);
+        const exempt = parseFloat(stRules.exemptLimit ?? 50000);
         const slabLimit = parseFloat(stRules.slabLimit ?? 119999);
         const stRate = parseFloat(stRules.ratePercent ?? 0.25) / 100;
         const roundMult = parseFloat(stRules.roundUpMultiple ?? 10);
@@ -5864,7 +5867,7 @@ function initRulesMaster() {
                     godAbove2LCap: parseFloat(document.getElementById("rule-srv-god-cap")?.value || 5000)
                 },
                 stampDuty: {
-                    exemptLimit: parseFloat(document.getElementById("rule-stamp-exempt")?.value || 49999),
+                    exemptLimit: parseFloat(document.getElementById("rule-stamp-exempt")?.value || 50000),
                     slabLimit: parseFloat(document.getElementById("rule-stamp-limit")?.value || 119999),
                     ratePercent: parseFloat(document.getElementById("rule-stamp-rate")?.value || 0.25),
                     roundUpMultiple: parseFloat(document.getElementById("rule-stamp-round")?.value || 10),
@@ -5963,7 +5966,7 @@ function renderRulesMaster() {
     setVal("rule-sgst-rate", rules.gst?.sgstPercent ?? 9);
 
     // 5. Stamp Duty
-    setVal("rule-stamp-exempt", rules.stampDuty?.exemptLimit ?? 49999);
+    setVal("rule-stamp-exempt", rules.stampDuty?.exemptLimit ?? 50000);
     setVal("rule-stamp-limit", rules.stampDuty?.slabLimit ?? 119999);
     setVal("rule-stamp-rate", rules.stampDuty?.ratePercent ?? 0.25);
     setVal("rule-stamp-round", rules.stampDuty?.roundUpMultiple ?? 10);
