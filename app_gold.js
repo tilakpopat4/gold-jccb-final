@@ -2099,6 +2099,8 @@ function updateBranchContextUI() {
     }
 }
 
+// ==================== NAVIGATION ====================
+function initNavigation() {
     // Mobile Drawer Navigation Handlers
     const mobileToggleBtn = document.getElementById("mobile-sidebar-toggle");
     const sidebar = document.querySelector(".sidebar");
