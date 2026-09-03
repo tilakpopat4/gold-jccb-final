@@ -10197,12 +10197,13 @@ async function print4PageDocument(loan) {
             return;
         }
 
-        const sanctionedAmt = parseFloat(loan.sanctionedAmount || 0);
+        const sanctionedAmt = Math.round(parseFloat(loan.sanctionedAmount || 0));
         const valuationAmt = parseFloat(loan.valuationAmount || 0);
         const ltv = valuationAmt > 0 ? (sanctionedAmt / valuationAmt) * 100 : 75;
 
         const hasShareGroupA = parseFloat(loan.shareA || 0) > 0;
         const hasShareGroupB = parseFloat(loan.shareB || 0) > 0;
+        const hasPledgeLetter = (sanctionedAmt < 50000);
 
         // Fast pre-optimization of photos if uncompressed (>80KB)
         let custPhoto = loan.customerPhoto || loan.photo || "";
@@ -10228,6 +10229,10 @@ async function print4PageDocument(loan) {
         };
 
         let html = "";
+        // If loan amount is < 50,000, automatically attach Letter of Pledge on top
+        if (hasPledgeLetter) {
+            html += generateLetterOfPledgeHTML(loanForPrint, true);
+        }
         html += generatePage1KarajManganiHTML(loanForPrint, false);
         html += generatePage2ValuationReportHTML(loanForPrint, ltv, true);
         html += generatePage3ReceiptsHTML(loanForPrint, true);
@@ -10243,6 +10248,18 @@ async function print4PageDocument(loan) {
         alert("લોન ડોક્યુમેન્ટ્સ પ્રિન્ટ કરતી વખતે ક્ષતિ આવી: " + err.message);
     }
 }
+
+async function printLetterOfPledge(loan) {
+    try {
+        if (!loan) return;
+        const html = generateLetterOfPledgeHTML(loan, false);
+        await printContent(html);
+    } catch (err) {
+        console.error("Print Letter of Pledge Error:", err);
+        alert("લેટર ઓફ પ્લેજ પ્રિન્ટ કરતી વખતે ક્ષતિ આવી: " + err.message);
+    }
+}
+window.printLetterOfPledge = printLetterOfPledge;
 
 async function print3in1Voucher(loan) {
     try {
@@ -10678,6 +10695,103 @@ async function printContent(contentHtml, isLandscape = false) {
             window.print();
         }, 50);
     });
+}
+
+// --- Extra: લેટર ઓફ પ્લેજ (Letter of Pledge for Loans < ₹50,000) ---
+function generateLetterOfPledgeHTML(loan, isPageBreak = true) {
+    const pageBreakClass = isPageBreak ? "print-page-break" : "";
+    const sanctionedAmt = Math.round(parseFloat(loan.sanctionedAmount || 0));
+    const amountInWords = numberToGujaratiWords(sanctionedAmt);
+    const cleanBranch = getCleanBranchName(loan.branchName || "આઝાદચોક શાખા");
+    const dateFormatted = formatDateDMY(loan.date || new Date().toISOString().split("T")[0]);
+    const interestRate = parseFloat(loan.interestRate || 11.00);
+
+    const borrowerName = loan.borrowerName || "";
+    const occupation = loan.occupation || "-";
+    const age = loan.age || (loan.dob ? calculateAgeFromDOB(loan.dob, loan.date) : "-");
+    const caste = loan.caste || "-";
+    const religion = loan.religion || "-";
+    const address = loan.address || "-";
+
+    return `
+    <div class="print-page print-voucher print-pledge-letter ${pageBreakClass}" style="width:210mm; height:297mm; max-height:297mm; box-sizing:border-box; padding:0.35in 0.35in 0.35in 0.35in; font-family:'Outfit', 'Noto Sans Gujarati', sans-serif; color:#000000; line-height:1.42; background-color:#ffffff; font-size:11px; overflow:hidden;">
+        <div style="border:2.5px solid #000000; height:100%; max-height:280mm; box-sizing:border-box; padding:18px 22px; display:flex; flex-direction:column; justify-content:space-between;">
+            
+            <div>
+                <!-- Title Header -->
+                <div style="text-align:center; margin-bottom:4px;">
+                    <h2 style="font-size:18px; font-weight:800; margin:0; letter-spacing:0.5px; color:#000000;">:: લેટર ઓફ પ્લેજ ::</h2>
+                    <p style="font-size:11.5px; font-weight:700; margin:3px 0 0 0; color:#000000;">બુલેટ રિપેમેન્ટ માટે રૂ. એક લાખ વીસ હજાર સુધી)</p>
+                </div>
+
+                <!-- Date Top Right -->
+                <div style="text-align:right; font-size:11.5px; font-weight:700; margin-bottom:6px;">
+                    તારીખ :- ${dateFormatted}
+                </div>
+
+                <!-- Recipient Left -->
+                <div style="font-size:11.5px; font-weight:700; line-height:1.45; margin-bottom:8px;">
+                    પ્રતિ,<br>
+                    મેનેજર સાહેબ,<br>
+                    ધી જુનાગઢ કોમ. કો-ઓપ. બેંક લિ.<br>
+                    ${cleanBranch} જુનાગઢ શાખા
+                </div>
+
+                <!-- Borrower Declaration Header -->
+                <div style="font-size:11.2px; line-height:1.55; text-align:justify; margin-bottom:8px;">
+                    હું <strong>${borrowerName}</strong> ધંધો : <strong>${occupation}</strong>, ઉ.વ. <strong>${age}</strong>, જ્ઞાતિ <strong>${caste}</strong>, ધર્મ : <strong>${religion}</strong>, રહેવાસી : <strong>${address}</strong> નીચે પ્રમાણે લખી બંધાઉં છું કે :-
+                </div>
+
+                <!-- 10 Detailed Points -->
+                <div style="font-size:10.5px; line-height:1.46; text-align:justify;">
+                    <div style="margin-bottom:4px;">
+                        <strong>૧.</strong> આજરોજ મારી પોતાની માલિકીના સોનાના દાગીના કે જેની નોંધ બેંક તરફથી મને મળેલ જુદી પહોંચમાં કરેલ છે, તે બેંકને થાણમાં આપી મેં રૂ. <strong>${sanctionedAmt.toLocaleString("en-IN")}/-</strong> અંકે <strong>${amountInWords}</strong> નું ધિરાણ મેળવેલ છે.
+                    </div>
+                    <div style="margin-bottom:4px;">
+                        <strong>૨.</strong> સદરહુ રકમની આજરોજ મેં જુદી વચન ચિઠ્ઠી લખી છે અને ધિરાણની રકમ પર <strong>${interestRate} %</strong> ના વાર્ષિક વ્યાજ દરે, માસિક ચક્રવૃદ્ધિ લેખે ભરપાઈ કરવું છે.
+                    </div>
+                    <div style="margin-bottom:4px;">
+                        <strong>૩.</strong> સદરહુ ધિરાણની રકમ ૧ વર્ષમાં ચડત વ્યાજ સહિત બેંકને ભરપાઈ કરી આપવાની છે અને વ્યાજ દર મહિને જમા કરાવી આપવાનું છે, અન્યથા બેંક દર વર્ષે દર સેંકડે ૨.૦૦ % લેખે દંડનીય વ્યાજ સદર વ્યાજની રકમ ઉપરાંત વસુલ કરશે તે મને કબુલ-મંજુર છે.
+                    </div>
+                    <div style="margin-bottom:4px;">
+                        <strong>૪.</strong> બેંક દ્વારા વ્યાજ દરમાં વધારા / ઘટાડાની જાહેરાત બેંકના નોટીસ બોર્ડ પર કરી તેની અમલવારી જાહેરાતમાં દર્શાવેલી તારીખથી કરશે જે મને કબુલ-મંજૂર છે અને આવા વધારા / ઘટાડા અનુસાર બેંકને જે તે તારીખથી વ્યાજ ચુકવવા બંધાઉં છું.
+                    </div>
+                    <div style="margin-bottom:4px;">
+                        <strong>૫.</strong> હું બેંકનો સભાસદ / નોમિનલ સભાસદ છું અને બેંકના નિયમો તથા પેટા નિયમો વાંચ્યા અને સમજ્યા છે અને તે મને બંધનકર્તા છે અને તેમાં વખતોવખત જે ફેરફાર થાય તે પાળવા બંધાઉં છું.
+                    </div>
+                    <div style="margin-bottom:4px;">
+                        <strong>૬.</strong> મેં સોંપેલ દાગીના પર વારસનો હક છે. પરંતુ તેમને તે ખાતર કોઈપણ જાતનો વાંધો કરવાનો અધિકાર નથી.
+                    </div>
+                    <div style="margin-bottom:4px;">
+                        <strong>૭.</strong> બેંક માંગે ત્યારે ધિરાણ મેળવેલ તમામ રકમ વ્યાજ સહીત ભરપાઈ કરવાની છે અને તેમ કરવામાં હું કસુર કરું તો બેંક થાણમાં મુકેલ દાગીના વેંચી શકે છે. આવી રીતે બેંકે વેંચેલ દાગીના પરત્વે મારે કશો વાંધો રહેશે નહિ, આ અંગેની સર્વ જવાબદારી મારી રહેશે અને જે કાંઈપણ ખર્ચ થશે તે મારે શિરે રહેશે, જે મારા વંશ-વારસોને કબુલ-મંજુર છે. દાગીના વેંચાતા ઉપજેલી કિંમતમાંથી બેંક પોતાનું લ્હેણું વસુલ કરી બાકી રકમ મને આપશે અથવા મારા વારસને આપશે.
+                    </div>
+                    <div style="margin-bottom:4px;">
+                        <strong>૮.</strong> મેં થાણમાં મુકેલ દાગીના બેંક ફરીથી થાણમાં મૂકી શકશે.
+                    </div>
+                    <div style="margin-bottom:4px;">
+                        <strong>૯.</strong> મેં બેંકને થાણમાં આપેલાં દાગીનાનું સીલબંધ પેકેટ RBI ના નિર્દેશો અનુસાર રીચેકીંગના હેતુ માટે સક્ષમ અધિકારી સમક્ષ ખોલીને રીચેકીંગ કરાવી શકશે જેમાં મારી હાજરીની જરૂરી રહેશે નહીં.
+                    </div>
+                    <div style="margin-bottom:4px;">
+                        <strong>૧૦.</strong> રીઝર્વ બેંક ઓફ ઇન્ડિયાની સહકારી બેંકો ઉપર વખતોવખત જારી કરેલી ધિરાણ ખાતાઓમાં વ્યાજ ઉધારવા અંગેની સૂચનાઓ અનુસાર આ ધિરાણ ખાતામાં વ્યાજ ઉધારશે તે મને કબુલ અને બંધનકર્તા છે.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Section with Place, Date and Borrower Signature -->
+            <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:8px; padding-top:4px;">
+                <div style="font-size:11.5px; font-weight:700; line-height:1.5;">
+                    સ્થળ :- ${cleanBranch} જુનાગઢ<br>
+                    તારીખ :- ${dateFormatted}
+                </div>
+                <div style="text-align:center; min-width:220px;">
+                    <div style="font-size:14px; margin-bottom:3px; color:#111;">✍️ _______________________</div>
+                    <div style="font-size:12px; font-weight:800; color:#000;">${borrowerName}</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    `;
 }
 
 // --- Page 1: સોનાનાં દાગીનાની જામીનગીરી પર કરજ માંગણીની અરજી ---
