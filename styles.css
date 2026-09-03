@@ -3297,27 +3297,31 @@ input.admin-editable:focus, select.admin-editable:focus {
         height: 297mm !important;
         max-height: 297mm !important;
         box-sizing: border-box !important;
-        padding-top: 0.50in !important;     /* 0.50 inch (12.7mm) Top Margin */
-        padding-left: 1.00in !important;    /* 1.00 inch (25.4mm) Left Margin */
-        padding-right: 0.50in !important;   /* 0.50 inch (12.7mm) Right Margin */
-        padding-bottom: 0.50in !important;  /* 0.50 inch (12.7mm) Bottom Margin */
+        padding-top: 0.40in !important;     /* 0.40 inch (10.16mm) Top Margin */
+        padding-left: 0.85in !important;    /* 0.85 inch (21.59mm) Left Margin */
+        padding-right: 0.45in !important;   /* 0.45 inch (11.43mm) Right Margin */
+        padding-bottom: 0.40in !important;  /* 0.40 inch (10.16mm) Bottom Margin */
         margin: 0 auto !important;
         background: #ffffff !important;
         page-break-inside: avoid !important;
         break-inside: avoid !important;
+        page-break-after: always !important;
+        break-after: page !important;
         overflow: hidden !important;
+    }
+    .print-pledge-letter {
+        padding: 0.30in 0.35in 0.30in 0.35in !important;
     }
     .print-sanction-letter-page {
         width: 210mm !important;
         height: 297mm !important;
         max-height: 297mm !important;
         box-sizing: border-box !important;
-        padding-top: 0.50in !important;
-        padding-left: 1.00in !important;
-        padding-right: 0.50in !important;
-        padding-bottom: 0.50in !important;
+        padding: 0.30in 0.40in 0.30in 0.40in !important;
         page-break-inside: avoid !important;
         break-inside: avoid !important;
+        page-break-after: always !important;
+        break-after: page !important;
         overflow: hidden !important;
     }
     .print-vouchers-page {
@@ -3325,12 +3329,11 @@ input.admin-editable:focus, select.admin-editable:focus {
         height: 297mm !important;
         max-height: 297mm !important;
         box-sizing: border-box !important;
-        padding-top: 0.50in !important;
-        padding-left: 1.00in !important;
-        padding-right: 0.50in !important;
-        padding-bottom: 0.50in !important;
+        padding: 0.35in 0.45in 0.35in 0.45in !important;
         page-break-inside: avoid !important;
         break-inside: avoid !important;
+        page-break-after: always !important;
+        break-after: page !important;
         overflow: hidden !important;
     }
     .print-report-landscape-container {

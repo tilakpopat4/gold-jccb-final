@@ -10660,24 +10660,39 @@ async function printContent(contentHtml, isLandscape = false) {
                 margin: 0 !important;
                 padding: 0 !important;
             }
-            .print-page, .print-voucher, .print-requisition-form, .print-sanction-letter-page, .print-vouchers-page {
+            .print-page, .print-voucher, .print-requisition-form, .print-sanction-letter-page, .print-vouchers-page, .print-pledge-letter {
                 width: 210mm !important;
                 height: 297mm !important;
                 max-height: 297mm !important;
                 box-sizing: border-box !important;
-                padding-top: 0.50in !important;     /* 0.50 inch (12.7mm) Top Margin */
-                padding-left: 1.00in !important;    /* 1.00 inch (25.4mm) Left Margin */
-                padding-right: 0.50in !important;   /* 0.50 inch (12.7mm) Right Margin */
-                padding-bottom: 0.50in !important;  /* 0.50 inch (12.7mm) Bottom Margin */
+                padding-top: 0.40in !important;     /* 0.40 inch (10.16mm) Top Margin */
+                padding-left: 0.85in !important;    /* 0.85 inch (21.59mm) Left Margin */
+                padding-right: 0.45in !important;   /* 0.45 inch (11.43mm) Right Margin */
+                padding-bottom: 0.40in !important;  /* 0.40 inch (10.16mm) Bottom Margin */
                 margin: 0 auto !important;
                 background: #ffffff !important;
                 page-break-inside: avoid !important;
                 break-inside: avoid !important;
+                page-break-after: always !important;
+                break-after: page !important;
                 overflow: hidden !important;
+            }
+            .print-pledge-letter {
+                padding: 0.30in 0.35in 0.30in 0.35in !important;
+            }
+            .print-sanction-letter-page {
+                padding: 0.30in 0.40in 0.30in 0.40in !important;
+            }
+            .print-vouchers-page {
+                padding: 0.35in 0.45in 0.35in 0.45in !important;
             }
             .print-page-break {
                 page-break-after: always !important;
                 break-after: page !important;
+            }
+            .print-page:last-child, .print-voucher:last-child, .print-requisition-form:last-child, .print-vouchers-page:last-child, .print-report-landscape-container:last-child, .print-sanction-letter-page:last-child, .print-pledge-letter:last-child {
+                page-break-after: avoid !important;
+                break-after: avoid !important;
             }
         }
     </style>
