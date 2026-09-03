@@ -10632,128 +10632,127 @@ function initPrintModal() {
 }
 
 async function printContent(contentHtml, isLandscape = false) {
+    const landscapeMode = isLandscape || (contentHtml && contentHtml.includes("landscape"));
+    const pageSize = landscapeMode ? "A4 landscape" : "A4 portrait";
+    const bodyWidth = landscapeMode ? "297mm" : "210mm";
+
+    // Also populate #print-area as standard fallback
     let printArea = document.getElementById("print-area");
     if (!printArea) {
         printArea = document.createElement("div");
         printArea.id = "print-area";
         document.body.appendChild(printArea);
     }
+    printArea.innerHTML = contentHtml;
 
-    const landscapeMode = isLandscape || (contentHtml && contentHtml.includes("landscape"));
-    const pageSize = landscapeMode ? "A4 landscape" : "A4 portrait";
-    const bodyWidth = landscapeMode ? "297mm" : "210mm";
+    // Use isolated iframe for 100% reliable multi-page printing across all browsers
+    let printFrame = document.getElementById("jccb-print-frame");
+    if (printFrame) {
+        try { printFrame.remove(); } catch(e) {}
+    }
 
-    const printStyleHeader = `
-    <style id="loan-document-print-margins">
-            @page {
-                size: ${pageSize} !important;
-                margin: 0 !important;
-            }
-            @media print {
-                @page {
-                    size: ${pageSize} !important;
-                    margin: 0 !important;
-                }
-                *, *:before, *:after {
-                    -webkit-print-color-adjust: exact !important;
-                    print-color-adjust: exact !important;
-                    box-sizing: border-box !important;
-                }
-                html, body {
-                    width: ${bodyWidth} !important;
-                    margin: 0 !important;
-                    padding: 0 !important;
-                    background: #ffffff !important;
-                    color: #000000 !important;
-                    height: auto !important;
-                    min-height: 100% !important;
-                    overflow: visible !important;
-                }
-                #login-container, #app-container, .modal, .modal-overlay, .sync-overlay {
-                    display: none !important;
-                }
-                #print-area {
-                    display: block !important;
-                    width: ${bodyWidth} !important;
-                    margin: 0 !important;
-                    padding: 0 !important;
-                    height: auto !important;
-                    overflow: visible !important;
-                }
-                .print-page, .print-voucher, .print-requisition-form, .print-sanction-letter-page, .print-vouchers-page, .print-pledge-letter {
-                    width: 210mm !important;
-                    height: 297mm !important;
-                    box-sizing: border-box !important;
-                    border: none !important;
-                    padding-top: 0.50in !important;     /* 0.50 inch Top Margin */
-                    padding-left: 1.00in !important;    /* 1.00 inch Left Margin (Binding Margin) */
-                    padding-right: 0.50in !important;   /* 0.50 inch Right Margin */
-                    padding-bottom: 0.50in !important;  /* 0.50 inch Bottom Margin */
-                    margin: 0 auto !important;
-                    background: #ffffff !important;
-                    page-break-inside: avoid !important;
-                    break-inside: avoid !important;
-                    page-break-before: always !important;
-                    break-before: page !important;
-                    page-break-after: always !important;
-                    break-after: page !important;
-                    display: block !important;
-                    position: relative !important;
-                }
-                .print-page:first-child {
-                    page-break-before: auto !important;
-                    break-before: auto !important;
-                }
-                .print-page:last-child {
-                    page-break-after: auto !important;
-                    break-after: auto !important;
-                }
-                .print-page-frame {
-                    border: 3.5px double #000000 !important;
-                    box-sizing: border-box !important;
-                    width: 100% !important;
-                    height: 100% !important;
-                    display: flex !important;
-                    flex-direction: column !important;
-                    justify-content: space-between !important;
-                }
-            }
+    printFrame = document.createElement("iframe");
+    printFrame.id = "jccb-print-frame";
+    printFrame.style.position = "fixed";
+    printFrame.style.right = "0";
+    printFrame.style.bottom = "0";
+    printFrame.style.width = "0";
+    printFrame.style.height = "0";
+    printFrame.style.border = "0";
+    printFrame.style.visibility = "hidden";
+    document.body.appendChild(printFrame);
+
+    const frameDoc = printFrame.contentWindow.document;
+    frameDoc.open();
+    frameDoc.write(`<!DOCTYPE html>
+<html lang="gu">
+<head>
+    <meta charset="utf-8">
+    <title>JCCB Gold Loan Documents</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Noto+Sans+Gujarati:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        @page {
+            size: ${pageSize};
+            margin: 0;
+        }
+        *, *:before, *:after {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            box-sizing: border-box !important;
+        }
+        html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #ffffff !important;
+            color: #000000 !important;
+            font-family: 'Outfit', 'Noto Sans Gujarati', sans-serif !important;
+            height: auto !important;
+            overflow: visible !important;
+        }
+        .print-page, .print-voucher, .print-requisition-form, .print-sanction-letter-page, .print-vouchers-page, .print-pledge-letter {
+            width: ${bodyWidth} !important;
+            min-height: 296mm !important;
+            box-sizing: border-box !important;
+            border: none !important;
+            padding-top: 0.50in !important;     /* 0.50 inch Top Margin */
+            padding-left: 1.00in !important;    /* 1.00 inch Left Margin (Binding Margin) */
+            padding-right: 0.50in !important;   /* 0.50 inch Right Margin */
+            padding-bottom: 0.50in !important;  /* 0.50 inch Bottom Margin */
+            margin: 0 auto !important;
+            background: #ffffff !important;
+            page-break-after: always !important;
+            break-after: page !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+            display: block !important;
+            position: relative !important;
+        }
+        .print-page:last-child {
+            page-break-after: auto !important;
+            break-after: auto !important;
+        }
+        .print-page-frame {
+            border: 3.5px double #000000 !important;
+            box-sizing: border-box !important;
+            width: 100% !important;
+            min-height: 270mm !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: space-between !important;
+        }
     </style>
-    `;
+</head>
+<body>
+    ${contentHtml}
+</body>
+</html>`);
+    frameDoc.close();
 
-    printArea.innerHTML = printStyleHeader + contentHtml;
-
-    // Fast image decoding & readiness check so print preview opens instantly with all images fully rendered
-    const images = Array.from(printArea.querySelectorAll("img"));
-    if (images.length > 0) {
-        await Promise.all(images.map(img => {
+    // Fast image decoding check inside the iframe
+    const frameImages = Array.from(frameDoc.querySelectorAll("img"));
+    if (frameImages.length > 0) {
+        await Promise.all(frameImages.map(img => {
             if (img.complete) return Promise.resolve();
             if (img.decode) {
-                return img.decode().catch(() => { });
+                return img.decode().catch(() => {});
             }
             return new Promise(resolve => {
                 img.onload = resolve;
                 img.onerror = resolve;
-                setTimeout(resolve, 200);
+                setTimeout(resolve, 300);
             });
         }));
     }
 
-    // Set printing-mode class on body to ensure DOM rendering tree is 100% active before browser triggers print
-    document.body.classList.add("printing-mode");
-
-    const cleanup = () => {
-        document.body.classList.remove("printing-mode");
-        window.removeEventListener("afterprint", cleanup);
-    };
-    window.addEventListener("afterprint", cleanup);
-
-    requestAnimationFrame(() => {
-        setTimeout(() => {
+    setTimeout(() => {
+        try {
+            printFrame.contentWindow.focus();
+            printFrame.contentWindow.print();
+        } catch (err) {
+            console.warn("Iframe print failed, falling back to window.print()", err);
             window.print();
-            setTimeout(cleanup, 2000);
-        }, 100);
-    });
+        }
+    }, 150);
 }
 
 // --- Extra: લેટર ઓફ પ્લેજ (Letter of Pledge for Loans <= ₹50,000) ---
