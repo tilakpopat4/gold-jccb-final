@@ -10265,24 +10265,62 @@ async function print4PageDocument(loan) {
         // Automatic Letter of Pledge attachment if loan amount is <= 50,000
         const hasPledgeLetter = (sanctionedAmt <= 50000);
 
-        // Robust retrieval of customer and ornament photos from all possible fields
+        // Deep multi-source retrieval of customer & ornament photos (Memory -> Customer Registry -> IndexedDB -> Cloud)
         let custPhoto = loan.customerPhoto || loan.photo || loan.applicantPhoto || loan.custPhoto || "";
-        if (!custPhoto && loan.customerNo && state.customers) {
-            const matchedCust = state.customers.find(c => c.customerNo === loan.customerNo || c.id === loan.customerNo || c.customerId === loan.customerNo);
-            if (matchedCust) {
-                custPhoto = matchedCust.customerPhoto || matchedCust.photo || matchedCust.applicantPhoto || "";
-            }
-        }
         let ornPhoto = loan.ornamentPhoto || loan.goldPhoto || loan.ornamentsPhoto || "";
         if (!ornPhoto && loan.goldPhotos && Array.isArray(loan.goldPhotos) && loan.goldPhotos.length > 0) {
             ornPhoto = loan.goldPhotos[0];
         }
 
-        if (custPhoto && custPhoto.length > 150000) {
-            try { custPhoto = await compressBase64Image(custPhoto, 600, 0.88); } catch(e) {}
+        // 1. Try Customer Registry in memory
+        if (!custPhoto && loan.customerNo && Array.isArray(state.customers)) {
+            const cleanCNo = String(loan.customerNo).trim();
+            const matchedCust = state.customers.find(c => 
+                String(c.customerNo || "").trim() === cleanCNo || 
+                String(c.id || "").trim() === cleanCNo || 
+                String(c.customerId || "").trim() === cleanCNo
+            );
+            if (matchedCust) {
+                custPhoto = matchedCust.customerPhoto || matchedCust.photo || matchedCust.applicantPhoto || "";
+            }
         }
-        if (ornPhoto && ornPhoto.length > 150000) {
-            try { ornPhoto = await compressBase64Image(ornPhoto, 900, 0.88); } catch(e) {}
+
+        // 2. Try high-res photo store in IndexedDB
+        if (!custPhoto || !ornPhoto) {
+            try {
+                const idbState = await loadStateFromIndexedDB();
+                if (idbState) {
+                    if (Array.isArray(idbState.loans)) {
+                        const idbLoan = idbState.loans.find(l => l.id === loan.id || l.loanNo === loan.loanNo);
+                        if (idbLoan) {
+                            if (!custPhoto) custPhoto = idbLoan.customerPhoto || idbLoan.photo || idbLoan.applicantPhoto || idbLoan.custPhoto || "";
+                            if (!ornPhoto) ornPhoto = idbLoan.ornamentPhoto || idbLoan.goldPhoto || idbLoan.ornamentsPhoto || "";
+                            if (!ornPhoto && idbLoan.goldPhotos && idbLoan.goldPhotos.length > 0) ornPhoto = idbLoan.goldPhotos[0];
+                        }
+                    }
+                    if (!custPhoto && Array.isArray(idbState.customers) && loan.customerNo) {
+                        const cleanCNo = String(loan.customerNo).trim();
+                        const idbCust = idbState.customers.find(c => 
+                            String(c.customerNo || "").trim() === cleanCNo || 
+                            String(c.id || "").trim() === cleanCNo || 
+                            String(c.customerId || "").trim() === cleanCNo
+                        );
+                        if (idbCust) {
+                            custPhoto = idbCust.customerPhoto || idbCust.photo || idbCust.applicantPhoto || "";
+                        }
+                    }
+                }
+            } catch(e) {
+                console.warn("[Print] IndexedDB photo lookup error:", e);
+            }
+        }
+
+        // 3. Fast compression for instant print preview without memory bloat
+        if (custPhoto && custPhoto.length > 250000) {
+            try { custPhoto = await compressBase64Image(custPhoto, 600, 0.90); } catch(e) {}
+        }
+        if (ornPhoto && ornPhoto.length > 250000) {
+            try { ornPhoto = await compressBase64Image(ornPhoto, 900, 0.90); } catch(e) {}
         }
 
         const loanForPrint = {
