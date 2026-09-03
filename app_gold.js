@@ -160,24 +160,24 @@ const LOGO_SRC = "jccb-logo.png";
 
 // Bank Branches
 const DEFAULT_BRANCHES = [
-    { code: "99", name: "99 HEAD OFFICE", role: ROLES.ADMIN, isHO: true, password: "Rahul#80810", isDefaultPassword: false, passwordChanged: true },
-    { code: "01", name: "01 AZADCHOWK BRANCH", role: ROLES.BRANCH_MANAGER, isHO: false, password: "Admin@123", isDefaultPassword: true, passwordChanged: false },
-    { code: "02", name: "02 JOSHIPARA BRANCH", role: ROLES.BRANCH_MANAGER, isHO: false, password: "Admin@123", isDefaultPassword: true, passwordChanged: false },
-    { code: "03", name: "03 DOLATPARA BRANCH", role: ROLES.BRANCH_MANAGER, isHO: false, password: "Admin@123", isDefaultPassword: true, passwordChanged: false },
-    { code: "04", name: "04 KODINAR BRANCH", role: ROLES.BRANCH_MANAGER, isHO: false, password: "Admin@123", isDefaultPassword: true, passwordChanged: false },
-    { code: "05", name: "05 KESHOD BRANCH", role: ROLES.BRANCH_MANAGER, isHO: false, password: "Admin@123", isDefaultPassword: true, passwordChanged: false },
-    { code: "06", name: "06 VANTHALI BRANCH", role: ROLES.BRANCH_MANAGER, isHO: false, password: "Admin@123", isDefaultPassword: true, passwordChanged: false },
-    { code: "07", name: "07 MANAVADAR BRANCH", role: ROLES.BRANCH_MANAGER, isHO: false, password: "Admin@123", isDefaultPassword: true, passwordChanged: false },
-    { code: "08", name: "08 GANDHINAGAR BRANCH", role: ROLES.BRANCH_MANAGER, isHO: false, password: "Admin@123", isDefaultPassword: true, passwordChanged: false },
-    { code: "09", name: "09 LIMBDI BRANCH", role: ROLES.BRANCH_MANAGER, isHO: false, password: "Admin@123", isDefaultPassword: true, passwordChanged: false },
-    { code: "10", name: "10 MENDARDA BRANCH", role: ROLES.BRANCH_MANAGER, isHO: false, password: "Admin@123", isDefaultPassword: true, passwordChanged: false },
-    { code: "11", name: "11 VISAVADAR BRANCH", role: ROLES.BRANCH_MANAGER, isHO: false, password: "Admin@123", isDefaultPassword: true, passwordChanged: false },
-    { code: "12", name: "12 JAMNAGAR BRANCH", role: ROLES.BRANCH_MANAGER, isHO: false, password: "Admin@123", isDefaultPassword: true, passwordChanged: false },
-    { code: "13", name: "13 BUS STAND BRANCH", role: ROLES.BRANCH_MANAGER, isHO: false, password: "Admin@123", isDefaultPassword: true, passwordChanged: false },
-    { code: "14", name: "14 LATHI BRANCH", role: ROLES.BRANCH_MANAGER, isHO: false, password: "Admin@123", isDefaultPassword: true, passwordChanged: false },
-    { code: "16", name: "16 AHMEDABAD BRANCH", role: ROLES.BRANCH_MANAGER, isHO: false, password: "Admin@123", isDefaultPassword: true, passwordChanged: false },
-    { code: "17", name: "17 RAJKOT BRANCH", role: ROLES.BRANCH_MANAGER, isHO: false, password: "Admin@123", isDefaultPassword: true, passwordChanged: false },
-    { code: "18", name: "18 ZANZARDA BRANCH", role: ROLES.BRANCH_MANAGER, isHO: false, password: "Admin@123", isDefaultPassword: true, passwordChanged: false }
+    { code: "99", name: "99 HEAD OFFICE", shortName: "HO", nameGuj: "૯૯ હેડ ઓફિસ (મુખ્ય કચેરી)", role: ROLES.ADMIN, isHO: true, password: "Rahul#80810", isDefaultPassword: false, passwordChanged: true },
+    { code: "01", name: "01 AZADCHOWK BRANCH", shortName: "CBB", nameGuj: "૦૧ આઝાદચોક શાખા", role: ROLES.BRANCH_MANAGER, isHO: false, password: "Admin@123", isDefaultPassword: true, passwordChanged: false },
+    { code: "02", name: "02 JOSHIPARA BRANCH", shortName: "JPB", nameGuj: "૦૨ જોશીપરા શાખા", role: ROLES.BRANCH_MANAGER, isHO: false, password: "Admin@123", isDefaultPassword: true, passwordChanged: false },
+    { code: "03", name: "03 DOLATPARA BRANCH", shortName: "DPB", nameGuj: "૦૩ દોલતપરા શાખા", role: ROLES.BRANCH_MANAGER, isHO: false, password: "Admin@123", isDefaultPassword: true, passwordChanged: false },
+    { code: "04", name: "04 KODINAR BRANCH", shortName: "KDR", nameGuj: "૦૪ કોડીનાર શાખા", role: ROLES.BRANCH_MANAGER, isHO: false, password: "Admin@123", isDefaultPassword: true, passwordChanged: false },
+    { code: "05", name: "05 KESHOD BRANCH", shortName: "KSD", nameGuj: "૦૫ કેશોદ શાખા", role: ROLES.BRANCH_MANAGER, isHO: false, password: "Admin@123", isDefaultPassword: true, passwordChanged: false },
+    { code: "06", name: "06 VANTHALI BRANCH", shortName: "VTL", nameGuj: "૦૬ વંથલી શાખા", role: ROLES.BRANCH_MANAGER, isHO: false, password: "Admin@123", isDefaultPassword: true, passwordChanged: false },
+    { code: "07", name: "07 MANAVADAR BRANCH", shortName: "MNV", nameGuj: "૦૭ માણાવદર શાખા", role: ROLES.BRANCH_MANAGER, isHO: false, password: "Admin@123", isDefaultPassword: true, passwordChanged: false },
+    { code: "08", name: "08 GANDHINAGAR BRANCH", shortName: "GNB", nameGuj: "૦૮ ગાંધીનગર શાખા", role: ROLES.BRANCH_MANAGER, isHO: false, password: "Admin@123", isDefaultPassword: true, passwordChanged: false },
+    { code: "09", name: "09 LIMBDI BRANCH", shortName: "LIM", nameGuj: "૦૯ લીંબડી શાખા", role: ROLES.BRANCH_MANAGER, isHO: false, password: "Admin@123", isDefaultPassword: true, passwordChanged: false },
+    { code: "10", name: "10 MENDARDA BRANCH", shortName: "MND", nameGuj: "૧૦ મેંદરડા શાખા", role: ROLES.BRANCH_MANAGER, isHO: false, password: "Admin@123", isDefaultPassword: true, passwordChanged: false },
+    { code: "11", name: "11 VISAVADAR BRANCH", shortName: "VIS", nameGuj: "૧૧ વિસાવદર શાખા", role: ROLES.BRANCH_MANAGER, isHO: false, password: "Admin@123", isDefaultPassword: true, passwordChanged: false },
+    { code: "12", name: "12 JAMNAGAR BRANCH", shortName: "JAM", nameGuj: "૧૨ જામનગર શાખા", role: ROLES.BRANCH_MANAGER, isHO: false, password: "Admin@123", isDefaultPassword: true, passwordChanged: false },
+    { code: "13", name: "13 BUS STAND BRANCH", shortName: "STB", nameGuj: "૧૩ બસ સ્ટેન્ડ શાખા", role: ROLES.BRANCH_MANAGER, isHO: false, password: "Admin@123", isDefaultPassword: true, passwordChanged: false },
+    { code: "14", name: "14 LATHI BRANCH", shortName: "LTH", nameGuj: "૧૪ લાઠી શાખા", role: ROLES.BRANCH_MANAGER, isHO: false, password: "Admin@123", isDefaultPassword: true, passwordChanged: false },
+    { code: "16", name: "16 AHMEDABAD BRANCH", shortName: "AHM", nameGuj: "૧૬ અમદાવાદ શાખા", role: ROLES.BRANCH_MANAGER, isHO: false, password: "Admin@123", isDefaultPassword: true, passwordChanged: false },
+    { code: "17", name: "17 RAJKOT BRANCH", shortName: "RJT", nameGuj: "૧૭ રાજકોટ શાખા", role: ROLES.BRANCH_MANAGER, isHO: false, password: "Admin@123", isDefaultPassword: true, passwordChanged: false },
+    { code: "18", name: "18 ZANZARDA BRANCH", shortName: "ZAN", nameGuj: "૧૮ ઝાંઝરડા શાખા", role: ROLES.BRANCH_MANAGER, isHO: false, password: "Admin@123", isDefaultPassword: true, passwordChanged: false }
 ];
 
 // Product Schemes
@@ -3629,6 +3629,8 @@ function submitLoanEntry() {
         let loanObj = {
             id: isEditingExistingLoan && currentEditingLoanId ? currentEditingLoanId : ("GL-" + Date.now()),
             loanNo: proposalNo,
+            proposalNo: proposalNo,
+            uniqueProposalNo: proposalNo,
             date: loanDate,
             loanStatus: loanStatus,
             branchCode: branchCode,
@@ -3699,6 +3701,8 @@ function submitLoanEntry() {
                     branchCode: orig.branchCode,
                     branchName: orig.branchName,
                     loanNo: proposalNo,
+                    proposalNo: proposalNo,
+                    uniqueProposalNo: proposalNo,
                     packetNo: packetNo,
                     accountNo: accountNo
                 };
@@ -3933,12 +3937,19 @@ function getBranchProposalSeed(branchCode) {
 function getBranchFirst3Letters(branchCode) {
     const raw = branchCode ? String(branchCode).trim() : (state && state.currentSession ? String(state.currentSession.code).trim() : "99");
     const numOnly = raw.replace(/\D/g, '');
-    const bCode2 = numOnly ? numOnly.padStart(2, '0') : "99";
+    let bCode2 = "99";
+    if (numOnly) {
+        const parsed = parseInt(numOnly, 10);
+        bCode2 = isNaN(parsed) ? "99" : String(parsed).padStart(2, "0");
+    }
 
     // 1. Check state.branches shortName first (editable from Head Office)
     const branches = (state && state.branches) || DEFAULT_BRANCHES;
-    const branchObj = branches.find(b => String(b.code).replace(/\D/g, '').padStart(2, '0') === bCode2 || String(b.code) === raw)
-        || (state && state.currentSession && String(state.currentSession.code) === raw ? state.currentSession : null);
+    const branchObj = branches.find(b => {
+        const bNum = String(b.code || "").replace(/\D/g, "");
+        const bCode = bNum ? String(parseInt(bNum, 10)).padStart(2, "0") : "";
+        return bCode === bCode2 || String(b.code) === raw;
+    }) || (state && state.currentSession && String(state.currentSession.code) === raw ? state.currentSession : null);
     if (branchObj && branchObj.shortName && branchObj.shortName.trim()) {
         return branchObj.shortName.trim().toUpperCase();
     }
@@ -3951,7 +3962,7 @@ function getBranchFirst3Letters(branchCode) {
         "04": "KDR",
         "05": "KSD",
         "06": "VTL",
-        "07": "VTL",
+        "07": "MNV",
         "08": "GNB",
         "09": "LIM",
         "10": "MND",
@@ -10245,6 +10256,167 @@ function getLoanGrossAndNetWeight(loan) {
     };
 }
 
+// ==================== COMPLETE JCCB BRANCH DIRECTORY & HELPERS ====================
+
+const JCCB_BRANCH_DIRECTORY = {
+    "01": { code: "01", shortName: "CBB", nameEng: "AZADCHOWK BRANCH", nameGuj: "૦૧ આઝાદચોક શાખા", cleanEng: "Azadchowk", cleanGuj: "આઝાદચોક" },
+    "02": { code: "02", shortName: "JPB", nameEng: "JOSHIPARA BRANCH", nameGuj: "૦૨ જોશીપરા શાખા", cleanEng: "Joshipara", cleanGuj: "જોશીપરા" },
+    "03": { code: "03", shortName: "DPB", nameEng: "DOLATPARA BRANCH", nameGuj: "૦૩ દોલતપરા શાખા", cleanEng: "Dolatpara", cleanGuj: "દોલતપરા" },
+    "04": { code: "04", shortName: "KDR", nameEng: "KODINAR BRANCH", nameGuj: "૦૪ કોડીનાર શાખા", cleanEng: "Kodinar", cleanGuj: "કોડીનાર" },
+    "05": { code: "05", shortName: "KSD", nameEng: "KESHOD BRANCH", nameGuj: "૦૫ કેશોદ શાખા", cleanEng: "Keshod", cleanGuj: "કેશોદ" },
+    "06": { code: "06", shortName: "VTL", nameEng: "VANTHALI BRANCH", nameGuj: "૦૬ વંથલી શાખા", cleanEng: "Vanthali", cleanGuj: "વંથલી" },
+    "07": { code: "07", shortName: "MNV", nameEng: "MANAVADAR BRANCH", nameGuj: "૦૭ માણાવદર શાખા", cleanEng: "Manavadar", cleanGuj: "માણાવદર" },
+    "08": { code: "08", shortName: "GANDHINAGAR BRANCH", shortName: "GNB", nameEng: "GANDHINAGAR BRANCH", nameGuj: "૦૮ ગાંધીનગર શાખા", cleanEng: "Gandhinagar", cleanGuj: "ગાંધીનગર" },
+    "09": { code: "09", shortName: "LIM", nameEng: "LIMBDI BRANCH", nameGuj: "૦૯ લીંબડી શાખા", cleanEng: "Limbdi", cleanGuj: "લીંબડી" },
+    "10": { code: "10", shortName: "MND", nameEng: "MENDARDA BRANCH", nameGuj: "૧૦ મેંદરડા શાખા", cleanEng: "Mendarda", cleanGuj: "મેંદરડા" },
+    "11": { code: "11", shortName: "VIS", nameEng: "VISAVADAR BRANCH", nameGuj: "૧૧ વિસાવદર શાખા", cleanEng: "Visavadar", cleanGuj: "વિસાવદર" },
+    "12": { code: "12", shortName: "JAM", nameEng: "JAMNAGAR BRANCH", nameGuj: "૧૨ જામનગર શાખા", cleanEng: "Jamnagar", cleanGuj: "જામનગર" },
+    "13": { code: "13", shortName: "STB", nameEng: "BUS STAND BRANCH", nameGuj: "૧૩ બસ સ્ટેન્ડ શાખા", cleanEng: "Bus Stand", cleanGuj: "બસ સ્ટેન્ડ" },
+    "14": { code: "14", shortName: "LTH", nameEng: "LATHI BRANCH", nameGuj: "૧૪ લાઠી શાખા", cleanEng: "Lathi", cleanGuj: "લાઠી" },
+    "16": { code: "16", shortName: "AHM", nameEng: "AHMEDABAD BRANCH", nameGuj: "૧૬ અમદાવાદ શાખા", cleanEng: "Ahmedabad", cleanGuj: "અમદાવાદ" },
+    "17": { code: "17", shortName: "RJT", nameEng: "RAJKOT BRANCH", nameGuj: "૧૭ રાજકોટ શાખા", cleanEng: "Rajkot", cleanGuj: "રાજકોટ" },
+    "18": { code: "18", shortName: "ZAN", nameEng: "ZANZARDA BRANCH", nameGuj: "૧૮ ઝાંઝરડા શાખા", cleanEng: "Zanzarda", cleanGuj: "ઝાંઝરડા" },
+    "99": { code: "99", shortName: "HO", nameEng: "HEAD OFFICE", nameGuj: "૯૯ હેડ ઓફિસ (મુખ્ય કચેરી)", cleanEng: "Head Office", cleanGuj: "મુખ્ય કચેરી" }
+};
+
+function getBranchDetails(branchCodeOrName) {
+    const raw = String(branchCodeOrName || "").trim();
+    const numOnly = raw.replace(/\D/g, "");
+    let code2 = "";
+    if (numOnly) {
+        const parsed = parseInt(numOnly, 10);
+        code2 = isNaN(parsed) ? "" : String(parsed).padStart(2, "0");
+    }
+
+    // 1. Direct match by 2-digit code
+    if (code2 && JCCB_BRANCH_DIRECTORY[code2]) {
+        const d = JCCB_BRANCH_DIRECTORY[code2];
+        return {
+            ...d,
+            branchTitleGuj: d.nameGuj.includes("શાખા") || d.nameGuj.includes("કચેરી") ? d.nameGuj : `${d.cleanGuj} શાખા`,
+            branchTitleEng: d.nameEng.includes("BRANCH") || d.nameEng.includes("OFFICE") ? d.nameEng : `${d.cleanEng} BRANCH`
+        };
+    }
+
+    // 2. Lookup in state.branches or DEFAULT_BRANCHES
+    const branches = (state && state.branches) || DEFAULT_BRANCHES;
+    const matched = branches.find(b => {
+        const bNum = String(b.code || "").replace(/\D/g, "");
+        const bCode2 = bNum ? String(parseInt(bNum, 10)).padStart(2, "0") : "";
+        return (code2 && bCode2 === code2) ||
+            (b.name && b.name.toUpperCase().includes(raw.toUpperCase())) ||
+            (b.shortName && b.shortName.toUpperCase() === raw.toUpperCase());
+    });
+
+    if (matched) {
+        const mNum = String(matched.code || "").replace(/\D/g, "");
+        const mCode2 = mNum ? String(parseInt(mNum, 10)).padStart(2, "0") : "";
+        if (JCCB_BRANCH_DIRECTORY[mCode2]) {
+            const d = JCCB_BRANCH_DIRECTORY[mCode2];
+            return {
+                ...d,
+                branchTitleGuj: d.nameGuj.includes("શાખા") || d.nameGuj.includes("કચેરી") ? d.nameGuj : `${d.cleanGuj} શાખા`,
+                branchTitleEng: d.nameEng.includes("BRANCH") || d.nameEng.includes("OFFICE") ? d.nameEng : `${d.cleanEng} BRANCH`
+            };
+        }
+    }
+
+    // 3. Name-based search in directory
+    const upperRaw = raw.toUpperCase();
+    for (const key of Object.keys(JCCB_BRANCH_DIRECTORY)) {
+        const item = JCCB_BRANCH_DIRECTORY[key];
+        if (upperRaw.includes(item.cleanEng.toUpperCase()) || raw.includes(item.cleanGuj) || upperRaw.includes(item.shortName)) {
+            return {
+                ...item,
+                branchTitleGuj: item.nameGuj.includes("શાખા") || item.nameGuj.includes("કચેરી") ? item.nameGuj : `${item.cleanGuj} શાખા`,
+                branchTitleEng: item.nameEng.includes("BRANCH") || item.nameEng.includes("OFFICE") ? item.nameEng : `${item.cleanEng} BRANCH`
+            };
+        }
+    }
+
+    // 4. Clean fallback
+    const fallbackClean = raw.replace(/^[0-9\s_-]+/, "").replace(/\bBRANCH\b/ig, "").replace(/શાખા/g, "").trim() || "Head Office";
+    return {
+        code: code2 || "99",
+        shortName: getBranchFirst3Letters(raw),
+        nameEng: `${fallbackClean.toUpperCase()} BRANCH`,
+        nameGuj: `${fallbackClean} શાખા`,
+        cleanEng: fallbackClean,
+        cleanGuj: fallbackClean,
+        branchTitleGuj: `${fallbackClean} શાખા`,
+        branchTitleEng: `${fallbackClean.toUpperCase()} BRANCH`
+    };
+}
+
+function getCleanBranchName(name) {
+    if (!name) return "જૂનાગઢ";
+    return getBranchDetails(name).cleanGuj;
+}
+
+function getLoanProposalNo(loan) {
+    if (!loan) return "JAM/2026/0001";
+    
+    // Determine the expected branch prefix for this specific loan
+    const branchInfo = getBranchDetails(loan.branchCode || loan.branchName || (loan.accountNo ? String(loan.accountNo).substring(0, 3) : ""));
+    const expectedPrefix = branchInfo.shortName || "JAM";
+    const yearStr = loan.date ? new Date(loan.date).getFullYear() : new Date().getFullYear();
+
+    // Check existing proposal fields
+    const candidates = [
+        loan.proposalNo,
+        loan.uniqueProposalNo,
+        loan.loanNo,
+        loan.proposalNumber,
+        loan.proposal_no
+    ];
+
+    let currentProposal = "";
+    for (const cand of candidates) {
+        if (cand && typeof cand === "string" && cand.trim() && cand.trim() !== "undefined" && cand.trim() !== "null") {
+            currentProposal = cand.trim();
+            break;
+        }
+    }
+
+    if (currentProposal) {
+        // Handle format: AAA/YYYY/SERIAL or AAA/YYYY/AccountNo
+        const parts = currentProposal.split("/");
+        if (parts.length >= 3) {
+            let serial = parts.slice(2).join("/");
+            if (serial.includes("-")) {
+                const subParts = serial.split("-");
+                serial = subParts[subParts.length - 1];
+            }
+            const cleanNum = serial.replace(/\D/g, "").replace(/^0+/, "");
+            const formattedSerial = String(cleanNum || "1").padStart(4, "0");
+            return `${expectedPrefix}/${parts[1] || yearStr}/${formattedSerial}`;
+        }
+        
+        // Handle format: GL-P-xxx
+        if (currentProposal.includes("GL-P-")) {
+            const cleanNum = currentProposal.replace(/\D/g, "").replace(/^0+/, "");
+            const formattedSerial = String(cleanNum || "1").padStart(4, "0");
+            return `${expectedPrefix}/${yearStr}/${formattedSerial}`;
+        }
+
+        const cleanNum = currentProposal.replace(/\D/g, "").replace(/^0+/, "");
+        if (cleanNum) {
+            return `${expectedPrefix}/${yearStr}/${cleanNum.padStart(4, "0")}`;
+        }
+    }
+
+    // Derive from account number serial (e.g. 012-3553-00000073 -> 73 -> 0073)
+    let serial = "0001";
+    if (loan.accountNo) {
+        const parts = String(loan.accountNo).split("-");
+        const lastPart = parts[parts.length - 1].replace(/\D/g, "").replace(/^0+/, "");
+        if (lastPart) {
+            serial = lastPart.padStart(4, "0");
+        }
+    }
+    return `${expectedPrefix}/${yearStr}/${serial}`;
+}
+
 async function print4PageDocument(loan) {
     try {
         if (!loan) {
@@ -10265,14 +10437,13 @@ async function print4PageDocument(loan) {
         // Automatic Letter of Pledge attachment if loan amount is <= 50,000
         const hasPledgeLetter = (sanctionedAmt <= 50000);
 
-        // Deep multi-source retrieval of customer & ornament photos (Memory -> Customer Registry -> IndexedDB -> Cloud)
+        // Multi-source retrieval of customer & ornament photos
         let custPhoto = loan.customerPhoto || loan.photo || loan.applicantPhoto || loan.custPhoto || "";
         let ornPhoto = loan.ornamentPhoto || loan.goldPhoto || loan.ornamentsPhoto || "";
         if (!ornPhoto && loan.goldPhotos && Array.isArray(loan.goldPhotos) && loan.goldPhotos.length > 0) {
             ornPhoto = loan.goldPhotos[0];
         }
 
-        // 1. Try Customer Registry in memory
         if (!custPhoto && loan.customerNo && Array.isArray(state.customers)) {
             const cleanCNo = String(loan.customerNo).trim();
             const matchedCust = state.customers.find(c => 
@@ -10285,7 +10456,6 @@ async function print4PageDocument(loan) {
             }
         }
 
-        // 2. Try high-res photo store in IndexedDB
         if (!custPhoto || !ornPhoto) {
             try {
                 const idbState = await loadStateFromIndexedDB();
@@ -10315,7 +10485,6 @@ async function print4PageDocument(loan) {
             }
         }
 
-        // 3. Fast compression for instant print preview without memory bloat
         if (custPhoto && custPhoto.length > 250000) {
             try { custPhoto = await compressBase64Image(custPhoto, 600, 0.90); } catch(e) {}
         }
@@ -10333,27 +10502,24 @@ async function print4PageDocument(loan) {
         };
 
         let html = "";
-        // 1. If loan amount is <= 50,000, automatically attach Letter of Pledge on top (as Page 1)
+        // 1. If loan amount is <= 50,000, automatically attach Letter of Pledge on top
         if (hasPledgeLetter) {
-            // Page 1: Letter of Pledge (first page, no break before)
             html += generateLetterOfPledgeHTML(loanForPrint, false);
-            // Page 2: Karaj Mangani Application Form (break before)
             html += generatePage1KarajManganiHTML(loanForPrint, true);
         } else {
-            // Page 1: Karaj Mangani Application Form (first page, no break before)
             html += generatePage1KarajManganiHTML(loanForPrint, false);
         }
         
-        // Page 2 (or 3): Valuation Report & Demand Promissory Note
+        // Page 2: Valuation Report & Demand Promissory Note
         html += generatePage2ValuationReportHTML(loanForPrint, ltv, true);
         
-        // Page 3 (or 4): Customer Receipt & Gold Return Voucher
+        // Page 3: Customer Receipt & Gold Return Voucher
         html += generatePage3ReceiptsHTML(loanForPrint, true);
         
-        // Page 4 (or 5): Key Facts Statement (KFS)
+        // Page 4: Key Facts Statement (KFS)
         html += generatePage4KFSHTML(loanForPrint, ltv, true);
         
-        // Page 5 (or 6): Membership Application Form (Group A if shareA > 0, otherwise Group B nominal membership)
+        // Page 5: Membership Application Form
         if (hasShareGroupA) {
             html += generatePage5MembershipGroupAHTML(loanForPrint, true);
         } else {
@@ -10412,7 +10578,6 @@ async function print3in1Voucher(loan) {
 function generateSingleSanctionLetterCard(loan, copyTag, copyTitleGujarati) {
     const sanctionedAmt = parseFloat(loan.sanctionedAmount || 0);
 
-    // 1. Resolve exact original loan valuation recorded at sanction time
     let ornamentsValSum = 0;
     if (loan.ornamentsTable && Array.isArray(loan.ornamentsTable) && loan.ornamentsTable.length > 0) {
         loan.ornamentsTable.forEach(orn => {
@@ -10441,7 +10606,8 @@ function generateSingleSanctionLetterCard(loan, copyTag, copyTitleGujarati) {
     const goldWeight = wts.netWeight.toFixed(3);
     const grossWeight = wts.grossWeight.toFixed(3);
     const accFormatted = formatLoanAccountNo(loan.accountNo, loan.branchCode, loan.loanType);
-    const cleanBranch = getCleanBranchName(loan.branchName);
+    const branchInfo = getBranchDetails(loan.branchCode || loan.branchName);
+    const proposalNoFormatted = getLoanProposalNo(loan);
     const dateFormatted = formatDateDMY(loan.date);
     const sancWords = numberToGujaratiWords(sanctionedAmt);
     const netWords = numberToGujaratiWords(netDisbursed);
@@ -10449,7 +10615,6 @@ function generateSingleSanctionLetterCard(loan, copyTag, copyTitleGujarati) {
     const tenureText = (loan.loanType && String(loan.loanType).includes("3553")) ? `${loan.installments || 36} માસ (EMI)` : "૧૨ માસ (Bullet)";
     const schemeText = loan.loanType || "GW-3725";
 
-    // Deductions items array for clean table display
     const deductionsList = [];
     if (shareA + shareB > 0) deductionsList.push({ name: `શેર મૂડી (${shareA > 0 ? 'ગ્રુપ-A' : 'ગ્રુપ-B'})`, amt: shareA + shareB });
     if (memberFee > 0) deductionsList.push({ name: "સભાસદ પ્રવેશ ફી", amt: memberFee });
@@ -10484,10 +10649,10 @@ function generateSingleSanctionLetterCard(loan, copyTag, copyTitleGujarati) {
                 <img src="${LOGO_SRC}" alt="JCCB" loading="eager" decoding="sync" style="width: 38px; height: 38px; object-fit: contain; flex-shrink:0;">
                 <div>
                     <div style="font-size: 11.5px; font-weight: 900; color: #000000; letter-spacing: 0.2px; line-height: 1.15;">
-                        THE JUNAGADH COMMERCIAL CO-OPERATIVE BANK LTD. - ${cleanBranch.toUpperCase()} BRANCH
+                        THE JUNAGADH COMMERCIAL CO-OPERATIVE BANK LTD. - ${branchInfo.branchTitleEng.toUpperCase()}
                     </div>
                     <div style="font-size: 9.5px; font-weight: 700; color: #111111; line-height: 1.25; margin-top: 1px;">
-                        ધી જૂનાગઢ કોમર્શિયલ કો-ઓપરેટીવ બેંક લિ. - ${cleanBranch} શાખા &nbsp;|&nbsp; હે.ઓ. જૂનાગઢ
+                        ધી જૂનાગઢ કોમર્શિયલ કો-ઓપરેટીવ બેંક લિ. - ${branchInfo.branchTitleGuj} &nbsp;|&nbsp; હે.ઓ. જૂનાગઢ
                     </div>
                     <div style="font-size: 11.5px; font-weight: 900; color: #000000; line-height: 1.2; margin-top: 2px;">
                         તા. <strong>${dateFormatted}</strong>
@@ -10508,14 +10673,14 @@ function generateSingleSanctionLetterCard(loan, copyTag, copyTitleGujarati) {
             </span>
         </div>
 
-        <!-- 1. Unified Clean Structured Table for Loan & Borrower Particulars (Generous Row Height) -->
+        <!-- 1. Loan & Borrower Particulars -->
         <table style="width: 100%; border-collapse: collapse; border: 1.2px solid #000; margin-bottom: 2.5px; font-size: 9px; line-height: 1.32;">
             <tbody>
                 <tr style="border-bottom: 1px solid #000;">
                     <td style="border-right: 1px solid #000; padding: 3px 5px; width: 14%; font-weight: 700; background: #f8fafc;">ખાતા નંબર:</td>
                     <td style="border-right: 1px solid #000; padding: 3px 5px; width: 22%; font-weight: 900; font-size: 9.8px;">${accFormatted}</td>
                     <td style="border-right: 1px solid #000; padding: 3px 5px; width: 14%; font-weight: 700; background: #f8fafc;">દરખાસ્ત નં.:</td>
-                    <td style="border-right: 1px solid #000; padding: 3px 5px; width: 18%; font-weight: 700;">${loan.loanNo || "-"}</td>
+                    <td style="border-right: 1px solid #000; padding: 3px 5px; width: 18%; font-weight: 700;">${proposalNoFormatted}</td>
                     <td style="border-right: 1px solid #000; padding: 3px 5px; width: 14%; font-weight: 700; background: #f8fafc;">પેકેટ નંબર:</td>
                     <td style="padding: 3px 5px; width: 18%; font-weight: 800;">${loan.packetNo || "-"}</td>
                 </tr>
@@ -10548,7 +10713,7 @@ function generateSingleSanctionLetterCard(loan, copyTag, copyTitleGujarati) {
             </tbody>
         </table>
 
-        <!-- 2. Financials Section: Sanction, Itemized Deductions & Net Paid (Structured 3-column table) -->
+        <!-- 2. Financials Section -->
         <table style="width: 100%; border-collapse: collapse; border: 1.2px solid #000; margin-bottom: 2.5px; font-size: 8.8px;">
             <thead>
                 <tr style="background: #e2e8f0; border-bottom: 1.2px solid #000; font-weight: 800;">
@@ -10600,7 +10765,7 @@ function generateSingleSanctionLetterCard(loan, copyTag, copyTitleGujarati) {
             <strong>ગ્રાહક બાંહેધરી :</strong> અમોએ બેંકના સોના ધિરાણના તમામ નિયમો-શરતો વાંચી-સમજીને સ્વીકારેલ છે. ઉપરોક્ત વિગત મુજબ તમામ ખર્ચ કપાત બાદ નેટ રકમ રૂ. <strong>${Number.isInteger(netDisbursed) ? netDisbursed.toLocaleString('en-IN') : netDisbursed.toFixed(2)}/-</strong> બચત ખાતામાં જમા / રોકડેથી મળેલ છે.
         </div>
 
-        <!-- 4. Signatures (3 Distinct Columns: Borrower, Clerk, Branch Manager with Ample Height) -->
+        <!-- 4. Signatures -->
         <div style="display: flex; justify-content: space-between; align-items: flex-end; font-size: 8.8px; font-weight: 800; padding: 0 10px; margin-top: 4px;">
             <div style="text-align: center; min-width: 130px;">
                 <div style="height: 28px;"></div>
@@ -10626,21 +10791,16 @@ function generateSingleSanctionLetterCard(loan, copyTag, copyTitleGujarati) {
 function generateSanctionLetter2CopiesHTML(loan, isPageBreak = false) {
     const pageBreakClass = isPageBreak ? "print-page-break" : "";
 
-    // Copy 1: Customer Copy
     const customerCopyHtml = generateSingleSanctionLetterCard(loan, "CUSTOMER COPY", "ગ્રાહક કોપી");
-
-    // Copy 2: Bank / Loan File Copy
     const bankCopyHtml = generateSingleSanctionLetterCard(loan, "BANK / LOAN FILE COPY", "બેંક લોન ફાઇલ કોપી");
 
     return `
     <div class="print-page print-sanction-letter-page ${pageBreakClass}" style="width:210mm; box-sizing:border-box; padding:0.50in 0.50in 0.50in 1.00in; background:#ffffff; display:flex; flex-direction:column; justify-content:space-between; font-family:'Outfit', 'Noto Sans Gujarati', Arial, sans-serif;">
         
-        <!-- Top Half: Customer Copy (Exact 50% Top Half) -->
         <div class="sanction-slip-copy" style="height:129mm; max-height:129mm; border:1.3px solid #000000; border-radius:3px; padding:2mm 3.5mm; background:#ffffff; box-sizing:border-box; overflow:hidden;">
             ${customerCopyHtml}
         </div>
 
-        <!-- Scissor Cut Divider (Exact Center of A4 Page) -->
         <div class="sanction-cut-divider" style="height:5mm; display:flex; align-items:center; justify-content:center; position:relative; text-align:center; width:100%; margin:0; box-sizing:border-box;">
             <div style="border-top:1.4px dashed #000000; width:100%;"></div>
             <span style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); background:#ffffff; padding:0 12px; font-size:8.5px; color:#000000; font-weight:800; letter-spacing:0.4px; white-space:nowrap;">
@@ -10648,7 +10808,6 @@ function generateSanctionLetter2CopiesHTML(loan, isPageBreak = false) {
             </span>
         </div>
 
-        <!-- Bottom Half: Bank / Loan File Copy (Exact 50% Bottom Half) -->
         <div class="sanction-slip-copy" style="height:129mm; max-height:129mm; border:1.3px solid #000000; border-radius:3px; padding:2mm 3.5mm; background:#ffffff; box-sizing:border-box; overflow:hidden;">
             ${bankCopyHtml}
         </div>
@@ -10732,9 +10891,7 @@ function initPrintModal() {
 async function printContent(contentHtml, isLandscape = false) {
     const landscapeMode = isLandscape || (contentHtml && contentHtml.includes("landscape"));
     const pageSize = landscapeMode ? "A4 landscape" : "A4 portrait";
-    const bodyWidth = landscapeMode ? "297mm" : "210mm";
 
-    // Also populate #print-area as standard fallback
     let printArea = document.getElementById("print-area");
     if (!printArea) {
         printArea = document.createElement("div");
@@ -10743,7 +10900,6 @@ async function printContent(contentHtml, isLandscape = false) {
     }
     printArea.innerHTML = contentHtml;
 
-    // Use isolated iframe with real dimensions off-screen for 100% reliable image decoding and multi-page rendering
     let printFrame = document.getElementById("jccb-print-frame");
     if (printFrame) {
         try { printFrame.remove(); } catch(e) {}
@@ -10773,7 +10929,7 @@ async function printContent(contentHtml, isLandscape = false) {
     <style>
         @page {
             size: ${pageSize};
-            margin: 0.50in 0.50in 0.50in 1.00in; /* 1.00 inch Left (Binding Margin), 0.50 inch Top/Right/Bottom */
+            margin: 0.50in 0.50in 0.50in 1.00in;
         }
         *, *:before, *:after {
             -webkit-print-color-adjust: exact !important;
@@ -10813,17 +10969,6 @@ async function printContent(contentHtml, isLandscape = false) {
             page-break-after: auto !important;
             break-after: auto !important;
         }
-        .print-page-frame {
-            border: 3.5px double #000000 !important;
-            box-sizing: border-box !important;
-            width: 100% !important;
-            height: 100% !important;
-            min-height: 280mm !important;
-            padding: 12px 16px !important;
-            display: flex !important;
-            flex-direction: column !important;
-            justify-content: space-between !important;
-        }
         img {
             display: block !important;
             -webkit-print-color-adjust: exact !important;
@@ -10838,14 +10983,11 @@ async function printContent(contentHtml, isLandscape = false) {
 </html>`);
     frameDoc.close();
 
-    // Ensure all images are fully loaded & decoded inside the iframe
     const frameImages = Array.from(frameDoc.querySelectorAll("img"));
     if (frameImages.length > 0) {
         await Promise.all(frameImages.map(img => {
             if (img.complete && img.naturalWidth > 0) return Promise.resolve();
-            if (img.decode) {
-                return img.decode().catch(() => {});
-            }
+            if (img.decode) return img.decode().catch(() => {});
             return new Promise(resolve => {
                 img.onload = resolve;
                 img.onerror = resolve;
@@ -10873,7 +11015,7 @@ function generateLetterOfPledgeHTML(loan, isPageBreak = true) {
                    (loan.amount !== undefined && loan.amount !== null ? loan.amount : (loan.sanctionedAmt || 0)));
     const sanctionedAmt = Math.round(parseFloat(rawAmt || 0));
     const amountInWords = numberToGujaratiWords(sanctionedAmt);
-    const cleanBranch = getCleanBranchName(loan.branchName || "આઝાદચોક શાખા");
+    const branchInfo = getBranchDetails(loan.branchCode || loan.branchName);
     const dateFormatted = formatDateDMY(loan.date || new Date().toISOString().split("T")[0]);
     const interestRate = parseFloat(loan.interestRate || 11.00);
 
@@ -10886,32 +11028,26 @@ function generateLetterOfPledgeHTML(loan, isPageBreak = true) {
 
     return `
     <div class="print-page print-voucher print-pledge-letter ${pageBreakClass}">
-        <!-- TOP SECTION -->
         <div>
-            <!-- Title Header -->
             <div style="text-align:center; margin-bottom:6px;">
                 <h2 style="font-size:20px; font-weight:800; margin:0; letter-spacing:0.6px; color:#000000;">:: લેટર ઓફ પ્લેજ ::</h2>
             </div>
 
-            <!-- Date Top Right -->
             <div style="text-align:right; font-size:12px; font-weight:700; margin-bottom:6px;">
                 તારીખ :- <strong>${dateFormatted}</strong>
             </div>
 
-            <!-- Recipient Left -->
             <div style="font-size:12px; font-weight:700; line-height:1.45; margin-bottom:6px;">
                 પ્રતિ,<br>
                 મેનેજર સાહેબ,<br>
                 ધી જૂનાગઢ કોમર્શિયલ કો-ઓપરેટિવ બેંક લિ.<br>
-                શાખા :- <strong>${cleanBranch}</strong>
+                શાખા :- <strong>${branchInfo.branchTitleGuj}</strong>
             </div>
 
-            <!-- Borrower Declaration Header -->
             <div style="font-size:11.8px; line-height:1.55; text-align:justify; margin-bottom:6px;">
                 હું <strong>${borrowerName}</strong> ધંધો : <strong>${occupation}</strong>, ઉ.વ. <strong>${age}</strong>, જ્ઞાતિ <strong>${caste}</strong>, ધર્મ : <strong>${religion}</strong>, રહેવાસી : <strong>${address}</strong> નીચે પ્રમાણે લખી બંધાઉં છું કે :-
             </div>
 
-            <!-- 10 Detailed Points -->
             <div style="font-size:11.2px; line-height:1.52; text-align:justify;">
                 <div style="margin-bottom:5px;">
                     <strong>૧.</strong> આજરોજ મારી પોતાની માલિકીના સોનાના દાગીના કે જેની નોંધ બેંક તરફથી મને મળેલ જુદી પહોંચમાં કરેલ છે, તે બેંકને થાણમાં આપી મેં રૂ. <strong>${sanctionedAmt}/-</strong> અંકે <strong>${amountInWords}</strong> નું ધિરાણ મેળવેલ છે.
@@ -10946,10 +11082,9 @@ function generateLetterOfPledgeHTML(loan, isPageBreak = true) {
             </div>
         </div>
 
-        <!-- BOTTOM SECTION -->
         <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:8px; padding-top:2px;">
             <div style="font-size:12px; font-weight:800; line-height:1.55;">
-                સ્થળ :- <strong>${cleanBranch}</strong><br>
+                સ્થળ :- <strong>${branchInfo.cleanGuj}</strong><br>
                 તારીખ :- <strong>${dateFormatted}</strong>
             </div>
             <div style="text-align:center; min-width:200px;">
@@ -10976,14 +11111,12 @@ function generatePage1KarajManganiHTML(loan, isPageBreak = false) {
     const ltv = valuationAmt > 0 ? ((sanctionedAmt / valuationAmt) * 100).toFixed(2) : "75.00";
     const amountInWords = numberToGujaratiWords(sanctionedAmt);
     const purposeText = loan.purpose && loan.purpose.trim() ? loan.purpose.trim() : "ધિરાણ";
-    const cleanBranch = getCleanBranchName(loan.branchName);
+    const branchInfo = getBranchDetails(loan.branchCode || loan.branchName);
     const photoSrc = loan.customerPhoto || loan.photo || loan.applicantPhoto || loan.custPhoto || "";
 
     return `
     <div class="print-page print-voucher print-requisition-form ${pageBreakClass}">
-        <!-- TOP SECTION -->
         <div>
-            <!-- Bank Header with Logo and Large Title -->
             <div style="display:flex; align-items:center; gap:10px; margin-bottom:2px;">
                 <img src="${LOGO_SRC}" alt="JCCB Logo" loading="eager" decoding="sync" style="width:44px; height:44px; object-fit:contain;">
                 <div style="flex:1; text-align:center;">
@@ -10995,24 +11128,21 @@ function generatePage1KarajManganiHTML(loan, isPageBreak = false) {
             
             <div style="border-top:1.5px solid #000000; border-bottom:1.5px solid #000000; height:3px; margin:2px 0 6px 0;"></div>
 
-            <!-- Application Title -->
             <div style="text-align:center; margin:2px 0 6px 0;">
                 <h2 style="font-size:13.5px; font-weight:800; margin:0; text-decoration:underline;">સોનાનાં દાગીનાની જામીનગીરી પર કરજ માંગણીની અરજી</h2>
             </div>
 
-            <!-- Recipient Details and Customer Photo Box -->
             <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">
                 <div style="font-size:11px; line-height:1.45;">
                     પ્રતિ,<br>
                     મેનેજરશ્રી,<br>
                     ધી જૂનાગઢ કોમર્શિયલ કો-ઓપરેટીવ બેંક લિ.<br>
-                    <strong>${cleanBranch}</strong><br>
+                    <strong>${branchInfo.branchTitleGuj}</strong><br>
                     Customer ID : <strong>${loan.customerNo || "-"}</strong><br>
                     Membership No. : <strong>${loan.memberNo || "-"}</strong><br>
                     Saving A/c No. : <strong>${loan.savingsAc || "-"}</strong>
                 </div>
 
-                <!-- Customer Photo Box -->
                 <div style="width:84px; height:98px; border:1.5px solid #000000; border-radius:4px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:2px; box-sizing:border-box; background:#fafafa; flex-shrink:0;">
                     ${photoSrc ? `<img src="${photoSrc}" alt="Customer Photo" loading="eager" decoding="sync" style="width:100%; height:100%; object-fit:cover; border-radius:2px;">` : `<div style="font-size:9px; font-weight:700; color:#333; line-height:1.2;">અરજદારનો<br>પાસપોર્ટ સાઈઝનો<br>ફોટો</div>`}
                 </div>
@@ -11020,35 +11150,29 @@ function generatePage1KarajManganiHTML(loan, isPageBreak = false) {
 
             <div style="font-weight:700; margin-bottom:4px; font-size:11.5px;">સાહેબશ્રી,</div>
 
-            <!-- Paragraph 1: Personal Particulars -->
             <p style="text-align:justify; margin:0 0 5px 0; line-height:1.55; font-size:10.8px;">
                 સવિનય હું <strong>${loan.borrowerName}</strong> સરનામું : <strong>${loan.address || "-"}</strong>, ઉ.વ. <strong>${loan.age ? loan.age + " વર્ષ" : "-"}</strong> આશરે, ધંધો : <strong>${loan.occupation || "-"}</strong>, ધર્મે : <strong>${loan.religion || "-"}</strong> , જ્ઞાતિ : <strong>${loan.caste || "-"}</strong>, મોબાઈલ નંબર : <strong>${loan.mobile || "-"}</strong> સભાસદ નંબર : <strong>${loan.memberNo || "-"}</strong>
             </p>
 
-            <!-- Paragraph 2: Sanction Request & Legal Undertaking -->
             <p style="text-align:justify; margin:0 0 5px 0; line-height:1.55; font-size:10.8px;">
                 આ સાથે સામેલ વેલ્યુએશન રિપોર્ટ મુજબના મારી માલિકીના સોનાનાં દાગીનાની જામીનગીરી ઉપર રૂ.<strong>${sanctionedAmt.toLocaleString("en-IN")}/-</strong> નું આપની બેંકમાંથી ધિરાણ <strong>${purposeText}</strong> ના હેતુ માટે મેળવવા માટે અરજી કરું છું. આથી હું તમો બેંકને ખાતરી અને બાંહેધરી આપું છું કે બેંકને જામીનગીરીમાં આપેલ દાગીના મારી સ્વતંત્ર માલિકીના છે. મેં બેંકના સોનાના દાગીનાની જામીનગીરી પર ધિરાણના નિયમો વાંચ્યા છે જે મને કબુલ-મંજુર છે. વધુમાં હું કબુલ રાખું છું કે રિઝર્વ બેંક ઓફ ઇન્ડિયાની વખતો વખતની સૂચના પ્રમાણે બેંક વ્યાજ મારા ખાતામાં ઉધરશે જે મને મંજુર છે. બેંકને નિયમાનુસાર દસ્તાવેજો લખી આપવા હું તૈયાર છું.
             </p>
 
-            <!-- Paragraph 3: Sanction in Words & Safety Delivery -->
             <p style="text-align:justify; margin:0 0 5px 0; line-height:1.55; font-size:10.8px;">
                 આજરોજ બેંક દ્વારા મંજુર કરાયેલ રકમ રૂ. <strong>${sanctionedAmt.toLocaleString("en-IN")}/-</strong> અંકે રૂપિયા <strong>${amountInWords} પૂરા</strong> ના ધિરાણની સલામતી પેટે હું આ સાથે સામેલ વેલ્યુએશન રિપોર્ટમાં દર્શાવ્યા મુજબના મારી માલિકીના સોનાના દાગીના થાલમાં આપી બેંકને સોંપુ છું.
             </p>
 
-            <!-- Paragraph 4: Sealed Packet Procedure -->
             <p style="text-align:justify; margin:0 0 5px 0; line-height:1.55; font-size:10.8px;">
                 વેલ્યુએશન રિપોર્ટમાં દર્શાવેલા તમામ સોનાના દાગીનાઓ શરાફે મારી હાજરીમાં એક સીલબંધ પેકેટ બનાવી, એક કાગળનું લેબલ બનાવી મારી હાજરીમાં બેંકના અધિકારીની સહી કરાવી દાગીનાના પેકેટ ઉપર ચોટાડી તૈયાર થયેલ સદર સીલબંધ પેકેટમાં રાખેલ સોનાના દાગીના હું બેંકને થાલમાં આપું છું.
             </p>
 
-            <!-- Paragraph 5: Nominee -->
             <p style="text-align:justify; margin:0 0 6px 0; line-height:1.55; font-size:10.8px;">
                 ઉપરાંત આ દાગીનાના વારસદાર તરીકે હું <strong>${loan.nomineeName || "-"}</strong> સંબંધે <strong>${loan.nomineeRelation || "-"}</strong> ની નિમણુંક કરું છું.
             </p>
 
-            <!-- Location, Date & Borrower Signature -->
             <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:6px; margin-bottom:6px;">
                 <div style="font-size:11px; line-height:1.45;">
-                    સ્થળઃ- <strong>${cleanBranch}</strong><br>
+                    સ્થળઃ- <strong>${branchInfo.cleanGuj}</strong><br>
                     તારીખઃ- <strong>${formatDateDMY(loan.date)}</strong>
                 </div>
                 <div style="text-align:center;">
@@ -11062,9 +11186,7 @@ function generatePage1KarajManganiHTML(loan, isPageBreak = false) {
             </div>
         </div>
 
-        <!-- BOTTOM SECTION: OFFICE ORDER -->
         <div>
-            <!-- Office Order Divider Header -->
             <div style="display:flex; align-items:center; width:100%; margin:6px 0 5px 0;">
                 <div style="flex:1; border-top:1.5px solid #000000; border-bottom:1.5px solid #000000; height:3px;"></div>
                 <div style="padding:0 12px; font-weight:900; font-size:12.5px; letter-spacing:0.5px; white-space:nowrap; color:#000000;">
@@ -11073,7 +11195,6 @@ function generatePage1KarajManganiHTML(loan, isPageBreak = false) {
                 <div style="flex:1; border-top:1.5px solid #000000; border-bottom:1.5px solid #000000; height:3px;"></div>
             </div>
 
-            <!-- Office Table -->
             <table style="width:100%; border-collapse:collapse; border:1.2px solid #000; text-align:center; font-size:10.5px; margin-bottom:5px;">
                 <tr style="background:#f1f5f9; font-weight:700;">
                     <th style="border:1px solid #000; padding:3px 5px;">ખાતા નંબર</th>
@@ -11087,12 +11208,10 @@ function generatePage1KarajManganiHTML(loan, isPageBreak = false) {
                 </tr>
             </table>
 
-            <!-- Office Sanction Order Text -->
             <p style="font-size:10.5px; line-height:1.5; margin:4px 0 8px 0; text-align:justify;">
                 વેલ્યુએશન રિપોર્ટમાં દર્શાવ્યા મુજબના સોનાનાં દાગીના થાલમાં લઈને તેની કુલ કિંમત રૂ. <strong>${valuationAmt.toLocaleString("en-IN")}/-</strong> ના <strong>${ltv}%</strong> ટકા લેખે ધિરાણની રકમ રૂ. <strong>${sanctionedAmt.toLocaleString("en-IN")}/-</strong> અંકે રૂપિયા <strong>${amountInWords} પૂરા</strong> નો બેંકના સોનાના દાગીના સામે ધિરાણના નિયમાનુસાર ચુકાદો કરવાની મંજુરી આપવામાં આવે છે. આજરોજ ઉપરોક્ત દાગીનાનું સીલબંધ પેકેટ અરજદાર પાસેથી સંભાળી લૉકરમાં મુકેલ છે.
             </p>
 
-            <!-- Officer Signatures -->
             <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:8px;">
                 <div style="text-align:center; width:40%;">
                     <div style="display:inline-flex; align-items:flex-end; justify-content:center; gap:4px; margin-bottom:2px;">
@@ -11119,7 +11238,7 @@ function generatePage2ValuationReportHTML(loan, ltv, isPageBreak = true) {
     const pageBreakClass = isPageBreak ? "print-page-break" : "";
     const sanctionedAmt = Math.round(parseFloat(loan.sanctionedAmount || 0));
     const amountInWords = numberToGujaratiWords(sanctionedAmt);
-    const cleanBranch = getCleanBranchName(loan.branchName);
+    const branchInfo = getBranchDetails(loan.branchCode || loan.branchName);
     const activeHORate = getActiveGoldRate22K();
     const effectiveGoldRate = parseFloat(loan.goldRate22K || loan.goldRate || (state.goldRates && (state.goldRates["22K"] || state.goldRates["24K"])) || activeHORate || 72000);
     const ornamentPhotoSrc = loan.ornamentPhoto || loan.goldPhoto || loan.ornamentsPhoto || (loan.goldPhotos && loan.goldPhotos[0]) || "";
@@ -11196,9 +11315,7 @@ function generatePage2ValuationReportHTML(loan, ltv, isPageBreak = true) {
 
     return `
     <div class="print-page print-voucher print-requisition-form ${pageBreakClass}">
-        <!-- TOP SECTION: VALUATION REPORT -->
         <div>
-            <!-- Bank Header with Logo and Large Title -->
             <div style="display:flex; align-items:center; gap:10px; margin-bottom:2px;">
                 <img src="${LOGO_SRC}" alt="JCCB Logo" loading="eager" decoding="sync" style="width:44px; height:44px; object-fit:contain;">
                 <div style="flex:1; text-align:center;">
@@ -11210,18 +11327,16 @@ function generatePage2ValuationReportHTML(loan, ltv, isPageBreak = true) {
             
             <div style="border-top:1.5px solid #000000; border-bottom:1.5px solid #000000; height:3px; margin:2px 0 5px 0;"></div>
 
-            <!-- Recipient Details & Ornaments Photo Box -->
             <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:3px;">
                 <div style="font-size:10.5px; line-height:1.35;">
                     પ્રતિ, મેનેજરશ્રી,<br>
                     ધી જૂનાગઢ કોમર્શિયલ કો-ઓપરેટીવ બેંક લી.<br>
-                    <strong>${cleanBranch}</strong><br>
+                    <strong>${branchInfo.branchTitleGuj}</strong><br>
                     Customer ID : <strong>${loan.customerNo || "-"}</strong><br>
                     Membership No. : <strong>${loan.memberNo || "-"}</strong><br>
                     Saving A/c No. : <strong>${loan.savingsAc || "-"}</strong>
                 </div>
 
-                <!-- Ornaments Photo Box -->
                 <div style="width:170px; height:85px; border:1.5px solid #000000; border-radius:4px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:2px; box-sizing:border-box; background:#fafafa; flex-shrink:0;">
                     ${ornamentPhotoSrc ? `<img src="${ornamentPhotoSrc}" alt="Ornaments Photo" loading="eager" decoding="sync" style="width:100%; height:100%; object-fit:cover; border-radius:2px;">` : `<div style="font-size:10px; font-weight:700; color:#333; line-height:1.2;">સોનાના દાગીનાનો ફોટો</div>`}
                 </div>
@@ -11229,22 +11344,18 @@ function generatePage2ValuationReportHTML(loan, ltv, isPageBreak = true) {
 
             <div style="font-weight:700; margin-bottom:1px; font-size:11px;">સાહેબશ્રી,</div>
 
-            <!-- Borrower Name & Address -->
             <div style="text-align:center; font-size:11.5px; font-weight:700; margin:1px 0; line-height:1.3; color:#000000;">
                 નામ : <strong>${loan.borrowerName}</strong> &nbsp; રહે. <strong>${loan.address || "-"}</strong>
             </div>
 
-            <!-- Center Gold Market Rate Line -->
             <div style="text-align:center; font-size:11.5px; font-weight:800; margin:1px 0 3px 0; color:#000000;">
                 આજનો બજાર ભાવ રૂ. <strong>${effectiveGoldRate.toLocaleString("en-IN")}</strong>/- ૧૦ ગ્રામ શુદ્ધ સોનાનો
             </div>
 
-            <!-- Section Title -->
             <div style="text-align:center; margin:2px 0 4px 0;">
                 <h2 style="font-size:12.5px; font-weight:800; margin:0; text-decoration:underline;">સોનાનાં દાગીનાનો વેલ્યુએશન રિપોર્ટ</h2>
             </div>
 
-            <!-- Ornaments Valuation Exact-Items Table -->
             <table style="width:100%; border-collapse:collapse; border:1.5px solid #000; margin-bottom:4px; font-size:9px;">
                 <thead>
                     <tr style="background-color:#f1f5f9; text-align:center; font-weight:800;">
@@ -11280,15 +11391,13 @@ function generatePage2ValuationReportHTML(loan, ltv, isPageBreak = true) {
                 </tbody>
             </table>
 
-            <!-- Valuer Undertaking -->
             <p style="text-align:justify; margin:2px 0; font-size:10px; line-height:1.3;">
                 આથી ખાતરી આપવામાં આવે છે કે ઉપર મુજબના દાગીના મેં જોઈ તપાસી અને કાળજીપૂર્વક તેની શુદ્ધતા, વજન, દર, કિંમતની આકારણી કરેલ છે અને મેં દર્શાવેલ વિગત વાજબી છે.
             </p>
 
-            <!-- Valuer & Borrower Signatures -->
             <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:6px; margin-bottom:4px; font-size:10px;">
                 <div style="line-height:1.35;">
-                    સ્થળ : <strong>${cleanBranch}</strong><br>
+                    સ્થળ : <strong>${branchInfo.cleanGuj}</strong><br>
                     તારીખ :- <strong>${formatDateDMY(loan.date)}</strong>
                 </div>
                 <div style="text-align:center; min-width:160px;">
@@ -11302,7 +11411,6 @@ function generatePage2ValuationReportHTML(loan, ltv, isPageBreak = true) {
                 </div>
             </div>
 
-            <!-- Borrower Acceptance Undertaking -->
             <p style="text-align:justify; margin:2px 0; font-size:10px; line-height:1.3;">
                 ઉપરોક્ત વિગતે વેલ્યુઅરે જે શુદ્ધતા, વજન, દર, કિંમત આકારેલ છે તે વાજબી છે અને મને કબૂલ-મંજુર છે.
             </p>
@@ -11320,9 +11428,7 @@ function generatePage2ValuationReportHTML(loan, ltv, isPageBreak = true) {
             </div>
         </div>
 
-        <!-- BOTTOM SECTION: DEMAND PROMISSORY NOTE -->
         <div>
-            <!-- DEMAND PROMISSORY NOTE DIVIDER HEADER -->
             <div style="display:flex; align-items:center; width:100%; margin:4px 0 3px 0;">
                 <div style="flex:1; border-top:1.5px solid #000000; border-bottom:1.5px solid #000000; height:3px;"></div>
                 <div style="padding:0 10px; font-weight:800; font-size:11.5px; letter-spacing:0.5px; white-space:nowrap; color:#000000;">
@@ -11331,19 +11437,16 @@ function generatePage2ValuationReportHTML(loan, ltv, isPageBreak = true) {
                 <div style="flex:1; border-top:1.5px solid #000000; border-bottom:1.5px solid #000000; height:3px;"></div>
             </div>
 
-            <!-- Demand Promissory Note Text -->
             <p style="text-align:justify; margin:2px 0 4px 0; font-size:10px; line-height:1.4;">
-                હું <strong>${loan.borrowerName}</strong> આજરોજ મને મળેલા અવેજ બદલ રૂ. <strong>${sanctionedAmt.toLocaleString("en-IN")}/-</strong> અંકે રૂપિયા <strong>${amountInWords} પૂરા</strong> <strong>${loan.interestRate || "11.50"}%</strong> માસિક ચક્રવૃદ્ધિ વ્યાજ ગણતરી અનુસાર વાર્ષિક વ્યાજ દરે ચડત વ્યાજની રકમ સહીત જયારે માંગો ત્યારે ધી જૂનાગઢ કોમર્શિયલ કો-ઓપરેટીવ બેંક લિ. – <strong>${cleanBranch}</strong> અથવા તેનાં આદેશ અનુસાર તેની કોઈપણ શાખામાં ચૂકવી આપવાનું વચન આપું છું.
+                હું <strong>${loan.borrowerName}</strong> આજરોજ મને મળેલા અવેજ બદલ રૂ. <strong>${sanctionedAmt.toLocaleString("en-IN")}/-</strong> અંકે રૂપિયા <strong>${amountInWords} પૂરા</strong> <strong>${loan.interestRate || "11.50"}%</strong> માસિક ચક્રવૃદ્ધિ વ્યાજ ગણતરી અનુસાર વાર્ષિક વ્યાજ દરે ચડત વ્યાજની રકમ સહીત જયારે માંગો ત્યારે ધી જૂનાગઢ કોમર્શિયલ કો-ઓપરેટીવ બેંક લિ. – <strong>${branchInfo.branchTitleGuj}</strong> અથવા તેનાં આદેશ અનુસાર તેની કોઈપણ શાખામાં ચૂકવી આપવાનું વચન આપું છું.
             </p>
 
-            <!-- Promissory Note Location, Date and Double Signatures with Revenue Stamp -->
             <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:4px; font-size:10px;">
                 <div style="line-height:1.35;">
                     તારીખ :- <strong>${formatDateDMY(loan.date)}</strong><br>
-                    સ્થળ : <strong>${cleanBranch}</strong>
+                    સ્થળ : <strong>${branchInfo.cleanGuj}</strong>
                 </div>
 
-                <!-- Left Borrower Signature -->
                 <div style="text-align:center; min-width:140px;">
                     <div style="display:inline-flex; align-items:flex-end; justify-content:center; gap:4px; margin-bottom:2px; white-space:nowrap;">
                         <span style="font-weight:bold; font-size:11px;">X</span>
@@ -11353,9 +11456,7 @@ function generatePage2ValuationReportHTML(loan, ltv, isPageBreak = true) {
                     <div style="font-weight:700; font-size:9.5px;">(<strong>${loan.borrowerName}</strong>)</div>
                 </div>
 
-                <!-- Right Borrower Signature with Revenue Stamp Box -->
                 <div style="text-align:center; min-width:140px; display:flex; flex-direction:column; align-items:center;">
-                    <!-- Revenue Stamp Box -->
                     <div style="border:1.5px dashed #000000; width:44px; height:48px; display:flex; align-items:center; justify-content:center; font-size:8.5px; font-weight:800; text-align:center; margin-bottom:2px; background:#fafafa; line-height:1.15;">
                         રેવન્યુ<br>સ્ટેમ્પ
                     </div>
@@ -11376,7 +11477,7 @@ function generatePage2ValuationReportHTML(loan, ltv, isPageBreak = true) {
 function generatePage3ReceiptsHTML(loan, isPageBreak = true) {
     const pageBreakClass = isPageBreak ? "print-page-break" : "";
     const sanctionedAmt = Math.round(parseFloat(loan.sanctionedAmount || 0));
-    const cleanBranch = getCleanBranchName(loan.branchName);
+    const branchInfo = getBranchDetails(loan.branchCode || loan.branchName);
     const activeHORate = getActiveGoldRate22K();
     const effectiveGoldRate = parseFloat(loan.goldRate22K || loan.goldRate || (state.goldRates && (state.goldRates["22K"] || state.goldRates["24K"])) || activeHORate || 72000);
     const custPhotoSrc = loan.customerPhoto || loan.photo || loan.applicantPhoto || loan.custPhoto || "";
@@ -11454,9 +11555,7 @@ function generatePage3ReceiptsHTML(loan, isPageBreak = true) {
 
     return `
     <div class="print-page print-voucher print-requisition-form ${pageBreakClass}">
-        <!-- TOP SECTION: CUSTOMER RECEIPT -->
         <div>
-            <!-- Bank Header with Logo and Large Title -->
             <div style="display:flex; align-items:center; gap:10px; margin-bottom:2px;">
                 <img src="${LOGO_SRC}" alt="JCCB Logo" loading="eager" decoding="sync" style="width:44px; height:44px; object-fit:contain;">
                 <div style="flex:1; text-align:center;">
@@ -11468,24 +11567,20 @@ function generatePage3ReceiptsHTML(loan, isPageBreak = true) {
             
             <div style="border-top:1.5px solid #000000; border-bottom:1.5px solid #000000; height:3px; margin:2px 0 5px 0;"></div>
 
-            <!-- Recipient Details & Dual Photo Boxes -->
             <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:3px;">
                 <div style="font-size:10.5px; line-height:1.35;">
                     પ્રતિ, મેનેજરશ્રી,<br>
                     ધી જૂનાગઢ કોમર્શિયલ કો-ઓપરેટીવ બેંક લિ.<br>
-                    <strong>${cleanBranch}</strong><br>
+                    <strong>${branchInfo.branchTitleGuj}</strong><br>
                     Customer ID : <strong>${loan.customerNo || "-"}</strong><br>
                     Membership No. : <strong>${loan.memberNo || "-"}</strong><br>
                     Saving A/c No. : <strong>${loan.savingsAc || "-"}</strong>
                 </div>
 
-                <!-- Dual Photos on Right -->
                 <div style="display:flex; gap:6px; align-items:center;">
-                    <!-- Customer Photo Box -->
                     <div style="width:80px; height:85px; border:1.5px solid #000000; border-radius:4px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:2px; box-sizing:border-box; background:#fafafa; flex-shrink:0;">
                         ${custPhotoSrc ? `<img src="${custPhotoSrc}" alt="Customer Photo" loading="eager" decoding="sync" style="width:100%; height:100%; object-fit:cover; border-radius:2px;">` : `<div style="font-size:9px; font-weight:700; color:#333; line-height:1.2;">અરજદારનો<br>ફોટો</div>`}
                     </div>
-                    <!-- Ornaments Photo Box -->
                     <div style="width:140px; height:85px; border:1.5px solid #000000; border-radius:4px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:2px; box-sizing:border-box; background:#fafafa; flex-shrink:0;">
                         ${ornamentPhotoSrc ? `<img src="${ornamentPhotoSrc}" alt="Ornaments Photo" loading="eager" decoding="sync" style="width:100%; height:100%; object-fit:cover; border-radius:2px;">` : `<div style="font-size:9.5px; font-weight:700; color:#333; line-height:1.2;">સોનાના દાગીનાનો<br>ફોટો</div>`}
                     </div>
@@ -11494,22 +11589,18 @@ function generatePage3ReceiptsHTML(loan, isPageBreak = true) {
 
             <div style="font-weight:700; margin-bottom:1px; font-size:11px;">સાહેબશ્રી,</div>
 
-            <!-- Borrower Name & Address -->
             <div style="text-align:center; font-size:11.5px; font-weight:700; margin:1px 0; line-height:1.3; color:#000000;">
                 નામ : <strong>${loan.borrowerName}</strong> &nbsp; રહે. <strong>${loan.address || "-"}</strong>
             </div>
 
-            <!-- Center Gold Market Rate Line -->
             <div style="text-align:center; font-size:11.5px; font-weight:800; margin:1px 0 3px 0; color:#000000;">
                 આજનો બજાર ભાવ રૂ. <strong>${effectiveGoldRate.toLocaleString("en-IN")}</strong>/- ૧૦ ગ્રામ શુદ્ધ સોનાનો
             </div>
 
-            <!-- Section Title -->
             <div style="text-align:center; margin:2px 0 4px 0;">
                 <h2 style="font-size:12.5px; font-weight:800; margin:0; text-decoration:underline;">ગ્રાહકને આપવાની પહોંચ</h2>
             </div>
 
-            <!-- Ornaments Valuation Exact-Items Table -->
             <table style="width:100%; border-collapse:collapse; border:1.5px solid #000; margin-bottom:3px; font-size:9px;">
                 <thead>
                     <tr style="background-color:#f1f5f9; text-align:center; font-weight:800;">
@@ -11545,28 +11636,23 @@ function generatePage3ReceiptsHTML(loan, isPageBreak = true) {
                 </tbody>
             </table>
 
-            <!-- Tenure Line -->
             <p style="font-size:10px; font-weight:700; margin:2px 0 4px 0;">
                 સદરહુ ધિરાણ રૂ. <strong>${sanctionedAmt.toLocaleString("en-IN")}/-</strong> ની મુદત તા. <strong>${formatDateDMY(loan.date)}</strong> થી ૧ વર્ષ સુધીની છે.
             </p>
 
-            <!-- 3 Signatures in One Line across 100% width -->
             <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:8px; margin-bottom:4px; font-size:10px;">
-                <!-- 1. Sealed Packet Creator (Valuer) -->
                 <div style="text-align:center; width:31%;">
                     <div style="height:25px;"></div>
                     <span style="display:inline-block; width:130px; border-bottom:1.5px solid #000000; margin-bottom:2px;"></span>
                     <div style="font-weight:800; font-size:10px; color:#000000;">સીલબંધ પેકેટ તૈયાર કરનાર (સિક્કો)</div>
                     <div style="font-weight:700; font-size:9px; margin-top:1px;">(<strong>${loan.valuerName || "Approved Valuer"}</strong>)</div>
                 </div>
-                <!-- 2. Ornaments Handover / Borrower -->
                 <div style="text-align:center; width:31%;">
                     <div style="height:25px;"></div>
                     <span style="display:inline-block; width:130px; border-bottom:1.5px solid #000000; margin-bottom:2px;"></span>
                     <div style="font-weight:800; font-size:10px; color:#000000;">દાગીના સોંપનારની સહી</div>
                     <div style="font-weight:700; font-size:9px; margin-top:1px;">(<strong>${loan.borrowerName}</strong>)</div>
                 </div>
-                <!-- 3. Bank Handled (Officer & Manager) -->
                 <div style="text-align:center; width:31%;">
                     <div style="height:25px;"></div>
                     <span style="display:inline-block; width:130px; border-bottom:1.5px solid #000000; margin-bottom:2px;"></span>
@@ -11577,15 +11663,12 @@ function generatePage3ReceiptsHTML(loan, isPageBreak = true) {
                 </div>
             </div>
 
-            <!-- Location & Date Below Signatures -->
             <div style="margin-top:2px; margin-bottom:2px; font-size:10px; font-weight:700; line-height:1.3;">
-                <div>સ્થળ : <strong>${cleanBranch}</strong> &nbsp; | &nbsp; તારીખ :- <strong>${formatDateDMY(loan.date)}</strong></div>
+                <div>સ્થળ : <strong>${branchInfo.cleanGuj}</strong> &nbsp; | &nbsp; તારીખ :- <strong>${formatDateDMY(loan.date)}</strong></div>
             </div>
         </div>
 
-        <!-- BOTTOM SECTION: RETURN RECEIPT -->
         <div>
-            <!-- DIVIDER: RETURN RECEIPT SECTION -->
             <div style="display:flex; align-items:center; width:100%; margin:3px 0 2px 0;">
                 <div style="flex:1; border-top:1.5px solid #000000; border-bottom:1.5px solid #000000; height:3px;"></div>
                 <div style="padding:0 8px; font-weight:800; font-size:11px; letter-spacing:0.5px; white-space:nowrap; color:#000000;">
@@ -11595,14 +11678,13 @@ function generatePage3ReceiptsHTML(loan, isPageBreak = true) {
             </div>
 
             <div style="font-size:9.5px; margin-bottom:1px; line-height:1.25;">
-                પ્રતિ, મેનેજરશ્રી, ધી જૂનાગઢ કોમ. કો-ઓપ. બેંક લી. <strong>${cleanBranch}</strong>
+                પ્રતિ, મેનેજરશ્રી, ધી જૂનાગઢ કોમ. કો-ઓપ. બેંક લી. <strong>${branchInfo.branchTitleGuj}</strong>
             </div>
 
             <p style="text-align:justify; margin:1px 0 2px 0; font-size:9.5px; line-height:1.25;">
                 ઉપરોક્ત વિગતે મેં બેંકને ગીરો આપેલ સોનાના દાગીના અસલ સ્થિતિમાં પરત મળ્યાં છે તે બદલ હું આ પહોંચમાં મારી સહી કરી આપું છું.
             </p>
 
-            <!-- Account No & Packet No in a Prominent Box Table -->
             <div style="display:flex; justify-content:center; margin:2px 0 3px 0;">
                 <table style="border:1.5px solid #000000; border-collapse:collapse; text-align:center; background:#f8fafc;">
                     <tr>
@@ -11616,7 +11698,6 @@ function generatePage3ReceiptsHTML(loan, isPageBreak = true) {
                 </table>
             </div>
 
-            <!-- Return Section Date and Return Signature -->
             <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:4px; margin-bottom:2px; font-size:9.5px;">
                 <div style="line-height:1.25; font-weight:700; font-size:10px;">
                     તારીખ : __________________
@@ -11629,7 +11710,6 @@ function generatePage3ReceiptsHTML(loan, isPageBreak = true) {
                 </div>
             </div>
 
-            <!-- Rules Box at the Bottom -->
             <div style="border:1px solid #000000; border-radius:3px; padding:2px 4px; font-size:8px; line-height:1.2; margin-top:2px; background:#fafafa; text-align:justify;">
                 <strong>:: નિયમો ::</strong> (૧) આ ધિરાણની મુદત એક વર્ષની છે. (૨) વ્યાજનો દર બેંકનું બોર્ડ વખતોવખત ઠરાવશે તે લાગુ રહેશે. (૩) ખાતે ઉધારેલ માસિક વ્યાજ દર માસે જમા કરાવવાનું છે. અન્યથા ૨ % પેલન ચાર્જ વસુલવામાં આવશે. (૪) ધિરાણ લેનારે વારસદાર નીમવા ફરજીયાત છે. (૫) આ ધિરાણ અંગેના તમામ વ્યવહારો કરતી વખતે આ પહોંચ સાથે રાખવી ફરજીયાત છે. (૬) ધિરાણ લેનાર વ્યક્તિને જ દાગીના પરત સોંપવામાં આવશે.
             </div>
@@ -11644,7 +11724,8 @@ function generatePage4KFSHTML(loan, ltv, isPageBreak = false) {
     const schemeCode = (loan.loanType || "").toString();
     const isInstallmentScheme = schemeCode.includes("3527") || schemeCode.includes("GNA");
     const isOverdraftScheme = schemeCode.includes("3553") || schemeCode.includes("GOD");
-    const cleanBranch = getCleanBranchName(loan.branchName);
+    const branchInfo = getBranchDetails(loan.branchCode || loan.branchName || (loan.accountNo ? String(loan.accountNo).substring(0, 3) : ""));
+    const proposalNoFormatted = getLoanProposalNo(loan);
     const todayFormatted = formatDateDMY(new Date());
     const accFormatted = formatLoanAccountNo(loan.accountNo, loan.branchCode, loan.loanType);
 
@@ -11683,28 +11764,24 @@ function generatePage4KFSHTML(loan, ltv, isPageBreak = false) {
 
     return `
     <div class="print-page print-voucher print-requisition-form ${pageBreakClass}">
-        <!-- TOP SECTION: HEADER & KFS TABLE -->
         <div>
-            <!-- Bank Header -->
             <div style="display:flex; align-items:center; gap:8px; margin-bottom:2px;">
                 <img src="${LOGO_SRC}" alt="JCCB Logo" loading="eager" decoding="sync" style="width:40px; height:40px; object-fit:contain;">
                 <div style="flex:1; text-align:center;">
                     <h1 style="font-size:15px; font-weight:800; margin:0; text-transform:uppercase; color:#000000; letter-spacing:0.4px;">THE JUNAGADH COMMERCIAL CO-OPERATIVE BANK LTD.</h1>
                     <p style="font-size:9.5px; margin:1px 0 0 0; font-weight:700; color:#111111;">H.O. : “Chandrakant Malaviya Smruti Bhavan”, Choksi Bazar, Junagadh - 362001</p>
-                    <p style="font-size:10px; margin:1px 0 0 0; font-weight:800; color:#000000;">Branch : <strong>${cleanBranch}</strong></p>
+                    <p style="font-size:10px; margin:1px 0 0 0; font-weight:800; color:#000000;">Branch : <strong>${branchInfo.cleanEng.toUpperCase()}</strong></p>
                 </div>
                 <div style="width:40px;"></div>
             </div>
 
             <div style="border-top:1.5px solid #000000; border-bottom:1.5px solid #000000; height:3px; margin:2px 0 4px 0;"></div>
 
-            <!-- KFS Title -->
             <div style="text-align:center; margin:1px 0 3px 0;">
                 <h2 style="font-size:12px; font-weight:800; margin:0; text-decoration:underline;">KEY FACTS STATEMENT (KFS) – SUMMARY BOX</h2>
                 <div style="font-size:9.5px; font-weight:700; margin-top:1px;">(Gold Loan - Bullet Repayment)</div>
             </div>
 
-            <!-- 20 Rows KFS Table -->
             <table style="width:100%; border-collapse:collapse; border:1.5px solid #000000; font-size:8px; line-height:1.15; margin-bottom:3px;">
                 <thead>
                     <tr style="background:#f1f5f9; font-weight:800; font-size:8.5px;">
@@ -11713,20 +11790,20 @@ function generatePage4KFSHTML(loan, ltv, isPageBreak = false) {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:700;">Unique Proposal Number</td><td style="border:1px solid #000000; padding:1.5px 4px;">${loan.proposalNo || `JPB/${new Date().getFullYear()}/${loan.accountNo || '0078'}`}</td></tr>
+                    <tr><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:700;">Unique Proposal Number</td><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:800;">${proposalNoFormatted}</td></tr>
                     <tr><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:700;">Date of KFS</td><td style="border:1px solid #000000; padding:1.5px 4px;">${todayFormatted}</td></tr>
                     <tr><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:700;">Borrower Name</td><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:800;">${loan.borrowerName}</td></tr>
                     <tr><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:700;">Customer ID</td><td style="border:1px solid #000000; padding:1.5px 4px;">${loan.customerNo || "-"}</td></tr>
                     <tr><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:700;">Loan Account No.</td><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:800;">${accFormatted}</td></tr>
                     <tr><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:700;">Type of Loan</td><td style="border:1px solid #000000; padding:1.5px 4px;">Gold Loan</td></tr>
                     <tr><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:700;">Purpose of Loan</td><td style="border:1px solid #000000; padding:1.5px 4px;">${loan.purpose || "BUSINESS USE"}</td></tr>
-                    <tr><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:700;">Sanctioned Loan Amount</td><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:800;">₹ ${sanctionedAmt.toLocaleString("en-IN")}/-</td></tr>
+                    <tr><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:800;">Sanctioned Loan Amount</td><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:800;">₹ ${sanctionedAmt.toLocaleString("en-IN")}/-</td></tr>
                     <tr><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:700;">Disbursed Amount</td><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:800;">₹ ${disbursedAmt.toLocaleString("en-IN")}/-</td></tr>
                     <tr><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:700;">Tenure of Loan</td><td style="border:1px solid #000000; padding:1.5px 4px;">12 Months</td></tr>
                     <tr><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:700;">Rate of Interest</td><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:800;">${intRate.toFixed(2)}% p.a. (Fixed / Floating)</td></tr>
-                    <tr><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:700;">Annual Percentage Rate (APR)</td><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:800;">${apr}%</td></tr>
+                    <tr><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:800;">Annual Percentage Rate (APR)</td><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:800;">${apr}%</td></tr>
                     <tr><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:700;">Interest Recovery</td><td style="border:1px solid #000000; padding:1.5px 4px;">Monthly / Quarterly / At Maturity (as per sanction terms)</td></tr>
-                    <tr><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:700;">Repayment Type</td><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:800;">Bullet Repayment</td></tr>
+                    <tr><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:800;">Repayment Type</td><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:800;">Bullet Repayment</td></tr>
                     <tr><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:700;">Repayment Terms</td><td style="border:1px solid #000000; padding:1.5px 4px;">The principal amount is repayable in one lump sum on or before the due date. Interest shall be paid as per the sanctioned terms.</td></tr>
                     <tr><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:700;">Due Date of Maturity</td><td style="border:1px solid #000000; padding:1.5px 4px;">${formatDateDMY(new Date(new Date().setFullYear(new Date().getFullYear() + 1)))}</td></tr>
                     <tr><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:700;">Processing Charges</td><td style="border:1px solid #000000; padding:1.5px 4px;">₹ ${processingFee.toLocaleString("en-IN")}/-</td></tr>
@@ -11737,8 +11814,8 @@ function generatePage4KFSHTML(loan, ltv, isPageBreak = false) {
                     <tr><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:700;">Security</td><td style="border:1px solid #000000; padding:1.5px 4px;">Pledge of Gold Ornaments (Packet #${loan.packetNo || "-"})</td></tr>
                     <tr><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:700;">Gross Weight / Net Weight of Gold</td><td style="border:1px solid #000000; padding:1.5px 4px;">Gross: ${grossWt.toFixed(3)} g / Net: ${netWt.toFixed(3)} g</td></tr>
                     <tr><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:700;">Purity of Gold</td><td style="border:1px solid #000000; padding:1.5px 4px;">${purityStr}</td></tr>
-                    <tr><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:700;">Loan-to-Value (LTV)</td><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:800;">${ltv}% (Max 75%)</td></tr>
-                    <tr><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:700;">Total Amount Payable at Maturity</td><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:800;">₹ ${totalPayable.toLocaleString("en-IN")}/- (Subject to interest accrued as per terms)</td></tr>
+                    <tr><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:800;">Loan-to-Value (LTV)</td><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:800;">${ltv}% (Max 75%)</td></tr>
+                    <tr><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:800;">Total Amount Payable at Maturity</td><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:800;">₹ ${totalPayable.toLocaleString("en-IN")}/- (Subject to interest accrued as per terms)</td></tr>
                     <tr><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:700;">Prepayment / Foreclosure Charges</td><td style="border:1px solid #000000; padding:1.5px 4px;">Nil</td></tr>
                     <tr><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:700;">Consequences of Default</td><td style="border:1px solid #000000; padding:1.5px 4px;">In case of non-payment on the due date, penal charges will apply. If the default continues, the Bank may enforce the pledge and recover dues by sale/auction of the pledged gold in accordance with RBI guidelines and the loan agreement, after giving the required notice.</td></tr>
                     <tr><td style="border:1px solid #000000; padding:1.5px 4px; font-weight:700;">Grievance Redressal Officer</td><td style="border:1px solid #000000; padding:1.5px 4px;">Amrutlal Valjibhai Chavda</td></tr>
@@ -11746,18 +11823,16 @@ function generatePage4KFSHTML(loan, ltv, isPageBreak = false) {
             </table>
         </div>
 
-        <!-- BOTTOM SECTION: BORROWER ACKNOWLEDGEMENT & SIGNATURES -->
         <div>
             <div style="border:1.2px solid #000000; border-radius:3px; padding:3px 6px; background:#f8fafc; font-size:7.8px; line-height:1.2; margin-top:2px;">
                 <div style="font-weight:800; text-align:center; font-size:8.5px; text-decoration:underline; margin-bottom:1px;">BORROWER'S ACKNOWLEDGEMENT</div>
                 I/We acknowledge that I/We have received and understood this Key Facts Statement before execution of the loan documents. The loan amount, interest rate, applicable charges, bullet repayment terms, security, and consequences of default have been explained to me/us.
             </div>
 
-            <!-- Signatures Table -->
             <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:4px; font-size:8.5px;">
                 <div style="line-height:1.3; font-weight:700;">
                     Date: <strong>${todayFormatted}</strong><br>
-                    Place: <strong>${cleanBranch}</strong>
+                    Place: <strong>${branchInfo.cleanEng}</strong>
                 </div>
                 <div style="text-align:center; min-width:140px;">
                     <span style="display:inline-block; width:130px; border-bottom:1.5px solid #000000; margin-bottom:1px;"></span>
@@ -11778,39 +11853,35 @@ function generatePage4KFSHTML(loan, ltv, isPageBreak = false) {
 // --- Page 5: સભાસદ અરજી (ગ્રુપ-A) (When Share Group A > 0) ---
 function generatePage5MembershipGroupAHTML(loan, isPageBreak = true) {
     const pageBreakClass = isPageBreak ? "print-page-break" : "";
-    const cleanBranch = getCleanBranchName(loan.branchName);
+    const branchInfo = getBranchDetails(loan.branchCode || loan.branchName);
     const photoSrc = loan.customerPhoto || loan.photo || loan.applicantPhoto || loan.custPhoto || "";
     const dateFormatted = formatDateDMY(loan.date || new Date().toISOString().split("T")[0]);
 
     return `
     <div class="print-page print-voucher print-requisition-form ${pageBreakClass}">
-        <!-- TOP SECTION -->
         <div>
-            <!-- Bank Header -->
             <div style="display:flex; align-items:center; gap:8px; margin-bottom:2px;">
                 <img src="${LOGO_SRC}" alt="JCCB Logo" loading="eager" decoding="sync" style="width:40px; height:40px; object-fit:contain;">
                 <div style="flex:1; text-align:center;">
                     <h1 style="font-size:16px; font-weight:800; margin:0; color:#000000; letter-spacing:0.5px;">ધી જૂનાગઢ  કોમર્શિયલ કો-ઓપરેટીવ બેંક લિ.</h1>
                     <p style="font-size:9.5px; margin:1px 0 0 0; font-weight:700; color:#111111;">હે.ઓ. : “ચંદ્રકાંત માલવિયા સ્મૃતિ ભવન”, ચોકસી બજાર, જૂનાગઢ. ૩૬૨૦૦૧</p>
-                    <p style="font-size:10.5px; margin:1px 0 0 0; font-weight:800; color:#000000;">શાખા : <strong>${cleanBranch}</strong></p>
+                    <p style="font-size:10.5px; margin:1px 0 0 0; font-weight:800; color:#000000;">શાખા : <strong>${branchInfo.branchTitleGuj}</strong></p>
                 </div>
                 <div style="width:40px;"></div>
             </div>
             
             <div style="border-top:1.5px solid #000000; border-bottom:1.5px solid #000000; height:3px; margin:2px 0 4px 0;"></div>
 
-            <!-- Title -->
             <div style="text-align:center; margin:1px 0 3px 0;">
                 <h2 style="font-size:13px; font-weight:800; margin:0; text-decoration:underline;">સભાસદ અરજી (ગ્રુપ-A)</h2>
             </div>
 
-            <!-- Recipient & Photo -->
             <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:3px;">
                 <div style="font-size:10px; line-height:1.35;">
                     પ્રતિ,<br>
                     ચેરમેનશ્રી,<br>
                     ધી જૂનાગઢ કોમર્શિયલ કો-ઓપરેટિવ બેંક લિ.<br>
-                    શાખા : <strong>${cleanBranch}</strong><br>
+                    શાખા : <strong>${branchInfo.branchTitleGuj}</strong><br>
                     Customer ID : <strong>${loan.customerNo || "-"}</strong><br>
                     Membership No. : <strong>${loan.memberNo || "-"}</strong><br>
                     Saving A/c No. : <strong>${loan.savingsAc || "-"}</strong>
@@ -11829,7 +11900,6 @@ function generatePage5MembershipGroupAHTML(loan, isPageBreak = true) {
                 સરકારી કાનૂન ૨૧ તથા બેન્કના કાયદા ૧૬ અન્વયે હું નીચે પ્રમાણે મારા વારસદારનાં નામની રજૂઆત કરું છું તો તે દાખલ કરવા વિનંતી છે.
             </p>
 
-            <!-- Particulars Table -->
             <table style="width:100%; border-collapse:collapse; border:1.2px solid #000; font-size:9px; line-height:1.2; margin-bottom:3px;">
                 <tr><td style="border:1px solid #000; padding:1.5px 4px; width:6%; text-align:center; font-weight:700;">૧</td><td style="border:1px solid #000; padding:1.5px 4px; width:30%; font-weight:700;">વ્યક્તિ / પેઢી / સંસ્થાનું પૂરું નામ</td><td style="border:1px solid #000; padding:1.5px 4px; font-weight:800;">${loan.borrowerName}</td></tr>
                 <tr><td style="border:1px solid #000; padding:1.5px 4px; text-align:center; font-weight:700;">૨</td><td style="border:1px solid #000; padding:1.5px 4px; font-weight:700;">ઉંમર વર્ષ</td><td style="border:1px solid #000; padding:1.5px 4px;">${loan.age ? loan.age + " વર્ષ" : "-"}</td></tr>
@@ -11849,6 +11919,7 @@ function generatePage5MembershipGroupAHTML(loan, isPageBreak = true) {
 
             <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:4px; margin-bottom:4px; font-size:9.5px;">
                 <div>
+                    સ્થળ : <strong>${branchInfo.cleanGuj}</strong><br>
                     તારીખ : <strong>${dateFormatted}</strong>
                 </div>
                 <div style="text-align:center;">
@@ -11859,9 +11930,7 @@ function generatePage5MembershipGroupAHTML(loan, isPageBreak = true) {
             </div>
         </div>
 
-        <!-- BOTTOM SECTION: SPECIMEN SIGNATURE & OFFICE ORDER -->
         <div>
-            <!-- Specimen Signature Table -->
             <table style="width:100%; border-collapse:collapse; border:1.2px solid #000; font-size:9px; margin-bottom:3px; text-align:center;">
                 <tr style="background:#f1f5f9; font-weight:700;">
                     <th style="border:1px solid #000; padding:2px; width:8%;">ક્રમ</th>
@@ -11875,7 +11944,6 @@ function generatePage5MembershipGroupAHTML(loan, isPageBreak = true) {
                 </tr>
             </table>
 
-            <!-- Office Order Section -->
             <div style="text-align:center; font-weight:800; font-size:10.5px; margin:2px 0 1px 0;">શેરો</div>
             <p style="font-size:8.5px; line-height:1.25; margin:1px 0 2px 0; text-align:justify;">
                 સદરહું અરજદારને બેન્કના સભાસદ તરીકે તા. __________________ ના રોજ મળેલ બેન્કની મળેલ એક્ઝિક્યુટિવ કમિટી / બોર્ડ ઓફ ડિરેક્ટર્સની બેઠકના ઠરાવ નં. _________ થી દાખલ કરી શેર ફાળવી આપવાનું સર્વાનુમતે ઠરાવવામાં આવેલ છે.
@@ -11907,39 +11975,35 @@ function generatePage5MembershipGroupAHTML(loan, isPageBreak = true) {
 
 function generatePage5MembershipGroupBHTML(loan, isPageBreak = true) {
     const pageBreakClass = isPageBreak ? "print-page-break" : "";
-    const cleanBranch = getCleanBranchName(loan.branchName);
+    const branchInfo = getBranchDetails(loan.branchCode || loan.branchName);
     const photoSrc = loan.customerPhoto || loan.photo || loan.applicantPhoto || loan.custPhoto || "";
     const dateFormatted = formatDateDMY(loan.date || new Date().toISOString().split("T")[0]);
 
     return `
     <div class="print-page print-voucher print-requisition-form ${pageBreakClass}">
-        <!-- TOP SECTION -->
         <div>
-            <!-- Bank Header -->
             <div style="display:flex; align-items:center; gap:8px; margin-bottom:2px;">
                 <img src="${LOGO_SRC}" alt="JCCB Logo" loading="eager" decoding="sync" style="width:40px; height:40px; object-fit:contain;">
                 <div style="flex:1; text-align:center;">
                     <h1 style="font-size:16px; font-weight:800; margin:0; color:#000000; letter-spacing:0.5px;">ધી જૂનાગઢ  કોમર્શિયલ કો-ઓપરેટીવ બેંક લિ.</h1>
                     <p style="font-size:9.5px; margin:1px 0 0 0; font-weight:700; color:#111111;">હે.ઓ. : “ચંદ્રકાંત માલવિયા સ્મૃતિ ભવન”, ચોકસી બજાર, જૂનાગઢ. ૩૬૨૦૦૧</p>
-                    <p style="font-size:10.5px; margin:1px 0 0 0; font-weight:800; color:#000000;">શાખા : <strong>${cleanBranch}</strong></p>
+                    <p style="font-size:10.5px; margin:1px 0 0 0; font-weight:800; color:#000000;">શાખા : <strong>${branchInfo.branchTitleGuj}</strong></p>
                 </div>
                 <div style="width:40px;"></div>
             </div>
             
             <div style="border-top:1.5px solid #000000; border-bottom:1.5px solid #000000; height:3px; margin:2px 0 4px 0;"></div>
 
-            <!-- Title -->
             <div style="text-align:center; margin:1px 0 3px 0;">
                 <h2 style="font-size:13px; font-weight:800; margin:0; text-decoration:underline;">સભાસદ અરજી (ગ્રુપ-B)</h2>
             </div>
 
-            <!-- Recipient & Photo -->
             <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:3px;">
                 <div style="font-size:10px; line-height:1.35;">
                     પ્રતિ,<br>
                     ચેરમેનશ્રી,<br>
                     ધી જૂનાગઢ કોમર્શિયલ કો-ઓપરેટિવ બેંક લિ.<br>
-                    શાખા : <strong>${cleanBranch}</strong><br>
+                    શાખા : <strong>${branchInfo.branchTitleGuj}</strong><br>
                     Customer ID : <strong>${loan.customerNo || "-"}</strong><br>
                     Membership No. : <strong>${loan.memberNo || "-"}</strong><br>
                     Saving A/c No. : <strong>${loan.savingsAc || "-"}</strong>
@@ -11958,7 +12022,6 @@ function generatePage5MembershipGroupBHTML(loan, isPageBreak = true) {
                 સરકારી કાનૂન ૨૧ તથા બેન્કના કાયદા ૧૬ અન્વયે હું નીચે પ્રમાણે મારા વારસદારનાં નામની રજૂઆત કરું છું તો તે દાખલ કરવા વિનંતી છે.
             </p>
 
-            <!-- Particulars Table -->
             <table style="width:100%; border-collapse:collapse; border:1.2px solid #000; font-size:9px; line-height:1.2; margin-bottom:3px;">
                 <tr><td style="border:1px solid #000; padding:1.5px 4px; width:6%; text-align:center; font-weight:700;">૧</td><td style="border:1px solid #000; padding:1.5px 4px; width:30%; font-weight:700;">વ્યક્તિ / પેઢી / સંસ્થાનું પૂરું નામ</td><td style="border:1px solid #000; padding:1.5px 4px; font-weight:800;">${loan.borrowerName}</td></tr>
                 <tr><td style="border:1px solid #000; padding:1.5px 4px; text-align:center; font-weight:700;">૨</td><td style="border:1px solid #000; padding:1.5px 4px; font-weight:700;">ઉંમર વર્ષ</td><td style="border:1px solid #000; padding:1.5px 4px;">${loan.age ? loan.age + " વર્ષ" : "-"}</td></tr>
@@ -11978,6 +12041,7 @@ function generatePage5MembershipGroupBHTML(loan, isPageBreak = true) {
 
             <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:4px; margin-bottom:4px; font-size:9.5px;">
                 <div>
+                    સ્થળ : <strong>${branchInfo.cleanGuj}</strong><br>
                     તારીખ : <strong>${dateFormatted}</strong>
                 </div>
                 <div style="text-align:center;">
@@ -11988,9 +12052,7 @@ function generatePage5MembershipGroupBHTML(loan, isPageBreak = true) {
             </div>
         </div>
 
-        <!-- BOTTOM SECTION: SPECIMEN SIGNATURE & OFFICE ORDER -->
         <div>
-            <!-- Specimen Signature Table -->
             <table style="width:100%; border-collapse:collapse; border:1.2px solid #000; font-size:9px; margin-bottom:3px; text-align:center;">
                 <tr style="background:#f1f5f9; font-weight:700;">
                     <th style="border:1px solid #000; padding:2px; width:8%;">ક્રમ</th>
@@ -12004,7 +12066,6 @@ function generatePage5MembershipGroupBHTML(loan, isPageBreak = true) {
                 </tr>
             </table>
 
-            <!-- Office Order Section -->
             <div style="text-align:center; font-weight:800; font-size:10.5px; margin:2px 0 1px 0;">શેરો</div>
             <p style="font-size:8.5px; line-height:1.25; margin:1px 0 2px 0; text-align:justify;">
                 સદરહું અરજદારને બેન્કના સભાસદ તરીકે તા. __________________ ના રોજ મળેલ બેન્કની મળેલ એક્ઝિક્યુટિવ કમિટી / બોર્ડ ઓફ ડિરેક્ટર્સની બેઠકના ઠરાવ નં. _________ થી દાખલ કરી શેર ફાળવી આપવાનું સર્વાનુમતે ઠરાવવામાં આવેલ છે.
@@ -12033,7 +12094,6 @@ function generatePage5MembershipGroupBHTML(loan, isPageBreak = true) {
     </div>
     `;
 }
-
 
 function getLoanExpenseVouchersList(loan) {
     const vouchers = [];
@@ -12153,7 +12213,7 @@ function getLoanExpenseVouchersList(loan) {
         });
     }
 
-    // 11. Other Charges (if any)
+    // 11. Other Charges
     const otherCharges = parseFloat(loan.otherCharges || 0);
     if (otherCharges > 0) {
         vouchers.push({
@@ -12165,7 +12225,7 @@ function getLoanExpenseVouchersList(loan) {
         });
     }
 
-    // 12. Custom Charges (if defined in loan)
+    // 12. Custom Charges
     if (Array.isArray(loan.customCharges)) {
         loan.customCharges.forEach(cc => {
             const ccAmt = parseFloat(cc.amount || 0);
@@ -12199,7 +12259,6 @@ function formatAmountToGujaratiWords(num) {
 // --- Daily Aggregated Cash Credit Expense Vouchers (3 Vouchers per A4 Page) ---
 function generateDailyVouchers3in1HTML(date, branchFilter = "") {
     const data = getDailyAggregatedVouchersData(date, branchFilter);
-    // Other charges are listed in Daily Voucher tab table but excluded from voucher printing
     const printableVouchers = (data.vouchers || []).filter(v => v.key !== "otherCharges" && v.glCode !== "GL-160199" && v.nameGu !== "અન્ય ચાર્જ");
     if (printableVouchers.length === 0) {
         return `
@@ -12209,10 +12268,9 @@ function generateDailyVouchers3in1HTML(date, branchFilter = "") {
         `;
     }
 
-    const cleanBranch = getCleanBranchName(data.branchName);
+    const branchInfo = getBranchDetails(branchFilter || data.branchName);
     const dateFormatted = formatDateDMY(date);
 
-    // Group vouchers in sets of 3 per A4 sheet
     const pages = [];
     for (let i = 0; i < printableVouchers.length; i += 3) {
         pages.push(printableVouchers.slice(i, i + 3));
@@ -12232,7 +12290,6 @@ function generateDailyVouchers3in1HTML(date, branchFilter = "") {
             vouchersHtml += `
             <div class="voucher-card" style="box-sizing:border-box; padding:2mm 0; font-family:'Outfit', 'Noto Sans Gujarati', Arial, sans-serif; color:#000000; line-height:1.2; background:#ffffff;">
                 
-                <!-- Top Center Pill & Branch -->
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
                     <div style="width:20%;"></div>
                     <div style="text-align:center;">
@@ -12241,11 +12298,10 @@ function generateDailyVouchers3in1HTML(date, branchFilter = "") {
                         </span>
                     </div>
                     <div style="width:28%; text-align:right; font-size:11px; font-weight:800; white-space:nowrap;">
-                        શાખા : <strong style="font-weight:900;">${cleanBranch}</strong>
+                        શાખા : <strong style="font-weight:900;">${branchInfo.branchTitleGuj}</strong>
                     </div>
                 </div>
 
-                <!-- Bank Name & Logo Rounded Box with Date (Left Logo & Right Date) -->
                 <div style="border:1.5px solid #000000; border-radius:8px; padding:3px 8px; background:#f1f5f9; display:flex; align-items:center; justify-content:space-between; margin-bottom:3px;">
                     <div style="display:flex; align-items:center; gap:10px;">
                         <img src="${LOGO_SRC}" alt="JCCB" loading="eager" decoding="sync" style="width:42px; height:42px; object-fit:contain; flex-shrink:0;">
@@ -12258,7 +12314,6 @@ function generateDailyVouchers3in1HTML(date, branchFilter = "") {
                     </div>
                 </div>
 
-                <!-- GL Row -->
                 <div style="display:flex; align-items:center; gap:6px; margin-bottom:3px; font-size:11px;">
                     <div style="border:1.5px solid #000000; border-radius:12px; padding:2px 14px; font-weight:900; background:#ffffff; text-transform:uppercase; letter-spacing:0.5px;">
                         CREDIT
@@ -12271,7 +12326,6 @@ function generateDailyVouchers3in1HTML(date, branchFilter = "") {
                     </div>
                 </div>
 
-                <!-- Ledger Table (8 Lines Total: 1 Narration + 6 Empty Ledger Lines + 1 Total Row) -->
                 <table style="width:100%; border-collapse:collapse; border:1.5px solid #000000; margin-bottom:2px; background:#ffffff; font-size:10px;">
                     <thead>
                         <tr style="border-bottom:1.5px solid #000000; background:#ffffff;">
@@ -12303,12 +12357,10 @@ function generateDailyVouchers3in1HTML(date, branchFilter = "") {
                     </tbody>
                 </table>
 
-                <!-- Amount In Words -->
                 <div style="font-size:10px; font-weight:800; margin:2px 0 3px 4px; font-style:italic; color:#000000;">
                     અંકે રૂપિયા ${amountInWords} પૂરા.
                 </div>
 
-                <!-- Signatures Row (Ample signing space) -->
                 <div style="display:flex; justify-content:space-between; align-items:flex-end; font-size:10.5px; font-weight:800; padding:0 25px; margin-top:28px; margin-bottom:2px;">
                     <div style="width:25%; text-align:center;">Clerk</div>
                     <div style="width:35%; text-align:center;">Sn. / Junior Officer</div>
@@ -12336,10 +12388,8 @@ function generateDailyVouchers3in1HTML(date, branchFilter = "") {
     return fullHtml;
 }
 
-// Fallback single loan voucher generator
 function generate3in1VoucherHTML(loan, isPageBreak = false) {
     const allVouchers = getLoanExpenseVouchersList(loan);
-    // Exclude other charges from printed vouchers
     const vouchers = (allVouchers || []).filter(v => v.key !== "otherCharges" && v.glCode !== "GL-160199" && v.nameGu !== "અન્ય ચાર્જ");
     if (vouchers.length === 0) {
         return `
@@ -12349,7 +12399,7 @@ function generate3in1VoucherHTML(loan, isPageBreak = false) {
         `;
     }
 
-    const cleanBranch = getCleanBranchName(loan.branchName);
+    const branchInfo = getBranchDetails(loan.branchCode || loan.branchName);
     const dateFormatted = formatDateDMY(loan.date);
 
     const pages = [];
@@ -12379,7 +12429,7 @@ function generate3in1VoucherHTML(loan, isPageBreak = false) {
                         </span>
                     </div>
                     <div style="width:28%; text-align:right; font-size:11px; font-weight:800; white-space:nowrap;">
-                        શાખા : <strong style="font-weight:900;">${cleanBranch}</strong>
+                        શાખા : <strong style="font-weight:900;">${branchInfo.branchTitleGuj}</strong>
                     </div>
                 </div>
 
@@ -12442,7 +12492,6 @@ function generate3in1VoucherHTML(loan, isPageBreak = false) {
                     અંકે રૂપિયા ${amountInWords} પૂરા.
                 </div>
 
-                <!-- Signatures Row (Ample signing space) -->
                 <div style="display:flex; justify-content:space-between; align-items:flex-end; font-size:10.5px; font-weight:800; padding:0 25px; margin-top:28px; margin-bottom:2px;">
                     <div style="width:25%; text-align:center;">Clerk</div>
                     <div style="width:35%; text-align:center;">Sn. / Junior Officer</div>
@@ -12577,4 +12626,3 @@ function numberToGujaratiWords(num) {
 window.deleteLoanRecord = deleteLoanRecord;
 window.editLoanRecord = editLoanRecord;
 window.syncCloudData = syncCloudData;
-
