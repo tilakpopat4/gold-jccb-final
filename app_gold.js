@@ -1415,7 +1415,10 @@ function initAuth() {
             } else {
                 if (errorAlert) {
                     errorAlert.classList.remove("hidden");
-                    errorAlert.textContent = "ખોટો પાસવર્ડ! કૃપા કરીને સાચો પાસવર્ડ દાખલ કરો (Incorrect Password).";
+                    errorAlert.innerHTML = `<div style="display:flex; flex-direction:column; gap:3px; width:100%;">
+                        <div><i class="fa-solid fa-circle-exclamation"></i> <strong>ખોટો પાસવર્ડ (Incorrect Password)</strong></div>
+                        <div style="font-size:12px; color:#fca5a5; font-weight:600;">Contact Head Office If You Don't Have Password.</div>
+                    </div>`;
                 }
             }
         });
