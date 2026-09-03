@@ -3297,10 +3297,11 @@ input.admin-editable:focus, select.admin-editable:focus {
         height: 297mm !important;
         max-height: 297mm !important;
         box-sizing: border-box !important;
-        padding-top: 0.40in !important;     /* 0.40 inch (10.16mm) Top Margin */
-        padding-left: 0.85in !important;    /* 0.85 inch (21.59mm) Left Margin */
-        padding-right: 0.45in !important;   /* 0.45 inch (11.43mm) Right Margin */
-        padding-bottom: 0.40in !important;  /* 0.40 inch (10.16mm) Bottom Margin */
+        border: 3.5px double #000000 !important;
+        padding-top: 0.35in !important;     /* 0.35 inch Top Margin */
+        padding-left: 0.75in !important;    /* 0.75 inch Left Margin */
+        padding-right: 0.40in !important;   /* 0.40 inch Right Margin */
+        padding-bottom: 0.35in !important;  /* 0.35 inch Bottom Margin */
         margin: 0 auto !important;
         background: #ffffff !important;
         page-break-inside: avoid !important;
@@ -3308,33 +3309,44 @@ input.admin-editable:focus, select.admin-editable:focus {
         page-break-after: always !important;
         break-after: page !important;
         overflow: hidden !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
     }
     .print-pledge-letter {
-        padding: 0.30in 0.35in 0.30in 0.35in !important;
+        padding: 0.35in 0.45in 0.35in 0.45in !important;
     }
     .print-sanction-letter-page {
         width: 210mm !important;
         height: 297mm !important;
         max-height: 297mm !important;
         box-sizing: border-box !important;
+        border: 3.5px double #000000 !important;
         padding: 0.30in 0.40in 0.30in 0.40in !important;
         page-break-inside: avoid !important;
         break-inside: avoid !important;
         page-break-after: always !important;
         break-after: page !important;
         overflow: hidden !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
     }
     .print-vouchers-page {
         width: 210mm !important;
         height: 297mm !important;
         max-height: 297mm !important;
         box-sizing: border-box !important;
-        padding: 0.35in 0.45in 0.35in 0.45in !important;
+        border: 3.5px double #000000 !important;
+        padding: 0.30in 0.40in 0.30in 0.40in !important;
         page-break-inside: avoid !important;
         break-inside: avoid !important;
         page-break-after: always !important;
         break-after: page !important;
         overflow: hidden !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
     }
     .print-report-landscape-container {
         display: block !important;

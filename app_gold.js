@@ -10665,10 +10665,11 @@ async function printContent(contentHtml, isLandscape = false) {
                 height: 297mm !important;
                 max-height: 297mm !important;
                 box-sizing: border-box !important;
-                padding-top: 0.40in !important;     /* 0.40 inch (10.16mm) Top Margin */
-                padding-left: 0.85in !important;    /* 0.85 inch (21.59mm) Left Margin */
-                padding-right: 0.45in !important;   /* 0.45 inch (11.43mm) Right Margin */
-                padding-bottom: 0.40in !important;  /* 0.40 inch (10.16mm) Bottom Margin */
+                border: 3.5px double #000000 !important;
+                padding-top: 0.35in !important;     /* 0.35 inch Top Margin */
+                padding-left: 0.75in !important;    /* 0.75 inch Left Margin */
+                padding-right: 0.40in !important;   /* 0.40 inch Right Margin */
+                padding-bottom: 0.35in !important;  /* 0.35 inch Bottom Margin */
                 margin: 0 auto !important;
                 background: #ffffff !important;
                 page-break-inside: avoid !important;
@@ -10676,15 +10677,44 @@ async function printContent(contentHtml, isLandscape = false) {
                 page-break-after: always !important;
                 break-after: page !important;
                 overflow: hidden !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: space-between !important;
             }
             .print-pledge-letter {
-                padding: 0.30in 0.35in 0.30in 0.35in !important;
+                padding: 0.35in 0.45in 0.35in 0.45in !important;
             }
             .print-sanction-letter-page {
+                width: 210mm !important;
+                height: 297mm !important;
+                max-height: 297mm !important;
+                box-sizing: border-box !important;
+                border: 3.5px double #000000 !important;
                 padding: 0.30in 0.40in 0.30in 0.40in !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                page-break-after: always !important;
+                break-after: page !important;
+                overflow: hidden !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: space-between !important;
             }
             .print-vouchers-page {
-                padding: 0.35in 0.45in 0.35in 0.45in !important;
+                width: 210mm !important;
+                height: 297mm !important;
+                max-height: 297mm !important;
+                box-sizing: border-box !important;
+                border: 3.5px double #000000 !important;
+                padding: 0.30in 0.40in 0.30in 0.40in !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                page-break-after: always !important;
+                break-after: page !important;
+                overflow: hidden !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: space-between !important;
             }
             .print-page-break {
                 page-break-after: always !important;
@@ -10743,83 +10773,81 @@ function generateLetterOfPledgeHTML(loan, isPageBreak = true) {
     const address = loan.address || "-";
 
     return `
-    <div class="print-page print-voucher print-pledge-letter ${pageBreakClass}" style="width:210mm; height:297mm; max-height:297mm; box-sizing:border-box; padding:0.30in 0.35in 0.30in 0.35in; font-family:'Outfit', 'Noto Sans Gujarati', sans-serif; color:#000000; line-height:1.48; background-color:#ffffff; font-size:11.2px; overflow:hidden; page-break-inside:avoid; break-inside:avoid;">
-        <div style="border:3.5px double #000000; height:280mm; max-height:280mm; box-sizing:border-box; padding:20px 24px; display:flex; flex-direction:column; justify-content:space-between;">
-            
-            <div>
-                <!-- Title Header -->
-                <div style="text-align:center; margin-bottom:6px;">
-                    <h2 style="font-size:20px; font-weight:800; margin:0; letter-spacing:0.6px; color:#000000;">:: લેટર ઓફ પ્લેજ ::</h2>
-                    <p style="font-size:12.5px; font-weight:700; margin:4px 0 0 0; color:#000000;">બુલેટ રિપેમેન્ટ માટે રૂ. એક લાખ વીસ હજાર સુધી)</p>
-                </div>
-
-                <!-- Date Top Right -->
-                <div style="text-align:right; font-size:12px; font-weight:700; margin-bottom:8px;">
-                    તારીખ :-${dateFormatted}
-                </div>
-
-                <!-- Recipient Left -->
-                <div style="font-size:12px; font-weight:700; line-height:1.48; margin-bottom:10px;">
-                    પ્રતિ,<br>
-                    મેનેજર સાહેબ,<br>
-                    ધી જુનાગઢ કોમ. કો-ઓપ. બેંક લિ.<br>
-                    ${cleanBranch} જુનાગઢ શાખા
-                </div>
-
-                <!-- Borrower Declaration Header -->
-                <div style="font-size:11.8px; line-height:1.6; text-align:justify; margin-bottom:10px;">
-                    હું <strong>${borrowerName}</strong> ધંધો : <strong>${occupation}</strong>, ઉ.વ. <strong>${age}</strong>, જ્ઞાતિ <strong>${caste}</strong>, ધર્મ : <strong>${religion}</strong>, રહેવાસી : <strong>${address}</strong> નીચે પ્રમાણે લખી બંધાઉં છું કે :-
-                </div>
-
-                <!-- 10 Detailed Points -->
-                <div style="font-size:11px; line-height:1.52; text-align:justify;">
-                    <div style="margin-bottom:6px;">
-                        <strong>૧.</strong> આજરોજ મારી પોતાની માલિકીના સોનાના દાગીના કે જેની નોંધ બેંક તરફથી મને મળેલ જુદી પહોંચમાં કરેલ છે, તે બેંકને થાણમાં આપી મેં રૂ. <strong>${sanctionedAmt}/-</strong> અંકે <strong>${amountInWords}</strong> નું ધિરાણ મેળવેલ છે.
-                    </div>
-                    <div style="margin-bottom:6px;">
-                        <strong>૨.</strong> સદરહુ રકમની આજરોજ મેં જુદી વચન ચિઠ્ઠી લખી છે અને ધિરાણની રકમ પર <strong>${interestRate} %</strong> ના વાર્ષિક વ્યાજ દરે, માસિક ચક્રવૃદ્ધિ લેખે ભરપાઈ કરવું છે.
-                    </div>
-                    <div style="margin-bottom:6px;">
-                        <strong>૩.</strong> સદરહુ ધિરાણની રકમ ૧ વર્ષમાં ચડત વ્યાજ સહિત બેંકને ભરપાઈ કરી આપવાની છે અને વ્યાજ દર મહિને જમા કરાવી આપવાનું છે, અન્યથા બેંક દર વર્ષે દર સેંકડે ૨.૦૦ % લેખે દંડનીય વ્યાજ સદર વ્યાજની રકમ ઉપરાંત વસુલ કરશે તે મને કબુલ-મંજુર છે.
-                    </div>
-                    <div style="margin-bottom:6px;">
-                        <strong>૪.</strong> બેંક દ્વારા વ્યાજ દરમાં વધારા / ઘટાડાની જાહેરાત બેંકના નોટીસ બોર્ડ પર કરી તેની અમલવારી જાહેરાતમાં દર્શાવેલી તારીખથી કરશે જે મને કબુલ-મંજૂર છે અને આવા વધારા / ઘટાડા અનુસાર બેંકને જે તે તારીખથી વ્યાજ ચુકવવા બંધાઉં છું.
-                    </div>
-                    <div style="margin-bottom:6px;">
-                        <strong>૫.</strong> હું બેંકનો સભાસદ / નોમિનલ સભાસદ છું અને બેંકના નિયમો તથા પેટા નિયમો વાંચ્યા અને સમજ્યા છે અને તે મને બંધનકર્તા છે અને તેમાં વખતોવખત જે ફેરફાર થાય તે પાળવા બંધાઉં છું.
-                    </div>
-                    <div style="margin-bottom:6px;">
-                        <strong>૬.</strong> મેં સોંપેલ દાગીના પર વારસનો હક છે. પરંતુ તેમને તે ખાતર કોઈપણ જાતનો વાંધો કરવાનો અધિકાર નથી.
-                    </div>
-                    <div style="margin-bottom:6px;">
-                        <strong>૭.</strong> બેંક માંગે ત્યારે ધિરાણ મેળવેલ તમામ રકમ વ્યાજ સહીત ભરપાઈ કરવાની છે અને તેમ કરવામાં હું કસુર કરું તો બેંક થાણમાં મુકેલ દાગીના વેંચી શકે છે. આવી રીતે બેંકે વેંચેલ દાગીના પરત્વે મારે કશો વાંધો રહેશે નહિ, આ અંગેની સર્વ જવાબદારી મારી રહેશે અને જે કાંઈપણ ખર્ચ થશે તે મારે શિરે રહેશે, જે મારા વંશ-વારસોને કબુલ-મંજુર છે. દાગીના વેંચાતા ઉપજેલી કિંમતમાંથી બેંક પોતાનું લ્હેણું વસુલ કરી બાકી રકમ મને આપશે અથવા મારા વારસને આપશે.
-                    </div>
-                    <div style="margin-bottom:6px;">
-                        <strong>૮.</strong> મેં થાણમાં મુકેલ દાગીના બેંક ફરીથી થાણમાં મૂકી શકશે.
-                    </div>
-                    <div style="margin-bottom:6px;">
-                        <strong>૯.</strong> મેં બેંકને થાણમાં આપેલાં દાગીનાનું સીલબંધ પેકેટ RBI ના નિર્દેશો અનુસાર રીચેકીંગના હેતુ માટે સક્ષમ અધિકારી સમક્ષ ખોલીને રીચેકીંગ કરાવી શકશે જેમાં મારી હાજરીની જરૂરી રહેશે નહીં.
-                    </div>
-                    <div style="margin-bottom:4px;">
-                        <strong>૧૦.</strong> રીઝર્વ બેંક ઓફ ઇન્ડિયાની સહકારી બેંકો ઉપર વખતોવખત જારી કરેલી ધિરાણ ખાતાઓમાં વ્યાજ ઉધારવા અંગેની સૂચનાઓ અનુસાર આ ધિરાણ ખાતામાં વ્યાજ ઉધારશે તે મને કબુલ અને બંધનકર્તા છે.
-                    </div>
-                </div>
+    <div class="print-page print-voucher print-pledge-letter ${pageBreakClass}" style="width:210mm; height:297mm; max-height:297mm; box-sizing:border-box; padding:0.35in 0.45in 0.35in 0.45in; font-family:'Outfit', 'Noto Sans Gujarati', sans-serif; color:#000000; line-height:1.55; background-color:#ffffff; font-size:11.8px; overflow:hidden; page-break-inside:avoid; break-inside:avoid; display:flex; flex-direction:column; justify-content:space-between;">
+        
+        <div>
+            <!-- Title Header -->
+            <div style="text-align:center; margin-bottom:8px;">
+                <h2 style="font-size:22px; font-weight:800; margin:0; letter-spacing:0.8px; color:#000000;">:: લેટર ઓફ પ્લેજ ::</h2>
+                <p style="font-size:13px; font-weight:700; margin:4px 0 0 0; color:#000000;">(બુલેટ રિપેમેન્ટ માટે રૂ. એક લાખ વીસ હજાર સુધી)</p>
             </div>
 
-            <!-- Footer Section with Place, Date and Borrower Signature -->
-            <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:10px; padding-top:4px;">
-                <div style="font-size:12px; font-weight:700; line-height:1.55;">
-                    સ્થળ :- ${cleanBranch} જુનાગઢ<br>
-                    તારીખ :-${dateFormatted}
-                </div>
-                <div style="text-align:center; min-width:230px;">
-                    <div style="height:24px;"></div>
-                    <div style="border-bottom:1.5px solid #000000; width:220px; margin:0 auto 6px auto;"></div>
-                    <div style="font-size:12.5px; font-weight:800; color:#000000;">${borrowerName}</div>
-                </div>
+            <!-- Date Top Right -->
+            <div style="text-align:right; font-size:13px; font-weight:700; margin-bottom:10px;">
+                તારીખ :-${dateFormatted}
             </div>
 
+            <!-- Recipient Left -->
+            <div style="font-size:12.5px; font-weight:700; line-height:1.5; margin-bottom:12px;">
+                પ્રતિ,<br>
+                મેનેજર સાહેબ,<br>
+                ધી જુનાગઢ કોમ. કો-ઓપ. બેંક લિ.<br>
+                ${cleanBranch} જુનાગઢ શાખા
+            </div>
+
+            <!-- Borrower Declaration Header -->
+            <div style="font-size:12.2px; line-height:1.65; text-align:justify; margin-bottom:12px;">
+                હું <strong>${borrowerName}</strong> ધંધો : <strong>${occupation}</strong>, ઉ.વ. <strong>${age}</strong>, જ્ઞાતિ <strong>${caste}</strong>, ધર્મ : <strong>${religion}</strong>, રહેવાસી : <strong>${address}</strong> નીચે પ્રમાણે લખી બંધાઉં છું કે :-
+            </div>
+
+            <!-- 10 Detailed Points -->
+            <div style="font-size:11.4px; line-height:1.58; text-align:justify;">
+                <div style="margin-bottom:8px;">
+                    <strong>૧.</strong> આજરોજ મારી પોતાની માલિકીના સોનાના દાગીના કે જેની નોંધ બેંક તરફથી મને મળેલ જુદી પહોંચમાં કરેલ છે, તે બેંકને થાણમાં આપી મેં રૂ. <strong>${sanctionedAmt}/-</strong> અંકે <strong>${amountInWords}</strong> નું ધિરાણ મેળવેલ છે.
+                </div>
+                <div style="margin-bottom:8px;">
+                    <strong>૨.</strong> સદરહુ રકમની આજરોજ મેં જુદી વચન ચિઠ્ઠી લખી છે અને ધિરાણની રકમ પર <strong>${interestRate} %</strong> ના વાર્ષિક વ્યાજ દરે, માસિક ચક્રવૃદ્ધિ લેખે ભરપાઈ કરવું છે.
+                </div>
+                <div style="margin-bottom:8px;">
+                    <strong>૩.</strong> સદરહુ ધિરાણની રકમ ૧ વર્ષમાં ચડત વ્યાજ સહિત બેંકને ભરપાઈ કરી આપવાની છે અને વ્યાજ દર મહિને જમા કરાવી આપવાનું છે, અન્યથા બેંક દર વર્ષે દર સેંકડે ૨.૦૦ % લેખે દંડનીય વ્યાજ સદર વ્યાજની રકમ ઉપરાંત વસુલ કરશે તે મને કબુલ-મંજુર છે.
+                </div>
+                <div style="margin-bottom:8px;">
+                    <strong>૪.</strong> બેંક દ્વારા વ્યાજ દરમાં વધારા / ઘટાડાની જાહેરાત બેંકના નોટીસ બોર્ડ પર કરી તેની અમલવારી જાહેરાતમાં દર્શાવેલી તારીખથી કરશે જે મને કબુલ-મંજૂર છે અને આવા વધારા / ઘટાડા અનુસાર બેંકને જે તે તારીખથી વ્યાજ ચુકવવા બંધાઉં છું.
+                </div>
+                <div style="margin-bottom:8px;">
+                    <strong>૫.</strong> હું બેંકનો સભાસદ / નોમિનલ સભાસદ છું અને બેંકના નિયમો તથા પેટા નિયમો વાંચ્યા અને સમજ્યા છે અને તે મને બંધનકર્તા છે અને તેમાં વખતોવખત જે ફેરફાર થાય તે પાળવા બંધાઉં છું.
+                </div>
+                <div style="margin-bottom:8px;">
+                    <strong>૬.</strong> મેં સોંપેલ દાગીના પર વારસનો હક છે. પરંતુ તેમને તે ખાતર કોઈપણ જાતનો વાંધો કરવાનો અધિકાર નથી.
+                </div>
+                <div style="margin-bottom:8px;">
+                    <strong>૭.</strong> બેંક માંગે ત્યારે ધિરાણ મેળવેલ તમામ રકમ વ્યાજ સહીત ભરપાઈ કરવાની છે અને તેમ કરવામાં હું કસુર કરું તો બેંક થાણમાં મુકેલ દાગીના વેંચી શકે છે. આવી રીતે બેંકે વેંચેલ દાગીના પરત્વે મારે કશો વાંધો રહેશે નહિ, આ અંગેની સર્વ જવાબદારી મારી રહેશે અને જે કાંઈપણ ખર્ચ થશે તે મારે શિરે રહેશે, જે મારા વંશ-વારસોને કબુલ-મંજુર છે. દાગીના વેંચાતા ઉપજેલી કિંમતમાંથી બેંક પોતાનું લ્હેણું વસુલ કરી બાકી રકમ મને આપશે અથવા મારા વારસને આપશે.
+                </div>
+                <div style="margin-bottom:8px;">
+                    <strong>૮.</strong> મેં થાણમાં મુકેલ દાગીના બેંક ફરીથી થાણમાં મૂકી શકશે.
+                </div>
+                <div style="margin-bottom:8px;">
+                    <strong>૯.</strong> મેં બેંકને થાણમાં આપેલાં દાગીનાનું સીલબંધ પેકેટ RBI ના નિર્દેશો અનુસાર રીચેકીંગના હેતુ માટે સક્ષમ અધિકારી સમક્ષ ખોલીને રીચેકીંગ કરાવી શકશે જેમાં મારી હાજરીની જરૂરી રહેશે નહીં.
+                </div>
+                <div style="margin-bottom:4px;">
+                    <strong>૧૦.</strong> રીઝર્વ બેંક ઓફ ઇન્ડિયાની સહકારી બેંકો ઉપર વખતોવખત જારી કરેલી ધિરાણ ખાતાઓમાં વ્યાજ ઉધારવા અંગેની સૂચનાઓ અનુસાર આ ધિરાણ ખાતામાં વ્યાજ ઉધારશે તે મને કબુલ અને બંધનકર્તા છે.
+                </div>
+            </div>
         </div>
+
+        <!-- Footer Section with Place, Date and Borrower Signature -->
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:14px; padding-top:4px;">
+            <div style="font-size:12.5px; font-weight:700; line-height:1.6;">
+                સ્થળ :- ${cleanBranch} જુનાગઢ<br>
+                તારીખ :-${dateFormatted}
+            </div>
+            <div style="text-align:center; min-width:240px;">
+                <div style="height:35px;"></div>
+                <div style="border-bottom:1.5px solid #000000; width:220px; margin:0 auto 6px auto;"></div>
+                <div style="font-size:13px; font-weight:800; color:#000000;">${borrowerName}</div>
+            </div>
+        </div>
+
     </div>
     `;
 }
