@@ -2730,7 +2730,7 @@ body.printing-mode #print-area {
     }
     @page {
         size: A4 portrait !important;
-        margin: 0 !important;
+        margin: 0.50in 0.50in 0.50in 1.00in !important; /* 1.00 inch Left (Binding Margin), 0.50 inch Top/Right/Bottom */
     }
     html, body {
         width: 210mm !important;

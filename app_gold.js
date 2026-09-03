@@ -10773,7 +10773,7 @@ async function printContent(contentHtml, isLandscape = false) {
     <style>
         @page {
             size: ${pageSize};
-            margin: 6mm 8mm; /* Perfectly straight, symmetrical printable margins */
+            margin: 0.50in 0.50in 0.50in 1.00in; /* 1.00 inch Left (Binding Margin), 0.50 inch Top/Right/Bottom */
         }
         *, *:before, *:after {
             -webkit-print-color-adjust: exact !important;
@@ -10791,7 +10791,8 @@ async function printContent(contentHtml, isLandscape = false) {
         }
         .print-page, .print-voucher, .print-requisition-form, .print-sanction-letter-page, .print-vouchers-page, .print-pledge-letter {
             width: 100% !important;
-            height: 282mm !important;
+            height: 271.6mm !important;
+            max-height: 271.6mm !important;
             box-sizing: border-box !important;
             margin: 0 auto !important;
             background: #ffffff !important;
