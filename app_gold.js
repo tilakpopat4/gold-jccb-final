@@ -11996,3 +11996,546 @@ function generatePage5MembershipGroupBHTML(loan, isPageBreak = true) {
 }
 
 
+function getLoanExpenseVouchersList(loan) {
+    const vouchers = [];
+    const accFormatted = formatLoanAccountNo(loan.accountNo, loan.branchCode, loan.loanType);
+    const borrowerName = loan.borrowerName || "";
+    const valuerName = loan.valuerName || "Approved Valuer";
+
+    // 1. Share Group A
+    const shareA = parseFloat(loan.shareA || 0);
+    if (shareA > 0) {
+        vouchers.push({
+            glCode: "GL-150040",
+            glName: "Share Application Money (Group-A)",
+            amount: shareA,
+            narration: `આજ રોજ સોના ધિરાણના ખુલેલ ખાતાના શેર ગ્રુપ-A ની રકમના રોકડા જમા લેતા (ખાતા નં. ${accFormatted} - ${borrowerName})`
+        });
+    }
+
+    // 2. Share Group B
+    const shareB = parseFloat(loan.shareB || 0);
+    if (shareB > 0) {
+        vouchers.push({
+            glCode: "GL-150058",
+            glName: "Share Application Money (Group-B)",
+            amount: shareB,
+            narration: `આજ રોજ સોના ધિરાણના ખુલેલ ખાતાના શેર ગ્રુપ-B ની રકમના રોકડા જમા લેતા (ખાતા નં. ${accFormatted} - ${borrowerName})`
+        });
+    }
+
+    // 3. Member Fee
+    const memberFee = parseFloat(loan.memberFee || 0);
+    if (memberFee > 0) {
+        vouchers.push({
+            glCode: "GL-160067",
+            glName: "Member Fee",
+            amount: memberFee,
+            narration: `આજ રોજ સોના ધિરાણના ખુલેલ ખાતાના સભાસદ પ્રવેશ ફી ની રકમના રોકડા જમા લેતા (ખાતા નં. ${accFormatted} - ${borrowerName})`
+        });
+    }
+
+    // 4. Stamp Duty
+    const stampDuty = parseFloat(loan.stampDuty || 0);
+    if (stampDuty > 0) {
+        vouchers.push({
+            glCode: "GL-370065",
+            glName: "Adhesive Stamp Advance",
+            amount: stampDuty,
+            narration: `આજ રોજ સોના ધિરાણના ખુલેલ ખાતાના સ્ટેમ્પ ડ્યુટી ની રકમના રોકડા જમા લેતા (ખાતા નં. ${accFormatted} - ${borrowerName})`
+        });
+    }
+
+    // 5. Service Charge
+    const serviceCharge = parseFloat(loan.serviceCharge || 0);
+    if (serviceCharge > 0) {
+        vouchers.push({
+            glCode: "GL-160063",
+            glName: "Service Charge Income",
+            amount: serviceCharge,
+            narration: `આજ રોજ સોના ધિરાણના ખુલેલ ખાતાના સર્વિસ ચાર્જ ની રકમના રોકડા જમા લેતા (ખાતા નં. ${accFormatted} - ${borrowerName})`
+        });
+    }
+
+    // 6. Doc Charges
+    const docCharges = parseFloat(loan.docCharges || 0);
+    if (docCharges > 0) {
+        vouchers.push({
+            glCode: "GL-160181",
+            glName: "Document Charge Income",
+            amount: docCharges,
+            narration: `આજ રોજ સોના ધિરાણના ખુલેલ ખાતાના ડોક્યુમેન્ટ ચાર્જ ની રકમના રોકડા જમા લેતા (ખાતા નં. ${accFormatted} - ${borrowerName})`
+        });
+    }
+
+    // 7. Insurance
+    const insurance = parseFloat(loan.insurance || 0);
+    if (insurance > 0) {
+        vouchers.push({
+            glCode: "GL-150050",
+            glName: "Insurance Deposits",
+            amount: insurance,
+            narration: `આજ રોજ સોના ધિરાણના ખુલેલ ખાતાના ઇન્સ્યોરન્સ ડિપોઝીટ ની રકમના રોકડા જમા લેતા (ખાતા નં. ${accFormatted} - ${borrowerName})`
+        });
+    }
+
+    // 8. SGST (9%)
+    const sgst = parseFloat(loan.sgst || 0);
+    if (sgst > 0) {
+        vouchers.push({
+            glCode: "GL-370260",
+            glName: "SGST Payable",
+            amount: sgst,
+            narration: `આજ રોજ સોના ધિરાણના ખુલેલ ખાતાઓના એસ જી એસ ટી ની રકમના રોકડા જમા લેતા (ખાતા નં. ${accFormatted} - ${borrowerName})`
+        });
+    }
+
+    // 9. CGST (9%)
+    const cgst = parseFloat(loan.cgst || 0);
+    if (cgst > 0) {
+        vouchers.push({
+            glCode: "GL-370261",
+            glName: "CGST Payable",
+            amount: cgst,
+            narration: `આજ રોજ સોના ધિરાણના ખુલેલ ખાતાઓના સી જી એસ ટી ની રકમના રોકડા જમા લેતા (ખાતા નં. ${accFormatted} - ${borrowerName})`
+        });
+    }
+
+    // 10. Valuer Fee (Valuer Account)
+    const valuerFee = parseFloat(loan.valuerFee || 0);
+    if (valuerFee > 0) {
+        const valObj = (state.valuers || []).find(v => v.name && v.name.trim().toLowerCase() === valuerName.trim().toLowerCase());
+        const valAc = (valObj && valObj.savingsAc) ? `A/C: ${valObj.savingsAc}` : "VALUER A/C";
+        vouchers.push({
+            glCode: valAc,
+            glName: valuerName,
+            amount: valuerFee,
+            narration: `આજ રોજ સોના ધિરાણના ખુલેલ ખાતાના સોનાના દાગીના વેલ્યુએશન ફી પેટે જમા (ખાતા નં. ${accFormatted} - ${borrowerName})`
+        });
+    }
+
+    // 11. Other Charges (if any)
+    const otherCharges = parseFloat(loan.otherCharges || 0);
+    if (otherCharges > 0) {
+        vouchers.push({
+            key: "otherCharges",
+            glCode: "GL-160199",
+            glName: "Other Charges Income",
+            amount: otherCharges,
+            narration: `આજ રોજ સોના ધિરાણના ખુલેલ ખાતાના અન્ય ચાર્જ પેટે જમા (ખાતા નં. ${accFormatted} - ${borrowerName})`
+        });
+    }
+
+    // 12. Custom Charges (if defined in loan)
+    if (Array.isArray(loan.customCharges)) {
+        loan.customCharges.forEach(cc => {
+            const ccAmt = parseFloat(cc.amount || 0);
+            if (ccAmt > 0) {
+                vouchers.push({
+                    glCode: cc.glCode || "GL-OTHER",
+                    glName: cc.nameGu || cc.name || "Custom Charge",
+                    amount: ccAmt,
+                    narration: `આજ રોજ સોના ધિરાણના ખુલેલ ખાતાના ${cc.nameGu || cc.name} પેટે જમા (ખાતા નં. ${accFormatted} - ${borrowerName})`
+                });
+            }
+        });
+    }
+
+    return vouchers;
+}
+
+function formatAmountToGujaratiWords(num) {
+    const val = parseFloat(num || 0);
+    if (isNaN(val) || val <= 0) return "શૂન્ય";
+    const rupees = Math.floor(val);
+    const paise = Math.round((val - rupees) * 100);
+
+    let words = numberToGujaratiWords(rupees).replace(/\s+/g, " ").trim();
+    if (paise > 0) {
+        words += " રૂપિયા અને " + numberToGujaratiWords(paise).replace(/\s+/g, " ").trim() + " પૈસા";
+    }
+    return words;
+}
+
+// --- Daily Aggregated Cash Credit Expense Vouchers (3 Vouchers per A4 Page) ---
+function generateDailyVouchers3in1HTML(date, branchFilter = "") {
+    const data = getDailyAggregatedVouchersData(date, branchFilter);
+    // Other charges are listed in Daily Voucher tab table but excluded from voucher printing
+    const printableVouchers = (data.vouchers || []).filter(v => v.key !== "otherCharges" && v.glCode !== "GL-160199" && v.nameGu !== "અન્ય ચાર્જ");
+    if (printableVouchers.length === 0) {
+        return `
+        <div class="print-page" style="padding:50px 20px; text-align:center; font-family:'Outfit', 'Noto Sans Gujarati', sans-serif; font-size:15px; font-weight:700; background:#ffffff;">
+            તારીખ ${formatDateDMY(date)} ના રોજ કોઈ પ્રિન્ટ કરવા યોગ્ય ખર્ચ વાઉચર નોંધાયેલ નથી.
+        </div>
+        `;
+    }
+
+    const cleanBranch = getCleanBranchName(data.branchName);
+    const dateFormatted = formatDateDMY(date);
+
+    // Group vouchers in sets of 3 per A4 sheet
+    const pages = [];
+    for (let i = 0; i < printableVouchers.length; i += 3) {
+        pages.push(printableVouchers.slice(i, i + 3));
+    }
+
+    let fullHtml = "";
+
+    pages.forEach((pageVouchers, pIdx) => {
+        const pageBreakClass = pIdx > 0 ? "print-page-break" : "";
+
+        let vouchersHtml = "";
+        pageVouchers.forEach((v, vIdx) => {
+            const amountFormatted = parseFloat(v.amount).toFixed(2);
+            const amountInWords = formatAmountToGujaratiWords(v.amount);
+            const showCutLine = (vIdx < pageVouchers.length - 1);
+
+            vouchersHtml += `
+            <div class="voucher-card" style="box-sizing:border-box; padding:2mm 0; font-family:'Outfit', 'Noto Sans Gujarati', Arial, sans-serif; color:#000000; line-height:1.2; background:#ffffff;">
+                
+                <!-- Top Center Pill & Branch -->
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
+                    <div style="width:20%;"></div>
+                    <div style="text-align:center;">
+                        <span style="display:inline-block; border:1.5px solid #000000; border-radius:14px; padding:1.5px 22px; font-size:11.5px; font-weight:800; letter-spacing:0.6px; background:#f1f5f9; text-transform:uppercase;">
+                            CASH CREDIT VOUCHER
+                        </span>
+                    </div>
+                    <div style="width:28%; text-align:right; font-size:11px; font-weight:800; white-space:nowrap;">
+                        શાખા : <strong style="font-weight:900;">${cleanBranch}</strong>
+                    </div>
+                </div>
+
+                <!-- Bank Name & Logo Rounded Box with Date (Left Logo & Right Date) -->
+                <div style="border:1.5px solid #000000; border-radius:8px; padding:3px 8px; background:#f1f5f9; display:flex; align-items:center; justify-content:space-between; margin-bottom:3px;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <img src="${LOGO_SRC}" alt="JCCB" loading="eager" decoding="sync" style="width:42px; height:42px; object-fit:contain; flex-shrink:0;">
+                        <div style="font-size:14px; font-weight:800; letter-spacing:0.2px; color:#000000;">
+                            The Junagadh Commercial Co-Ope. Bank Ltd.
+                        </div>
+                    </div>
+                    <div style="border:1.5px solid #000000; border-radius:4px; padding:2.5px 10px; font-size:11px; font-weight:800; background:#ffffff; white-space:nowrap;">
+                        ${dateFormatted}
+                    </div>
+                </div>
+
+                <!-- GL Row -->
+                <div style="display:flex; align-items:center; gap:6px; margin-bottom:3px; font-size:11px;">
+                    <div style="border:1.5px solid #000000; border-radius:12px; padding:2px 14px; font-weight:900; background:#ffffff; text-transform:uppercase; letter-spacing:0.5px;">
+                        CREDIT
+                    </div>
+                    <div style="border:1.5px solid #000000; border-radius:6px; padding:2px 10px; font-weight:800; background:#ffffff; white-space:nowrap;">
+                        ${v.glCode}
+                    </div>
+                    <div style="border:1.5px solid #000000; border-radius:6px; padding:2px 12px; font-weight:800; background:#ffffff; flex:1;">
+                        ${v.glName}
+                    </div>
+                </div>
+
+                <!-- Ledger Table (8 Lines Total: 1 Narration + 6 Empty Ledger Lines + 1 Total Row) -->
+                <table style="width:100%; border-collapse:collapse; border:1.5px solid #000000; margin-bottom:2px; background:#ffffff; font-size:10px;">
+                    <thead>
+                        <tr style="border-bottom:1.5px solid #000000; background:#ffffff;">
+                            <th style="border-right:1.5px solid #000000; padding:2px 6px; width:80%; text-align:center; font-weight:800; font-size:10.5px;">વિગત</th>
+                            <th style="padding:2px 6px; width:20%; text-align:center; font-weight:800; font-size:10.5px;">રૂ.પૈસા</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="border-right:1.5px solid #000000; border-bottom:1px solid #000000; padding:2.5px 6px; font-size:10px; font-weight:700; text-align:left; line-height:1.25;">
+                                ${v.narration}
+                            </td>
+                            <td style="border-bottom:1px solid #000000; padding:2.5px 8px; font-size:11.5px; font-weight:800; text-align:right; white-space:nowrap;">
+                                ${amountFormatted}
+                            </td>
+                        </tr>
+                        <tr style="height:9px;"><td style="border-right:1.5px solid #000000; border-bottom:1px solid #000000;">&nbsp;</td><td style="border-bottom:1px solid #000000;">&nbsp;</td></tr>
+                        <tr style="height:9px;"><td style="border-right:1.5px solid #000000; border-bottom:1px solid #000000;">&nbsp;</td><td style="border-bottom:1px solid #000000;">&nbsp;</td></tr>
+                        <tr style="height:9px;"><td style="border-right:1.5px solid #000000; border-bottom:1px solid #000000;">&nbsp;</td><td style="border-bottom:1px solid #000000;">&nbsp;</td></tr>
+                        <tr style="height:9px;"><td style="border-right:1.5px solid #000000; border-bottom:1px solid #000000;">&nbsp;</td><td style="border-bottom:1px solid #000000;">&nbsp;</td></tr>
+                        <tr style="height:9px;"><td style="border-right:1.5px solid #000000; border-bottom:1px solid #000000;">&nbsp;</td><td style="border-bottom:1px solid #000000;">&nbsp;</td></tr>
+                        <tr style="height:9px;"><td style="border-right:1.5px solid #000000; border-bottom:1px solid #000000;">&nbsp;</td><td style="border-bottom:1px solid #000000;">&nbsp;</td></tr>
+                        <tr style="border-top:1.5px solid #000000; border-bottom:1.5px solid #000000; font-weight:900; background:#fafafa;">
+                            <td style="border-right:1.5px solid #000000; height:14px;">&nbsp;</td>
+                            <td style="text-align:right; padding:2px 8px; font-size:11.5px; font-weight:900;">
+                                ${amountFormatted}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- Amount In Words -->
+                <div style="font-size:10px; font-weight:800; margin:2px 0 3px 4px; font-style:italic; color:#000000;">
+                    અંકે રૂપિયા ${amountInWords} પૂરા.
+                </div>
+
+                <!-- Signatures Row (Ample signing space) -->
+                <div style="display:flex; justify-content:space-between; align-items:flex-end; font-size:10.5px; font-weight:800; padding:0 25px; margin-top:28px; margin-bottom:2px;">
+                    <div style="width:25%; text-align:center;">Clerk</div>
+                    <div style="width:35%; text-align:center;">Sn. / Junior Officer</div>
+                    <div style="width:25%; text-align:center;">Manager</div>
+                </div>
+            </div>
+            `;
+
+            if (showCutLine) {
+                vouchersHtml += `
+                <div style="border-top:1px dashed #555; margin:2.5mm 0 2mm 0; position:relative; text-align:center; height:1px;">
+                    <span style="position:absolute; top:-8px; right:15px; background:#fff; padding:0 6px; font-size:9px; color:#555;">✂ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ✂</span>
+                </div>
+                `;
+            }
+        });
+
+        fullHtml += `
+        <div class="print-page print-vouchers-page ${pageBreakClass}" style="width:210mm; box-sizing:border-box; padding:0.50in 0.50in 0.50in 1.00in; background:#ffffff; display:flex; flex-direction:column; justify-content:space-between;">
+            ${vouchersHtml}
+        </div>
+        `;
+    });
+
+    return fullHtml;
+}
+
+// Fallback single loan voucher generator
+function generate3in1VoucherHTML(loan, isPageBreak = false) {
+    const allVouchers = getLoanExpenseVouchersList(loan);
+    // Exclude other charges from printed vouchers
+    const vouchers = (allVouchers || []).filter(v => v.key !== "otherCharges" && v.glCode !== "GL-160199" && v.nameGu !== "અન્ય ચાર્જ");
+    if (vouchers.length === 0) {
+        return `
+        <div class="print-page ${isPageBreak ? 'print-page-break' : ''}" style="padding:40px 20px; text-align:center; font-family:'Outfit', 'Noto Sans Gujarati', sans-serif; font-size:14px; font-weight:700; background:#ffffff;">
+            આ લોન માટે કોઈ કપાત / ખર્ચની રકમ નોંધાયેલ નથી, જેથી વાઉચર બનાવી શકાય તેમ નથી.
+        </div>
+        `;
+    }
+
+    const cleanBranch = getCleanBranchName(loan.branchName);
+    const dateFormatted = formatDateDMY(loan.date);
+
+    const pages = [];
+    for (let i = 0; i < vouchers.length; i += 3) {
+        pages.push(vouchers.slice(i, i + 3));
+    }
+
+    let fullHtml = "";
+
+    pages.forEach((pageVouchers, pIdx) => {
+        const pageBreakClass = (isPageBreak || pIdx > 0) ? "print-page-break" : "";
+
+        let vouchersHtml = "";
+        pageVouchers.forEach((v, vIdx) => {
+            const amountFormatted = parseFloat(v.amount).toFixed(2);
+            const amountInWords = formatAmountToGujaratiWords(v.amount);
+            const showCutLine = (vIdx < pageVouchers.length - 1);
+
+            vouchersHtml += `
+            <div class="voucher-card" style="box-sizing:border-box; padding:2mm 0; font-family:'Outfit', 'Noto Sans Gujarati', Arial, sans-serif; color:#000000; line-height:1.2; background:#ffffff;">
+                
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
+                    <div style="width:20%;"></div>
+                    <div style="text-align:center;">
+                        <span style="display:inline-block; border:1.5px solid #000000; border-radius:14px; padding:1.5px 22px; font-size:11.5px; font-weight:800; letter-spacing:0.6px; background:#f1f5f9; text-transform:uppercase;">
+                            CASH CREDIT VOUCHER
+                        </span>
+                    </div>
+                    <div style="width:28%; text-align:right; font-size:11px; font-weight:800; white-space:nowrap;">
+                        શાખા : <strong style="font-weight:900;">${cleanBranch}</strong>
+                    </div>
+                </div>
+
+                <div style="border:1.5px solid #000000; border-radius:8px; padding:3px 8px; background:#f1f5f9; display:flex; align-items:center; justify-content:space-between; margin-bottom:3px;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <img src="${LOGO_SRC}" alt="JCCB" loading="eager" decoding="sync" style="width:42px; height:42px; object-fit:contain; flex-shrink:0;">
+                        <div style="font-size:14px; font-weight:800; letter-spacing:0.2px; color:#000000;">
+                            The Junagadh Commercial Co-Ope. Bank Ltd.
+                        </div>
+                    </div>
+                    <div style="border:1.5px solid #000000; border-radius:4px; padding:2.5px 10px; font-size:11px; font-weight:800; background:#ffffff; white-space:nowrap;">
+                        ${dateFormatted}
+                    </div>
+                </div>
+
+                <div style="display:flex; align-items:center; gap:6px; margin-bottom:3px; font-size:11px;">
+                    <div style="border:1.5px solid #000000; border-radius:12px; padding:2px 14px; font-weight:900; background:#ffffff; text-transform:uppercase; letter-spacing:0.5px;">
+                        CREDIT
+                    </div>
+                    <div style="border:1.5px solid #000000; border-radius:6px; padding:2px 10px; font-weight:800; background:#ffffff; white-space:nowrap;">
+                        ${v.glCode}
+                    </div>
+                    <div style="border:1.5px solid #000000; border-radius:6px; padding:2px 12px; font-weight:800; background:#ffffff; flex:1;">
+                        ${v.glName}
+                    </div>
+                </div>
+
+                <table style="width:100%; border-collapse:collapse; border:1.5px solid #000000; margin-bottom:2px; background:#ffffff; font-size:10px;">
+                    <thead>
+                        <tr style="border-bottom:1.5px solid #000000; background:#ffffff;">
+                            <th style="border-right:1.5px solid #000000; padding:2px 6px; width:80%; text-align:center; font-weight:800; font-size:10.5px;">વિગત</th>
+                            <th style="padding:2px 6px; width:20%; text-align:center; font-weight:800; font-size:10.5px;">રૂ.પૈસા</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="border-right:1.5px solid #000000; border-bottom:1px solid #000000; padding:2.5px 6px; font-size:10px; font-weight:700; text-align:left; line-height:1.25;">
+                                ${v.narration}
+                            </td>
+                            <td style="border-bottom:1px solid #000000; padding:2.5px 8px; font-size:11.5px; font-weight:800; text-align:right; white-space:nowrap;">
+                                ${amountFormatted}
+                            </td>
+                        </tr>
+                        <tr style="height:9px;"><td style="border-right:1.5px solid #000000; border-bottom:1px solid #000000;">&nbsp;</td><td style="border-bottom:1px solid #000000;">&nbsp;</td></tr>
+                        <tr style="height:9px;"><td style="border-right:1.5px solid #000000; border-bottom:1px solid #000000;">&nbsp;</td><td style="border-bottom:1px solid #000000;">&nbsp;</td></tr>
+                        <tr style="height:9px;"><td style="border-right:1.5px solid #000000; border-bottom:1px solid #000000;">&nbsp;</td><td style="border-bottom:1px solid #000000;">&nbsp;</td></tr>
+                        <tr style="height:9px;"><td style="border-right:1.5px solid #000000; border-bottom:1px solid #000000;">&nbsp;</td><td style="border-bottom:1px solid #000000;">&nbsp;</td></tr>
+                        <tr style="height:9px;"><td style="border-right:1.5px solid #000000; border-bottom:1px solid #000000;">&nbsp;</td><td style="border-bottom:1px solid #000000;">&nbsp;</td></tr>
+                        <tr style="height:9px;"><td style="border-right:1.5px solid #000000; border-bottom:1px solid #000000;">&nbsp;</td><td style="border-bottom:1px solid #000000;">&nbsp;</td></tr>
+                        <tr style="border-top:1.5px solid #000000; border-bottom:1.5px solid #000000; font-weight:900; background:#fafafa;">
+                            <td style="border-right:1.5px solid #000000; height:14px;">&nbsp;</td>
+                            <td style="text-align:right; padding:2px 8px; font-size:11.5px; font-weight:900;">
+                                ${amountFormatted}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div style="font-size:10px; font-weight:800; margin:2px 0 3px 4px; font-style:italic; color:#000000;">
+                    અંકે રૂપિયા ${amountInWords} પૂરા.
+                </div>
+
+                <!-- Signatures Row (Ample signing space) -->
+                <div style="display:flex; justify-content:space-between; align-items:flex-end; font-size:10.5px; font-weight:800; padding:0 25px; margin-top:28px; margin-bottom:2px;">
+                    <div style="width:25%; text-align:center;">Clerk</div>
+                    <div style="width:35%; text-align:center;">Sn. / Junior Officer</div>
+                    <div style="width:25%; text-align:center;">Manager</div>
+                </div>
+            </div>
+            `;
+
+            if (showCutLine) {
+                vouchersHtml += `
+                <div style="border-top:1px dashed #555; margin:2.5mm 0 2mm 0; position:relative; text-align:center; height:1px;">
+                    <span style="position:absolute; top:-8px; right:15px; background:#fff; padding:0 6px; font-size:9px; color:#555;">✂ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ✂</span>
+                </div>
+                `;
+            }
+        });
+
+        fullHtml += `
+        <div class="print-page print-vouchers-page ${pageBreakClass}" style="width:210mm; box-sizing:border-box; padding:0.50in 0.50in 0.50in 1.00in; background:#ffffff; display:flex; flex-direction:column; justify-content:space-between;">
+            ${vouchersHtml}
+        </div>
+        `;
+    });
+
+    return fullHtml;
+}
+
+// ==================== HELPER FUNCTIONS ====================
+function formatDateDMY(dateInput) {
+    if (!dateInput) return "";
+    const d = new Date(dateInput);
+    if (isNaN(d.getTime())) return String(dateInput);
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const year = d.getFullYear();
+    return `${day}-${month}-${year}`;
+}
+
+function calculateAgeFromDOB(dobString, baseDateStr = null) {
+    if (!dobString) return "";
+    const birthDate = new Date(dobString);
+    if (isNaN(birthDate.getTime())) return "";
+
+    const refDate = baseDateStr ? new Date(baseDateStr) : new Date();
+    let age = refDate.getFullYear() - birthDate.getFullYear();
+    const m = refDate.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && refDate.getDate() < birthDate.getDate())) {
+        age--;
+    }
+    return age >= 0 ? age : 0;
+}
+
+function getMaturityDate(dateInput, monthsToAdd = 12) {
+    const d = new Date(dateInput || new Date());
+    d.setMonth(d.getMonth() + monthsToAdd);
+    return d;
+}
+
+function getFirstEmiDueDate(dateInput) {
+    const d = new Date(dateInput || new Date());
+    d.setMonth(d.getMonth() + 1);
+    return d;
+}
+
+function showToast(msg) {
+    const toast = document.createElement("div");
+    toast.className = "toast-notification";
+    toast.style.cssText = "position:fixed; bottom:20px; right:20px; background:#0f1c3f; color:#ffd700; padding:12px 20px; border-radius:8px; z-index:99999; box-shadow:0 4px 12px rgba(0,0,0,0.3); font-weight:600; display:flex; align-items:center; gap:8px;";
+    toast.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${msg}`;
+    document.body.appendChild(toast);
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}
+
+function numberToGujaratiWords(num) {
+    if (!num || num === 0) return "શૂન્ય";
+    const a = [
+        "", "એક", "બે", "ત્રણ", "ચાર", "પાંચ", "છ", "સાત", "આઠ", "નવ", "દસ",
+        "અગિયાર", "બાર", "તેર", "ચૌદ", "પંદર", "સોળ", "સત્તર", "અઢાર", "ઓગણીસ", "વીસ",
+        "એકવીસ", "બાવીસ", "તેવીસ", "ચોવીસ", "પચ્ચીસ", "છવ્વીસ", "સત્તાવીસ", "અઠ્ઠાવીસ", "ઓગણત્રીસ", "ત્રીસ",
+        "એકત્રીસ", "બત્રીસ", "તેત્રીસ", "ચોત્રીસ", "પાંત્રીસ", "છત્રીસ", "સાડત્રીસ", "આડત્રીસ", "ઓગણચાલીસ", "ચાલીસ",
+        "એકતાલીસ", "બેતાલીસ", "તેતાલીસ", "ચુંમાલીસ", "પિસ્તાલીસ", "છેતાલીસ", "સુડતાલીસ", "અડતાલીસ", "ઓગણપચાસ", "પચાસ",
+        "એકાવન", "બાવન", "ત્રેપન", "ચોપન", "પંચાવન", "છપ્પન", "સત્તાવન", "અઠ્ઠાવન", "ઓગણસાઠ", "સાઠ",
+        "એકસઠ", "બાસઠ", "ત્રેસઠ", "ચોસઠ", "પાંસઠ", "છાસઠ", "સડસઠ", "અડસઠ", "ઓગણોસિત્તેર", "સિત્તેર",
+        "એકોતેર", "બોતેર", "તેરોતેર", "ચોંતેર", "પંચોતેર", "છોતેર", "સંતોતેર", "ઇઠોતેર", "ઓગણાએંસી", "એંસી",
+        "એક્યાસી", "બ્યાસી", "ત્યાસી", "ચોર્યાસી", "પંચાસી", "છ્યાસી", "સત્ત્યાસી", "અઠ્યાસી", "નેવ્યાસી", "નેવું",
+        "એકાણું", "બાણું", "ત્રાણું", "ચોરાણું", "પંચાણું", "છન્નું", "સત્તાણું", "અઠ્ઠાણું", "નવ્વાણું"
+    ];
+
+    const hundreds = [
+        "", "એકસો", "બસ્સો", "ત્રણસો", "ચારસો", "પાંચસો", "છસો", "સાતસો", "આઠસો", "નવસો"
+    ];
+
+    function convertGroup(n) {
+        let str = "";
+        if (n >= 100) {
+            const h = Math.floor(n / 100);
+            if (h < hundreds.length && hundreds[h]) {
+                str += hundreds[h] + " ";
+            } else {
+                str += (a[h] || "") + " સો ";
+            }
+            n %= 100;
+        }
+        if (n > 0) {
+            str += a[n] + " ";
+        }
+        return str;
+    }
+
+    let result = "";
+    let n = Math.floor(Math.abs(num));
+
+    const crore = Math.floor(n / 10000000);
+    n %= 10000000;
+    const lakh = Math.floor(n / 100000);
+    n %= 100000;
+    const thousand = Math.floor(n / 1000);
+    n %= 1000;
+    const remainder = n;
+
+    if (crore > 0) result += convertGroup(crore) + "કરોડ ";
+    if (lakh > 0) result += convertGroup(lakh) + "લાખ ";
+    if (thousand > 0) result += convertGroup(thousand) + "હજાર ";
+    if (remainder > 0) result += convertGroup(remainder);
+
+    return result.replace(/\s+/g, " ").trim();
+}
+
+// Global Window Exports
+window.deleteLoanRecord = deleteLoanRecord;
+window.editLoanRecord = editLoanRecord;
+window.syncCloudData = syncCloudData;
+
