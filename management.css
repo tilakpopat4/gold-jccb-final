@@ -7,9 +7,9 @@
     --primary-dark: #00253a;
     --primary-light: #004f7c;
     --accent-blue: #9DABDA;
-    --gold: #F4C300;
+    --gold: #fdc500;
     --gold-dark: #d4a500;
-    --gold-gradient: #F4C300;
+    --gold-gradient: #fdc500;
     --bg-page: #f4f6fa;
     --bg-card: #ffffff;
     --text-main: #1e293b;
@@ -17,7 +17,7 @@
     --border-color: #e2e8f0;
     --success: #10b981;
     --danger: #ef4444;
-    --warning: #f59e0b;
+    --warning: #fdc500;
     --shadow-card: 0 4px 12px rgba(0, 59, 92, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
     --shadow-lg: 0 12px 28px rgba(0, 59, 92, 0.12);
 }

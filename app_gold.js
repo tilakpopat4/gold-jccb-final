@@ -5339,7 +5339,7 @@ function renderReportsTable() {
             <td style="text-align:center;"><span class="badge badge-gold" style="font-size:10.5px;">${loan.loanType || "GW-3725"}</span></td>
             <td style="max-width:200px; font-size:11px; color:#334155; line-height:1.3;">${ornSummary}</td>
             <td style="text-align:right; font-weight:600;">${grossWt.toFixed(3)}</td>
-            <td style="text-align:right; font-weight:700; color:#d97706;">${netWt.toFixed(3)}</td>
+            <td style="text-align:right; font-weight:700; color:#946800;">${netWt.toFixed(3)}</td>
             <td style="text-align:right; font-weight:600;">₹ ${valAmt.toLocaleString("en-IN")}</td>
             <td style="text-align:right; font-weight:800; color:#0f172a;">₹ ${sancAmt.toLocaleString("en-IN")}</td>
             <td style="text-align:right; color:#b91c1c; font-weight:600;">₹ ${deductions.toLocaleString("en-IN")}</td>
@@ -5763,7 +5763,7 @@ async function printReportPDF() {
                         <img src="${LOGO_SRC}" alt="JCCB" style="height: 48px; width: 48px; object-fit: contain;">
                         <div>
                             <div style="font-size: 17px; font-weight: 900; color: #0f1c3f; letter-spacing: 0.5px;">ધી જૂનાગઢ કોમર્શિયલ કો-ઓપરેટીવ બેંક લિ.</div>
-                            <div style="font-size: 12.5px; font-weight: 800; color: #b45309; letter-spacing: 0.3px;">THE JUNAGADH COMMERCIAL CO-OPERATIVE BANK LTD.</div>
+                            <div style="font-size: 12.5px; font-weight: 800; color: #946800; letter-spacing: 0.3px;">THE JUNAGADH COMMERCIAL CO-OPERATIVE BANK LTD.</div>
                         </div>
                     </div>
                     <div style="text-align: right;">
@@ -5778,7 +5778,7 @@ async function printReportPDF() {
                 <div style="display: flex; justify-content: space-between; background: #f8fafc; border: 1.5px solid #0f1c3f; border-radius: 4px; padding: 6px 12px; margin-bottom: 8px; font-size: 10.5px; font-weight: 700;">
                     <div>કુલ ખાતાઓ: <strong style="font-size:11.5px; color:#0f1c3f;">${list.length}</strong></div>
                     <div>કુલ ગ્રોસ વજન: <strong>${sumGross.toFixed(3)} g</strong></div>
-                    <div>કુલ નેટ સોનું: <strong style="color:#d97706;">${sumNet.toFixed(3)} g</strong></div>
+                    <div>કુલ નેટ સોનું: <strong style="color:#946800;">${sumNet.toFixed(3)} g</strong></div>
                     <div>કુલ બજાર કિંમત: <strong>₹ ${Math.round(sumValuation).toLocaleString("en-IN")}</strong></div>
                     <div>કુલ મંજૂર રકમ: <strong style="color:#0f1c3f; font-size:12px;">₹ ${Math.round(sumSanctioned).toLocaleString("en-IN")}</strong></div>
                     <div>કુલ કપાત: <strong style="color:#b91c1c;">₹ ${Math.round(sumDeductions).toLocaleString("en-IN")}</strong></div>
@@ -5813,7 +5813,7 @@ async function printReportPDF() {
                         <tr style="background-color: #f1f5f9; border-top: 2px solid #0f1c3f; height: 30px; font-weight: 900; font-size: 10px;">
                             <td colspan="8" style="text-align: right; padding-right: 8px; border: 1px solid #94a3b8; font-weight: 900;">કુલ ગ્રાન્ડ સરવાળો (GRAND TOTAL) :</td>
                             <td style="text-align: right; border: 1px solid #94a3b8; padding: 4px 4px; font-variant-numeric: tabular-nums; white-space:nowrap;">${sumGross.toFixed(3)}</td>
-                            <td style="text-align: right; border: 1px solid #94a3b8; padding: 4px 4px; color:#b45309; font-variant-numeric: tabular-nums; white-space:nowrap;">${sumNet.toFixed(3)}</td>
+                            <td style="text-align: right; border: 1px solid #94a3b8; padding: 4px 4px; color:#946800; font-variant-numeric: tabular-nums; white-space:nowrap;">${sumNet.toFixed(3)}</td>
                             <td style="text-align: right; border: 1px solid #94a3b8; padding: 4px 4px; font-variant-numeric: tabular-nums; white-space:nowrap;">${Math.round(sumValuation).toLocaleString("en-IN")}</td>
                             <td style="text-align: right; border: 1px solid #94a3b8; padding: 4px 4px; color:#0f1c3f; font-variant-numeric: tabular-nums; white-space:nowrap;">${Math.round(sumSanctioned).toLocaleString("en-IN")}</td>
                             <td style="text-align: right; border: 1px solid #94a3b8; padding: 4px 4px; color:#b91c1c; font-variant-numeric: tabular-nums; white-space:nowrap;">${Math.round(sumDeductions).toLocaleString("en-IN")}</td>
@@ -9844,7 +9844,7 @@ function renderPendingMemberTable() {
                 <span style="font-weight:800; font-size:13.5px; color:#0f172a;">₹ ${sancAmt.toLocaleString("en-IN")}</span>
             </td>
             <td style="text-align:center; white-space:nowrap;">
-                <span class="badge" style="background:rgba(245,158,11,0.12); color:#b45309; border:1px solid rgba(245,158,11,0.25); font-weight:700; padding:4px 9px; border-radius:6px; font-size:11px; display:inline-flex; align-items:center; gap:4px;">
+                <span class="badge" style="background:rgba(253,197,0,0.15); color:#946800; border:1px solid rgba(253,197,0,0.35); font-weight:700; padding:4px 9px; border-radius:6px; font-size:11px; display:inline-flex; align-items:center; gap:4px;">
                     <i class="fa-solid fa-clock-rotate-left"></i> Pending
                 </span>
             </td>

@@ -19,17 +19,17 @@
     --accent-slate-light: rgba(157, 171, 218, 0.20);
     --accent-slate-border: #9dabda;
     
-    /* 3. Refined Corporate Gold / Brass Accent - Subtle & Solid */
-    --gold: #d97706;
-    --gold-dark: #b45309;
-    --gold-light: #fef3c7;
-    --gold-gradient: #d97706;
-    --gold-glow: rgba(0, 0, 0, 0.05);
+    /* 3. Refined Corporate Gold Accent (#fdc500) */
+    --gold: #fdc500;
+    --gold-dark: #d4a500;
+    --gold-light: #fff8d6;
+    --gold-gradient: #fdc500;
+    --gold-glow: rgba(253, 197, 0, 0.2);
 
     /* UI State Colors */
     --success: #10b981;
     --success-hover: #059669;
-    --warning: #f59e0b;
+    --warning: #fdc500;
     --danger: #ef4444;
     --danger-hover: #dc2626;
     
@@ -1226,7 +1226,7 @@ input[readonly] {
 }
 
 .blue-icon { background-color: #eff6ff; color: #3b82f6; }
-.yellow-icon { background-color: #fefdf0; color: #eab308; }
+.yellow-icon { background-color: #fefdf0; color: #fdc500; }
 .green-icon { background-color: #ecfdf5; color: #10b981; }
 
 .stat-info h3 {
@@ -1552,25 +1552,25 @@ label.required::after,
     gap: 9px;
     padding: 7px 12px;
     background: #fffbeb;
-    border: 2px solid #f59e0b;
+    border: 2px solid #fdc500;
     border-radius: 8px;
     cursor: pointer;
-    box-shadow: 0 2px 6px rgba(245, 158, 11, 0.18);
+    box-shadow: 0 2px 6px rgba(253, 197, 0, 0.2);
     transition: all 0.2s ease;
     user-select: none;
 }
 
 .compulsory-od-card:hover {
     background: #fef3c7;
-    border-color: #d97706;
+    border-color: #d4a500;
     transform: translateY(-1px);
-    box-shadow: 0 4px 10px rgba(217, 119, 6, 0.25);
+    box-shadow: 0 4px 10px rgba(253, 197, 0, 0.3);
 }
 
 .compulsory-od-card.active, .compulsory-od-card:has(input:checked) {
-    background: #fde047 !important;
-    border-color: #b45309 !important;
-    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.35), 0 4px 12px rgba(180, 83, 9, 0.25) !important;
+    background: #fdc500 !important;
+    border-color: #d4a500 !important;
+    box-shadow: 0 0 0 3px rgba(253, 197, 0, 0.35), 0 4px 12px rgba(212, 165, 0, 0.25) !important;
 }
 
 .compulsory-od-checkbox {
@@ -1578,7 +1578,7 @@ label.required::after,
     height: 20px !important;
     min-width: 20px !important;
     cursor: pointer !important;
-    accent-color: #b45309 !important;
+    accent-color: #d4a500 !important;
     margin: 0 !important;
 }
 
@@ -1699,12 +1699,12 @@ label.required::after,
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #eab308 !important;
+    background: #fdc500 !important;
     color: #000000 !important;
     margin: -15px -16px 14px -16px;
     padding: 8px 14px;
     border-radius: 8.5px 8.5px 0 0;
-    border-bottom: 2px solid #a16207 !important;
+    border-bottom: 2px solid #d4a500 !important;
     flex-wrap: wrap;
     gap: 10px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
@@ -1872,12 +1872,12 @@ label.required::after,
 }
 
 #val-market-card {
-    border-top: 3px solid #d97706;
+    border-top: 3px solid #fdc500;
     background: #fffbeb;
 }
 
 #val-market-card .val-metric-value {
-    color: #b45309;
+    color: #946800;
 }
 
 #val-eligible-card {
@@ -2311,8 +2311,8 @@ label.required::after,
 /* Right Side Actions Card & Big Submit Button */
 .right-actions-card {
     background: #ffffff;
-    border: 1.5px solid #eab308;
-    border-top: 4px solid #eab308;
+    border: 1.5px solid #fdc500;
+    border-top: 4px solid #fdc500;
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -2331,10 +2331,10 @@ label.required::after,
     align-items: center;
     justify-content: center;
     gap: 10px;
-    background: #eab308 !important;
+    background: #fdc500 !important;
     color: #000000 !important;
-    box-shadow: 0 4px 14px rgba(202, 138, 4, 0.35);
-    border: 2px solid #a16207 !important;
+    box-shadow: 0 4px 14px rgba(253, 197, 0, 0.35);
+    border: 2px solid #d4a500 !important;
     cursor: pointer;
     letter-spacing: 0.3px;
     transition: all 0.2s ease;
@@ -2348,9 +2348,9 @@ label.required::after,
 
 .right-save-big-btn:hover {
     transform: translateY(-2px);
-    background: #ca8a04 !important;
-    box-shadow: 0 8px 20px rgba(202, 138, 4, 0.5);
-    border-color: #854d0e !important;
+    background: #e0ae00 !important;
+    box-shadow: 0 8px 20px rgba(253, 197, 0, 0.5);
+    border-color: #b38800 !important;
 }
 
 .right-reset-btn {
