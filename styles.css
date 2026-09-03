@@ -319,15 +319,26 @@ input[readonly] {
 }
 
 .bank-logo-container {
-    width: 70px;
-    height: 70px;
-    background: var(--gold-gradient);
+    width: 88px;
+    height: 88px;
+    background: #ffffff;
+    border: 2.5px solid var(--gold);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 15px auto;
-    box-shadow: 0 4px 15px rgba(244, 195, 0, 0.4);
+    margin: 0 auto 16px auto;
+    padding: 3px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 16px rgba(212, 175, 55, 0.4);
+    overflow: hidden;
+}
+
+.bank-login-logo {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 50%;
+    display: block;
 }
 
 .bank-logo-icon {
@@ -336,17 +347,18 @@ input[readonly] {
 }
 
 .login-header h2 {
-    font-size: 20px;
+    font-size: 19px;
     font-weight: 700;
-    margin-bottom: 5px;
-    line-height: 1.4;
+    margin-bottom: 4px;
+    line-height: 1.35;
     color: #fff;
 }
 
 .login-header .subtitle {
-    color: #94a3b8;
+    color: #cbd5e1;
     font-size: 13px;
-    margin-bottom: 15px;
+    margin-bottom: 12px;
+    font-weight: 600;
 }
 
 .gold-badge {
@@ -3808,7 +3820,7 @@ input.admin-editable:focus, select.admin-editable:focus {
     height: 34px;
     width: 34px;
     border-radius: 50%;
-    object-fit: cover;
+    object-fit: contain;
     border: 1.5px solid #151371;
     background: #ffffff;
     padding: 2px;
