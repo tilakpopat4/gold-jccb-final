@@ -4007,23 +4007,48 @@ input.admin-editable:focus, select.admin-editable:focus {
 }
 
 .dev-badge-sub {
-    font-size: 9.5px;
-    color: #64748b;
-    font-weight: 600;
-    line-height: 1.1;
-    white-space: nowrap;
+/* ==================== MOBILE NAVIGATION & RESPONSIVE DRAWER ==================== */
+.mobile-nav-toggle {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    background: #f1f5f9;
+    border: 1.5px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--primary);
+    font-size: 17px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
 }
 
-@media (max-width: 900px) {
-    .footer-container {
-        flex-direction: column;
-        text-align: center;
-        gap: 8px;
-    }
-    .footer-left, .footer-center, .footer-right {
-        justify-content: center;
-        width: 100%;
-    }
+.mobile-nav-toggle:hover {
+    background: #e2e8f0;
+    color: var(--primary-hover);
+}
+
+.sidebar-backdrop {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    z-index: 9998;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.sidebar-backdrop.active {
+    display: block;
+    opacity: 1;
+    pointer-events: auto;
 }
 
 /* Sidebar mini credit */
@@ -4041,15 +4066,280 @@ input.admin-editable:focus, select.admin-editable:focus {
     font-weight: 800;
 }
 
-@media (max-width: 768px) {
-    .footer-container {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 16px;
+/* ==================== MULTI-DEVICE RESPONSIVE BREAKPOINTS ==================== */
+
+/* 1. Large Screen / Laptops (<= 1200px) */
+@media (max-width: 1200px) {
+    .loan-entry-layout {
+        flex-direction: column !important;
+        gap: 20px !important;
     }
-    .developer-credit-badge {
-        align-items: flex-start;
-        width: 100%;
+    
+    .loan-form-main, 
+    .loan-form-sidebar {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: none !important;
+    }
+
+    .right-actions-card {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .welcome-banner-row {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 18px !important;
+    }
+
+    .welcome-center-col {
+        margin: 10px 0 !important;
+    }
+
+    .gold-real-photo-card {
+        margin: 0 auto !important;
+        max-width: 100% !important;
+    }
+
+    .welcome-right-col {
+        justify-content: flex-start !important;
+    }
+}
+
+/* 2. Tablets & Medium Screens (<= 992px) */
+@media (max-width: 992px) {
+    .mobile-nav-toggle {
+        display: inline-flex !important;
+    }
+
+    .sidebar {
+        position: fixed !important;
+        left: -280px !important;
+        width: 260px !important;
+        height: 100vh !important;
+        z-index: 9999 !important;
+        transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        box-shadow: 6px 0 25px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    .sidebar.mobile-open {
+        left: 0 !important;
+    }
+
+    .main-content {
+        margin-left: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .app-header {
+        padding: 12px 18px !important;
+    }
+
+    .gold-rate-substrip {
+        top: 73px !important;
+        padding: 6px 16px !important;
+    }
+
+    .master-layout-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .settings-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 14px !important;
+    }
+
+    .val-metrics-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+    }
+
+    .footer-container {
+        flex-direction: column !important;
+        text-align: center !important;
+        gap: 10px !important;
+    }
+
+    .footer-left, .footer-center, .footer-right {
+        justify-content: center !important;
+        width: 100% !important;
+    }
+}
+
+/* 3. Small Tablets & Phones (<= 768px) */
+@media (max-width: 768px) {
+    .app-header {
+        padding: 10px 14px !important;
+        flex-wrap: wrap !important;
+        gap: 10px !important;
+    }
+
+    .header-logo-area {
+        gap: 10px !important;
+    }
+
+    .header-bank-logo {
+        width: 38px !important;
+        height: 38px !important;
+    }
+
+    .header-title-area h1 {
+        font-size: 15px !important;
+        line-height: 1.25 !important;
+    }
+
+    .header-title-area .subtitle {
+        font-size: 11px !important;
+    }
+
+    .header-sync-widget {
+        order: 3 !important;
+        width: 100% !important;
+        justify-content: space-between !important;
+        margin-top: 2px !important;
+    }
+
+    .header-actions {
+        order: 2 !important;
+        width: 100% !important;
+        justify-content: space-between !important;
+        gap: 8px !important;
+        flex-wrap: wrap !important;
+    }
+
+    .header-dev-badge {
+        padding: 4px 8px !important;
+    }
+
+    .header-dev-title {
+        font-size: 11.5px !important;
+    }
+
+    .header-dev-highlight {
+        font-size: 12.5px !important;
+    }
+
+    .date-time-widget {
+        font-size: 11.5px !important;
+        padding: 4px 10px !important;
+    }
+
+    .gold-rate-substrip {
+        position: static !important;
+        padding: 6px 10px !important;
+    }
+
+    .header-gold-rate-badge {
+        padding: 4px 12px !important;
+        white-space: normal !important;
+        text-align: center !important;
+        border-radius: 6px !important;
+    }
+
+    .header-gold-rate-badge .h-rate-label {
+        font-size: 12px !important;
+    }
+
+    .header-gold-rate-badge .h-rate-value {
+        font-size: 15.5px !important;
+    }
+
+    .content-body {
+        padding: 12px 10px !important;
+    }
+
+    .view-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 6px !important;
+        margin-bottom: 16px !important;
+    }
+
+    .view-header h2 {
+        font-size: 18px !important;
+    }
+
+    .view-header p {
+        font-size: 12px !important;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .rep-kpi-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    .val-metrics-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    .modal-content {
+        width: 95vw !important;
+        max-width: 95vw !important;
+        padding: 16px 12px !important;
+        margin: 10px auto !important;
+    }
+
+    .filter-card {
+        padding: 12px !important;
+    }
+
+    .card {
+        padding: 14px !important;
+    }
+
+    .login-card {
+        width: 94vw !important;
+        max-width: 440px !important;
+        padding: 24px 16px !important;
+    }
+
+    .table-responsive {
+        border-radius: 6px !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+}
+
+/* 4. Compact Mobile Devices (<= 480px) */
+@media (max-width: 480px) {
+    .header-title-area h1 {
+        font-size: 13.5px !important;
+    }
+
+    .header-title-area .subtitle {
+        font-size: 10px !important;
+    }
+
+    .rep-kpi-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .val-metrics-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .right-actions-card {
+        flex-direction: column !important;
+    }
+
+    .btn {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+
+    .login-header h2 {
+        font-size: 16.5px !important;
+    }
+
+    .login-card {
+        padding: 20px 14px !important;
     }
 }
 

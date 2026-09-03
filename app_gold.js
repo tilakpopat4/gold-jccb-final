@@ -2099,11 +2099,42 @@ function updateBranchContextUI() {
     }
 }
 
-// ==================== NAVIGATION ====================
-function initNavigation() {
+    // Mobile Drawer Navigation Handlers
+    const mobileToggleBtn = document.getElementById("mobile-sidebar-toggle");
+    const sidebar = document.querySelector(".sidebar");
+    const sidebarBackdrop = document.getElementById("sidebar-backdrop");
+
+    function closeMobileSidebar() {
+        if (sidebar) sidebar.classList.remove("mobile-open");
+        if (sidebarBackdrop) sidebarBackdrop.classList.remove("active");
+        document.body.classList.remove("sidebar-open");
+    }
+
+    function openMobileSidebar() {
+        if (sidebar) sidebar.classList.add("mobile-open");
+        if (sidebarBackdrop) sidebarBackdrop.classList.add("active");
+        document.body.classList.add("sidebar-open");
+    }
+
+    if (mobileToggleBtn) {
+        mobileToggleBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            if (sidebar && sidebar.classList.contains("mobile-open")) {
+                closeMobileSidebar();
+            } else {
+                openMobileSidebar();
+            }
+        });
+    }
+
+    if (sidebarBackdrop) {
+        sidebarBackdrop.addEventListener("click", closeMobileSidebar);
+    }
+
     const navButtons = document.querySelectorAll(".sidebar-nav .nav-item");
     navButtons.forEach(btn => {
         btn.addEventListener("click", () => {
+            closeMobileSidebar();
             const targetId = btn.getAttribute("data-tab");
             if (!targetId) return;
 
