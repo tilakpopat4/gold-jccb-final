@@ -10698,32 +10698,34 @@ async function printContent(contentHtml, isLandscape = false) {
         }
         .print-page, .print-voucher, .print-requisition-form, .print-sanction-letter-page, .print-vouchers-page, .print-pledge-letter {
             width: 100% !important;
-            height: 284mm !important;
-            min-height: 284mm !important;
-            max-height: 284mm !important;
+            height: 282mm !important;
             box-sizing: border-box !important;
-            border: 3.5px double #000000 !important;
-            padding: 10px 14px !important;
             margin: 0 auto !important;
             background: #ffffff !important;
+            page-break-before: always !important;
+            break-before: page !important;
             page-break-after: always !important;
             break-after: page !important;
             page-break-inside: avoid !important;
             break-inside: avoid !important;
-            display: flex !important;
-            flex-direction: column !important;
-            justify-content: space-between !important;
-            overflow: hidden !important;
+            display: block !important;
+            position: relative !important;
+        }
+        .print-page:first-child {
+            page-break-before: auto !important;
+            break-before: auto !important;
         }
         .print-page:last-child {
             page-break-after: auto !important;
             break-after: auto !important;
         }
         .print-page-frame {
-            border: none !important;
+            border: 3.5px double #000000 !important;
             box-sizing: border-box !important;
             width: 100% !important;
             height: 100% !important;
+            min-height: 280mm !important;
+            padding: 12px 16px !important;
             display: flex !important;
             flex-direction: column !important;
             justify-content: space-between !important;
