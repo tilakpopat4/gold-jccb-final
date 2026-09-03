@@ -360,46 +360,80 @@ input[readonly] {
     margin-bottom: 20px;
 }
 
-.login-card label {
-    display: block;
-    color: #e2e8f0;
-    margin-bottom: 8px;
-    font-size: 13px;
-    font-weight: 500;
+.login-card label,
+.login-card .required-label,
+.login-card .form-group > label {
+    display: block !important;
+    color: #ffffff !important;
+    margin-bottom: 8px !important;
+    font-size: 13.5px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.3px !important;
 }
 
-.login-card select, .login-card input {
-    background: rgba(255, 255, 255, 0.07);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: white;
+.login-card label i,
+.login-card .required-label i {
+    color: #ffd700 !important;
+    margin-right: 6px !important;
+}
+
+.login-card label .required-asterisk,
+.login-card .required-label::after {
+    color: #f87171 !important;
+}
+
+.login-card select, 
+.login-card input {
+    background: #ffffff !important;
+    border: 1.5px solid #cbd5e1 !important;
+    color: #0f172a !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    padding: 10px 14px !important;
+    border-radius: 6px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.login-card select:focus, 
+.login-card input:focus {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25) !important;
+    outline: none !important;
 }
 
 .login-card select option {
-    background-color: #1c2541;
-    color: white;
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    font-weight: 600 !important;
 }
 
 .password-input-wrapper {
     position: relative;
     display: flex;
     align-items: center;
+    width: 100%;
 }
 
 .password-input-wrapper input {
-    padding-right: 40px;
+    padding-right: 42px !important;
 }
 
 .password-input-wrapper .icon-button {
     position: absolute;
-    right: 10px;
+    right: 12px;
     background: none;
     border: none;
-    color: #94a3b8;
+    color: #64748b;
     cursor: pointer;
     font-size: 16px;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .password-input-wrapper .icon-button:hover {
-    color: white;
+    color: #0f172a;
 }
 
 .error-alert {
@@ -1456,14 +1490,14 @@ input[readonly] {
 }
 
 /* Required Field Labels — Normal Title with Red Asterisk Only */
-.required-label,
-.compulsory-label,
-label.required,
-.form-group:has(> input[required]:not([readonly]):not([type="checkbox"]):not([type="radio"])) > label,
-.form-group:has(> select[required]) > label,
-.form-group:has(> textarea[required]) > label,
-.form-group:has(> .rate-input-group > input[required]) > label,
-.form-group:has(> div > input[required]:not([readonly])) > label {
+.app-layout .required-label,
+.app-layout .compulsory-label,
+.app-layout label.required,
+.app-layout .form-group:has(> input[required]:not([readonly]):not([type="checkbox"]):not([type="radio"])) > label,
+.app-layout .form-group:has(> select[required]) > label,
+.app-layout .form-group:has(> textarea[required]) > label,
+.app-layout .form-group:has(> .rate-input-group > input[required]) > label,
+.app-layout .form-group:has(> div > input[required]:not([readonly])) > label {
     color: #334155 !important;
     font-weight: 700;
 }
