@@ -2401,7 +2401,7 @@ label.required::after,
 }
 
 .max-height-list {
-    max-height: 400px;
+    max-height: 700px;
     overflow-y: auto;
 }
 
@@ -2680,12 +2680,25 @@ label.required::after,
     display: grid;
     grid-template-columns: 1fr 1.8fr;
     gap: 24px;
+    align-items: stretch;
 }
 
 @media (max-width: 900px) {
     .master-layout-grid {
         grid-template-columns: 1fr;
     }
+}
+
+.master-list-card {
+    display: flex;
+    flex-direction: column;
+}
+
+.master-list-card .table-responsive {
+    flex: 1;
+    max-height: 720px;
+    overflow-y: auto;
+    overflow-x: auto;
 }
 
 .master-form-card h3, .master-list-card h3 {
