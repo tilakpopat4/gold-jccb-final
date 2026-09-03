@@ -2701,7 +2701,6 @@ label.required::after,
     margin-bottom: 6px;
 }
 
-/* ==================== PRINT AREA STRUCTURES ==================== */
 #print-area {
     display: none;
 }
@@ -2712,37 +2711,63 @@ label.required::after,
         print-color-adjust: exact !important;
     }
     @page {
-        size: A4 portrait;
+        size: A4 portrait !important;
         margin: 0 !important;
     }
-    /* Hide screen application frame */
-    body {
-        background-color: white !important;
-        color: black !important;
+    html, body {
+        width: 210mm !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #ffffff !important;
+        color: #000000 !important;
     }
-    
-    #login-container, #app-container {
+    body > *:not(#print-area) {
         display: none !important;
     }
-    
     #print-area {
         display: block !important;
-        width: 100%;
-        margin: 0;
-        padding: 0;
+        width: 210mm !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }
 
     /* Print utility styles */
-    .print-voucher, .print-page, .print-requisition-form {
-        width: 100% !important;
-        background-color: white !important;
-        color: black !important;
+    .print-voucher, .print-page, .print-requisition-form, .print-pledge-letter, .print-sanction-letter-page, .print-vouchers-page {
+        width: 210mm !important;
+        height: 297mm !important;
+        max-height: 297mm !important;
         box-sizing: border-box !important;
-        padding: 0 !important;
-        margin: 0 !important;
+        border: none !important;
+        padding-top: 0.50in !important;     /* 0.50 inch Top Margin */
+        padding-left: 1.00in !important;    /* 1.00 inch Left Margin (Binding Margin) */
+        padding-right: 0.50in !important;   /* 0.50 inch Right Margin */
+        padding-bottom: 0.50in !important;  /* 0.50 inch Bottom Margin */
+        margin: 0 auto !important;
+        background: #ffffff !important;
         font-family: 'Outfit', 'Noto Sans Gujarati', sans-serif !important;
         page-break-inside: avoid !important;
         break-inside: avoid !important;
+        page-break-after: always !important;
+        break-after: page !important;
+        overflow: hidden !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+    }
+
+    .print-page:last-child, .print-voucher:last-child, .print-requisition-form:last-child {
+        page-break-after: avoid !important;
+        break-after: avoid !important;
+    }
+
+    .print-page-frame {
+        border: 3.5px double #000000 !important;
+        height: 100% !important;
+        max-height: 271.6mm !important;
+        box-sizing: border-box !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
     }
 
     .print-page-break {
