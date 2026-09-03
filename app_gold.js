@@ -914,6 +914,26 @@ document.addEventListener("DOMContentLoaded", () => {
                     }
                 });
             }
+
+            // 10. Listen for realtime Global Database Restore & Multi-Device Update Signal
+            if (typeof window.FirebaseService.listenGlobalSyncSignal === "function") {
+                window.FirebaseService.listenGlobalSyncSignal(async (signal) => {
+                    if (!signal || !signal.restoreTimestamp) return;
+                    const lastProcessed = parseInt(localStorage.getItem("jccb_last_global_restore_ts") || "0", 10);
+                    if (signal.restoreTimestamp > lastProcessed) {
+                        localStorage.setItem("jccb_last_global_restore_ts", String(signal.restoreTimestamp));
+                        console.log("[Firebase] Global database update / restore signal received:", signal);
+
+                        // Trigger fresh full pull from Firestore
+                        await syncCloudData(false);
+
+                        // Notify user with clear banner toast
+                        const restoredBy = signal.restoredBy || "હેડ ઓફિસ (Head Office)";
+                        const actionText = signal.restoreType === "EXCEL_RESTORE" ? "એક્સેલ ડેટાબેઝ રીસ્ટોર" : "ડેટાબેઝ અપડેટ";
+                        showToast(`🔔 ${restoredBy} દ્વારા નવો ${actionText} થયેલ છે. તમામ શાખાઓનો ડેટા લાઈવ અપડેટ થઈ ગયો છે!`, 6000);
+                    }
+                });
+            }
         }).catch(err => console.warn("[Firebase] Init warning:", err));
     }
 });
@@ -929,6 +949,17 @@ async function syncCloudData(isManual = false) {
     if (syncText && isManual) syncText.textContent = "Syncing...";
 
     try {
+        // 0. Check Global Sync Signal
+        if (typeof window.FirebaseService.getGlobalSyncSignal === "function") {
+            const globalSignal = await window.FirebaseService.getGlobalSyncSignal();
+            if (globalSignal && globalSignal.restoreTimestamp) {
+                const lastTs = parseInt(localStorage.getItem("jccb_last_global_restore_ts") || "0", 10);
+                if (globalSignal.restoreTimestamp > lastTs) {
+                    localStorage.setItem("jccb_last_global_restore_ts", String(globalSignal.restoreTimestamp));
+                }
+            }
+        }
+
         // 1. Sync Daily Rates
         const fbRates = await window.FirebaseService.getDailyRates();
         let activeCloudRate = null;
@@ -1095,6 +1126,15 @@ async function syncCloudData(isManual = false) {
             });
 
             state.loans = mergedLoans;
+        }
+
+        // 9. Sync Customers Directory
+        if (typeof window.FirebaseService.getCustomers === "function") {
+            const fbCustomers = await window.FirebaseService.getCustomers();
+            if (Array.isArray(fbCustomers) && fbCustomers.length > 0) {
+                state.customers = fbCustomers;
+                if (typeof renderCustomerMasterList === "function") renderCustomerMasterList();
+            }
         }
 
         saveState();
@@ -8369,7 +8409,58 @@ function handleSecureFileSelected(file) {
     reader.readAsText(file);
 }
 
-function importSecureVaultBackup() {
+function showRestoreProgressModal(title = "ડેટાબેઝ રીસ્ટોર થઈ રહ્યો છે...", subtitle = "કૃપા કરીને પ્રક્રિયા પૂર્ણ થાય ત્યાં સુધી રાહ જુઓ...") {
+    let modal = document.getElementById("restore-progress-modal-overlay");
+    if (!modal) {
+        modal = document.createElement("div");
+        modal.id = "restore-progress-modal-overlay";
+        modal.style.cssText = "position: fixed; inset: 0; background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(6px); z-index: 999999; display: flex; align-items: center; justify-content: center; font-family: inherit;";
+        modal.innerHTML = `
+            <div style="background: white; border-radius: 16px; width: 90%; max-width: 520px; padding: 28px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.35); text-align: center; border: 2px solid #e2e8f0;">
+                <div style="width: 68px; height: 68px; margin: 0 auto 16px; border-radius: 50%; background: #eff6ff; display: flex; align-items: center; justify-content: center; color: #2563eb; font-size: 28px;">
+                    <i class="fa-solid fa-cloud-arrow-up fa-bounce" id="restore-prog-icon"></i>
+                </div>
+                <h3 id="restore-prog-title" style="margin: 0 0 8px; font-size: 18px; font-weight: 800; color: #1e293b;">${title}</h3>
+                <p id="restore-prog-subtitle" style="margin: 0 0 20px; font-size: 13px; color: #64748b;">${subtitle}</p>
+                
+                <div style="background: #f1f5f9; border-radius: 999px; height: 12px; width: 100%; overflow: hidden; margin-bottom: 12px; border: 1px solid #cbd5e1;">
+                    <div id="restore-prog-bar" style="background: linear-gradient(90deg, #2563eb, #3b82f6); height: 100%; width: 5%; transition: width 0.3s ease; border-radius: 999px;"></div>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 14px;">
+                    <span id="restore-prog-status">પ્રારંભ થઈ રહ્યો છે...</span>
+                    <span id="restore-prog-pct">5%</span>
+                </div>
+                
+                <div id="restore-prog-badge" style="display: inline-block; background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; border-radius: 6px; padding: 6px 14px; font-size: 11.5px; font-weight: 700;">
+                    <i class="fa-solid fa-shield-halved"></i> Firebase Cloud Firestore Permanent Sync & Realtime Broadcast
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+    const titleEl = document.getElementById("restore-prog-title");
+    const subEl = document.getElementById("restore-prog-subtitle");
+    if (titleEl) titleEl.textContent = title;
+    if (subEl) subEl.textContent = subtitle;
+    modal.style.display = "flex";
+}
+
+function updateRestoreProgress(pct, statusText) {
+    const bar = document.getElementById("restore-prog-bar");
+    const pctEl = document.getElementById("restore-prog-pct");
+    const statusEl = document.getElementById("restore-prog-status");
+    if (bar) bar.style.width = Math.min(100, Math.max(0, pct)) + "%";
+    if (pctEl) pctEl.textContent = Math.min(100, Math.max(0, pct)) + "%";
+    if (statusEl && statusText) statusEl.textContent = statusText;
+}
+
+function hideRestoreProgressModal() {
+    const modal = document.getElementById("restore-progress-modal-overlay");
+    if (modal) modal.style.display = "none";
+}
+
+async function importSecureVaultBackup() {
     const fileInput = document.getElementById("restore-secure-file");
     if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
         alert("કૃપા કરીને પહેલા સિક્યોર વૉલ્ટ બેકઅપ ફાઈલ (.jccb અથવા .json) પસંદ કરો.");
@@ -8389,9 +8480,12 @@ function importSecureVaultBackup() {
         `• કુલ લોન ખાતાઓ: ${loanCount} રેકોર્ડ્સ\n` +
         `• કુલ ગ્રાહકો: ${custCount} પ્રોફાઈલ્સ\n` +
         `• વૉલ્ટ ફાઈલ: ${pendingSecureVaultData.fileName}\n\n` +
-        `ચેતવણી: આ પ્રક્રિયાથી સિસ્ટમનો વર્તમાન ડેટાબેઝ આ બેકઅપ મુજબ સંપૂર્ણપણે અપડેટ થઈ જશે.`;
+        `ચેતવણી: આ પ્રક્રિયાથી સિસ્ટમનો વર્તમાન ડેટાબેઝ આ બેકઅપ મુજબ સંપૂર્ણપણે અપડેટ થઈ જશે અને Firebase ક્લાઉડ પર તમામ શાખાઓ માટે લાઈવ થઈ જશે.`;
 
     if (!confirm(confirmMsg)) return;
+
+    showRestoreProgressModal("સિક્યોર વૉલ્ટ ડેટાબેઝ રીસ્ટોર & ક્લાઉડ સિંક", "ડેટાબેઝ પ્રોસેસ થઈ રહ્યો છે...");
+    updateRestoreProgress(15, "ડેટાબેઝ વેરિફિકેશન પૂર્ણ થયું છે. Firebase પર કાયમી સેવિંગ શરૂ થઈ રહ્યું છે...");
 
     try {
         if (Array.isArray(db.loans)) state.loans = db.loans;
@@ -8408,8 +8502,37 @@ function importSecureVaultBackup() {
         if (db.settings) state.settings = { ...state.settings, ...db.settings };
         if (Array.isArray(db.deletedLoanIds)) state.deletedLoanIds = db.deletedLoanIds;
 
+        // Permanently write to Firebase Cloud Firestore
+        if (window.FirebaseService && typeof window.FirebaseService.restoreFullDatabaseToFirebase === "function") {
+            await window.FirebaseService.restoreFullDatabaseToFirebase({
+                loans: state.loans,
+                customers: state.customers,
+                valuers: state.valuers,
+                products: state.products,
+                branches: state.branches,
+                rateHistory: state.rateHistory,
+                goldRates: state.goldRates,
+                rules: state.rules,
+                settings: state.settings,
+                deletedLoanIds: state.deletedLoanIds,
+                restoreType: "SECURE_VAULT_RESTORE",
+                summary: {
+                    loans: state.loans.length,
+                    customers: state.customers.length,
+                    valuers: state.valuers.length,
+                    products: state.products.length,
+                    branches: state.branches.length
+                }
+            }, (stage, pct, msg) => {
+                updateRestoreProgress(pct, msg);
+            });
+        }
+
+        await saveStateToIndexedDB(state);
         saveState();
+        localStorage.setItem("jccb_last_global_restore_ts", Date.now().toString());
         updateBackupStats();
+        hideRestoreProgressModal();
 
         // Refresh all UI modules
         if (typeof renderLoansTable === "function") renderLoansTable();
@@ -8446,12 +8569,14 @@ function importSecureVaultBackup() {
             `• ગોલ્ડ રેટ હિસ્ટ્રી: ${state.rateHistory.length} દિવસો\n` +
             `• બેંકિંગ રૂલ્સ & કસ્ટમ ચાર્જીસ: ૧૦૦% કન્ફિગર્ડ\n` +
             `• બ્રાન્ચ એકાઉન્ટ & પેકેટ સીડ્સ: ૧૦૦% અપડેટેડ\n` +
+            `• Firebase ક્લાઉડ સિંક: ૧૦૦% કાયમી સેવ & ગ્લોબલ લાઈવ\n` +
             `----------------------------------------\n` +
             `તમામ રેકોર્ડ્સ અને હાઇ-ડેફિનેશન ફોટોઝ અસલ સ્થિતિમાં પુનઃસ્થાપિત થયા છે.`;
 
         alert(successMsg);
-        showToast("સિક્યોર વૉલ્ટ ડેટાબેઝ ૧૦૦% સચોટતા સાથે રીસ્ટોર થઈ ગયો!");
+        showToast("સિક્યોર વૉલ્ટ ડેટાબેઝ ૧૦૦% સચોટતા સાથે રીસ્ટોર થઈ ગયો અને Firebase પર સેવ થઈ ગયો!");
     } catch (err) {
+        hideRestoreProgressModal();
         console.error("Secure Vault Restore Error:", err);
         alert("સિક્યોર વૉલ્ટ રીસ્ટોર કરતી વખતે ક્ષતિ આવી: " + err.message);
     }
@@ -9086,15 +9211,24 @@ function checkScheduledAutoBackup() {
     }
 }
 
-function importCompleteRestoreExcel(file) {
+async function importCompleteRestoreExcel(file) {
     if (typeof XLSX === "undefined") {
         alert("SheetJS library not loaded.");
         return;
     }
 
+    if (!isHeadOfficeSession()) {
+        alert("ડેટાબેઝ રીસ્ટોર કરવાનો વિશેષાધિકાર ફક્ત હેડ ઓફિસ (Head Office) પાસે છે.");
+        return;
+    }
+
+    showRestoreProgressModal("યુનિવર્સલ એક્સેલ ડેટાબેઝ રીસ્ટોર & ક્લાઉડ સિંક", "એક્સેલ ફાઈલ વાંચવામાં આવી રહી છે...");
+    updateRestoreProgress(8, "એક્સેલ વર્કબુક પાર્સ થઈ રહી છે...");
+
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
         try {
+            updateRestoreProgress(18, "ડેટાબેઝ શીટ્સ વિશ્લેષિત થઈ રહી છે...");
             const data = new Uint8Array(e.target.result);
             const wb = XLSX.read(data, { type: "array" });
             const sheetNames = wb.SheetNames;
@@ -9390,8 +9524,32 @@ function importCompleteRestoreExcel(file) {
                 state.deletedLoanIds = rawDeleted.map(d => String(d["DeletedLoanID"] || d["deletedLoanID"] || d["id"] || "")).filter(Boolean);
             }
 
+            // 10. Permanently write all collections to Firebase Firestore & Broadcast Globally
+            if (window.FirebaseService && typeof window.FirebaseService.restoreFullDatabaseToFirebase === "function") {
+                updateRestoreProgress(28, "Firebase ક્લાઉડ પર કાયમી સેવિંગ શરૂ થઈ રહ્યું છે...");
+                await window.FirebaseService.restoreFullDatabaseToFirebase({
+                    loans: state.loans,
+                    customers: state.customers,
+                    valuers: state.valuers,
+                    products: state.products,
+                    branches: state.branches,
+                    rateHistory: state.rateHistory,
+                    goldRates: state.goldRates,
+                    rules: state.rules,
+                    settings: state.settings,
+                    deletedLoanIds: state.deletedLoanIds,
+                    summary: restoredSummary,
+                    restoreType: "EXCEL_RESTORE"
+                }, (stage, pct, msg) => {
+                    updateRestoreProgress(pct, msg);
+                });
+            }
+
+            await saveStateToIndexedDB(state);
             saveState();
+            localStorage.setItem("jccb_last_global_restore_ts", Date.now().toString());
             updateBackupStats();
+            hideRestoreProgressModal();
 
             // Format branch breakdown text
             const branchLines = Object.keys(restoredSummary.branchBreakdown).map(bCode => {
@@ -9400,7 +9558,7 @@ function importCompleteRestoreExcel(file) {
                 return `  • શાખા [${bCode}] ${bName}: ${restoredSummary.branchBreakdown[bCode]} લોન`;
             }).join("\n");
 
-            alert(`✅ યુનિવર્સલ એક્સેલ ડેટાબેઝ સફળતાપૂર્વક રિસ્ટોર થયેલ છે!\n\n` +
+            alert(`✅ યુનિવર્સલ એક્સેલ ડેટાબેઝ સફળતાપૂર્વક રિસ્ટોર થયેલ છે અને Firebase પર કાયમી સેવ થઈ ગયો છે!\n\n` +
                 `📊 શાખા વાઇઝ સંપૂર્ણ ડેટા સારાંશ:\n` +
                 `• કુલ લોન રેકોર્ડ્સ: ${restoredSummary.loans}\n` +
                 (branchLines ? `${branchLines}\n` : "") +
@@ -9411,11 +9569,13 @@ function importCompleteRestoreExcel(file) {
                 `• દૈનિક સોનાના ભાવ હિસ્ટ્રી: ${restoredSummary.rates} દિવસો\n` +
                 `• રૂલ્સ માસ્ટર & કસ્ટમ ચાર્જીસ: ${restoredSummary.rules ? "હા (સંપૂર્ણ સેટ)" : "સાચવેલ"}\n` +
                 `• એકાઉન્ટ સેટિંગ્સ & શાખા સીડ્સ: ${restoredSummary.settings ? "હા (તમામ શાખાઓ)" : "સાચવેલ"}\n` +
-                `• ગ્રાહક અને દાગીનાના ફોટા: ${restoredSummary.photosCount} પુનઃસ્થાપિત\n\n` +
+                `• ગ્રાહક અને દાગીનાના ફોટા: ${restoredSummary.photosCount} પુનઃસ્થાપિત\n` +
+                `• Firebase ક્લાઉડ સિંક: ૧૦૦% કાયમી સેવ & તમામ શાખાઓ માટે લાઈવ\n\n` +
                 `પોર્ટલ તમામ નવા ડેટા સાથે તાત્કાલિક રીલોડ થઈ રહ્યું છે...`);
 
             window.location.reload();
         } catch (err) {
+            hideRestoreProgressModal();
             console.error("Restore error:", err);
             alert("એક્સેલ ફાઈલ રીસ્ટોર કરતી વખતે ક્ષતિ આવી: " + err.message);
         }

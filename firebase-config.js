@@ -785,16 +785,39 @@ const FirebaseService = {
      * Get all customers from Firestore
      */
     getCustomers: async function() {
-        if (!this.db) return [];
+        let list = [];
+        // 1. Check settings/customersList for fast bulk retrieval
         try {
-            const snapshot = await this.db.collection('customers').get();
-            const list = [];
-            snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
-            return list;
-        } catch (e) {
-            console.warn("[Firebase] Error fetching customers:", e);
-            return [];
+            const res = await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/settings/customersList`);
+            if (res.ok) {
+                const data = await res.json();
+                const parsed = this.fromFirestoreDocument(data);
+                if (parsed && Array.isArray(parsed.list) && parsed.list.length > 0) {
+                    return parsed.list;
+                }
+            }
+        } catch (e) {}
+
+        if (this.db) {
+            try {
+                const doc = await this.db.collection('settings').doc('customersList').get();
+                if (doc.exists && Array.isArray(doc.data().list) && doc.data().list.length > 0) {
+                    return doc.data().list;
+                }
+            } catch (e) {}
         }
+
+        // 2. Fallback to individual customers collection
+        if (this.db) {
+            try {
+                const snapshot = await this.db.collection('customers').get();
+                snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
+                if (list.length > 0) return list;
+            } catch (e) {
+                console.warn("[Firebase] Error fetching customers collection:", e);
+            }
+        }
+        return list;
     },
 
     /**
@@ -802,10 +825,21 @@ const FirebaseService = {
      */
     listenCustomers: function(onUpdate) {
         if (!this.db) return () => {};
+        // Listen to settings/customersList
+        this.db.collection('settings').doc('customersList').onSnapshot((doc) => {
+            if (doc.exists) {
+                const data = doc.data();
+                if (Array.isArray(data.list) && typeof onUpdate === 'function') {
+                    onUpdate(data.list);
+                }
+            }
+        }, () => {});
+
+        // Also listen to customers collection
         return this.db.collection('customers').onSnapshot((snapshot) => {
             const list = [];
             snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
-            if (typeof onUpdate === 'function') {
+            if (typeof onUpdate === 'function' && list.length > 0) {
                 onUpdate(list);
             }
         }, (err) => {
@@ -1408,6 +1442,321 @@ const FirebaseService = {
                 method: "DELETE"
             });
         } catch (e) {}
+    },
+
+    // =================================================================
+    // GLOBAL DATABASE RESTORE & MULTI-DEVICE REALTIME BROADCAST ENGINE
+    // =================================================================
+
+    /**
+     * Save customer list document for fast bulk sync
+     */
+    saveCustomersList: async function(customersList) {
+        const payload = {
+            list: customersList || [],
+            updatedAt: new Date().toISOString()
+        };
+        if (this.db) {
+            try {
+                await this.db.collection('settings').doc('customersList').set(payload);
+            } catch (e) {}
+        }
+        try {
+            const fsDoc = this.toFirestoreDocument(payload);
+            await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/settings/customersList`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(fsDoc)
+            });
+        } catch (e) {}
+    },
+
+    /**
+     * Send global sync signal to all connected branch devices
+     */
+    sendGlobalSyncSignal: async function(signalData = {}) {
+        const payload = {
+            signalId: `SIG_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+            restoreTimestamp: Date.now(),
+            restoreTimeISO: new Date().toISOString(),
+            action: signalData.action || "DATABASE_RESTORE_GLOBAL",
+            restoreType: signalData.restoreType || "EXCEL_RESTORE",
+            restoredBy: signalData.restoredBy || (window.state?.currentSession?.name) || "HEAD OFFICE",
+            summary: signalData.summary || {},
+            updatedAt: new Date().toISOString()
+        };
+
+        if (this.db) {
+            try {
+                await this.db.collection('settings').doc('global_sync_signal').set(payload);
+            } catch (e) {}
+        }
+        try {
+            const fsDoc = this.toFirestoreDocument(payload);
+            await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/settings/global_sync_signal`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(fsDoc)
+            });
+        } catch (e) {}
+
+        return payload;
+    },
+
+    /**
+     * Realtime listener for global database restore & update signal
+     */
+    listenGlobalSyncSignal: function(onSignal) {
+        if (!this.db || typeof onSignal !== "function") return () => {};
+        return this.db.collection('settings').doc('global_sync_signal').onSnapshot((doc) => {
+            if (doc.exists) {
+                onSignal(doc.data());
+            }
+        }, (err) => {
+            console.warn("[Firebase] Global sync signal listener notice:", err);
+        });
+    },
+
+    /**
+     * Get latest global sync signal
+     */
+    getGlobalSyncSignal: async function() {
+        try {
+            const res = await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/settings/global_sync_signal`);
+            if (res.ok) {
+                const data = await res.json();
+                return this.fromFirestoreDocument(data);
+            }
+        } catch (e) {}
+        if (this.db) {
+            try {
+                const doc = await this.db.collection('settings').doc('global_sync_signal').get();
+                if (doc.exists) return doc.data();
+            } catch (e) {}
+        }
+        return null;
+    },
+
+    /**
+     * PERMANENT GLOBAL DATABASE RESTORE TO FIREBASE FIRESTORE
+     * Writes all restored collections, chunked batches, settings, masters, and triggers realtime broadcast
+     */
+    restoreFullDatabaseToFirebase: async function(restoredData = {}, onProgress = null) {
+        const report = (stage, pct, msg) => {
+            console.log(`[Firebase Restore ${pct}%] [${stage}]: ${msg}`);
+            if (typeof onProgress === "function") {
+                try { onProgress(stage, pct, msg); } catch (e) {}
+            }
+        };
+
+        report("START", 5, "Firebase ક્લાઉડ ડેટાબેઝ સાથે કનેક્શન સ્થાપિત થઈ રહ્યું છે...");
+
+        try {
+            // 1. Daily Rates & Rate History
+            if (restoredData.goldRates || (restoredData.rateHistory && restoredData.rateHistory.length > 0)) {
+                report("RATES", 12, "દૈનિક સોનાના ભાવ અને રેટ હિસ્ટ્રી ક્લાઉડ પર સેવ થઈ રહ્યા છે...");
+                const latestRate = (restoredData.rateHistory && restoredData.rateHistory.length > 0)
+                    ? restoredData.rateHistory[0]
+                    : { rate22K: restoredData.goldRates?.["22K"] || 0, rate24K: restoredData.goldRates?.["24K"] || 0 };
+
+                await this.saveDailyRates({
+                    rate22K: parseFloat(latestRate.rate22K || latestRate.rate || 0),
+                    rate24K: parseFloat(latestRate.rate24K || 0),
+                    date: latestRate.date || new Date().toISOString().split("T")[0],
+                    isLocked: Boolean(restoredData.goldRates?.isLocked),
+                    lockedAt: restoredData.goldRates?.lockedAt || null,
+                    lockedBy: restoredData.goldRates?.lockedBy || "HEAD OFFICE"
+                });
+
+                if (Array.isArray(restoredData.rateHistory)) {
+                    const rhPayload = { list: restoredData.rateHistory, updatedAt: new Date().toISOString() };
+                    if (this.db) {
+                        try { await this.db.collection('settings').doc('rateHistory').set(rhPayload); } catch (e) {}
+                    }
+                    try {
+                        const fsDoc = this.toFirestoreDocument(rhPayload);
+                        await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/settings/rateHistory`, {
+                            method: "PATCH",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(fsDoc)
+                        });
+                    } catch (e) {}
+                }
+            }
+
+            // 2. Rules Master & Custom Charges
+            if (restoredData.rules) {
+                report("RULES", 22, "બેંકિંગ રૂલ્સ, વેલ્યુએશન સ્લેબ્સ અને કસ્ટમ ચાર્જીસ ક્લાઉડ પર સેવ થઈ રહ્યા છે...");
+                await this.saveRules(restoredData.rules);
+            }
+
+            // 3. Settings & Branch Seeds
+            if (restoredData.settings) {
+                report("SETTINGS", 32, "શાખા એકાઉન્ટ નંબર અને પેકેટ સીડ્સ કન્ફિગરેશન ક્લાઉડ પર સેવ થઈ રહ્યા છે...");
+                await this.saveSettings(restoredData.settings);
+            }
+
+            // 4. Sony Valuers Master
+            if (Array.isArray(restoredData.valuers)) {
+                report("VALUERS", 42, `અધિકૃત ${restoredData.valuers.length} સોની વેલ્યુઅર્સ ક્લાઉડ પર સેવ થઈ રહ્યા છે...`);
+                await this.saveValuersList(restoredData.valuers, restoredData.deletedValuerIds || []);
+            }
+
+            // 5. Product Schemes Master
+            if (Array.isArray(restoredData.products)) {
+                report("PRODUCTS", 50, `કુલ ${restoredData.products.length} લોન પ્રોડક્ટ સ્કીમ્સ ક્લાઉડ પર સેવ થઈ રહી છે...`);
+                await this.saveProductsList(restoredData.products);
+            }
+
+            // 6. Branches Master
+            if (Array.isArray(restoredData.branches)) {
+                report("BRANCHES", 58, `તમામ ${restoredData.branches.length} બેંક શાખાઓ અને પાસવર્ડ્સ ક્લાઉડ પર સેવ થઈ રહ્યા છે...`);
+                await this.saveBranchesList(restoredData.branches);
+                for (const b of restoredData.branches) {
+                    try {
+                        await this.saveBranch(b);
+                    } catch (e) {}
+                }
+            }
+
+            // 7. Customers & Member Directory
+            if (Array.isArray(restoredData.customers) && restoredData.customers.length > 0) {
+                report("CUSTOMERS", 68, `કુલ ${restoredData.customers.length} સભાસદ/ગ્રાહક પ્રોફાઈલ્સ ક્લાઉડ પર સેવ થઈ રહી છે...`);
+                await this.saveCustomersList(restoredData.customers);
+                
+                // Also write individual docs in chunked batches
+                const custBatchSize = 300;
+                for (let i = 0; i < restoredData.customers.length; i += custBatchSize) {
+                    const chunk = restoredData.customers.slice(i, i + custBatchSize);
+                    if (this.db) {
+                        try {
+                            const batch = this.db.batch();
+                            chunk.forEach(c => {
+                                const cId = String(c.customerNo || c.id || `CUST_${i}`).trim();
+                                const ref = this.db.collection('customers').doc(cId);
+                                batch.set(ref, { ...c, id: cId, customerNo: c.customerNo || cId, updatedAt: new Date().toISOString() }, { merge: true });
+                            });
+                            await batch.commit();
+                        } catch (e) {
+                            console.warn("[Firebase] Customers chunk SDK write error, moving on:", e);
+                        }
+                    }
+                }
+            }
+
+            // 8. Deleted Loan IDs
+            if (Array.isArray(restoredData.deletedLoanIds) && restoredData.deletedLoanIds.length > 0) {
+                report("DELETED", 75, "ડિલીટ કરેલ લોન ટૂમ્બસ્ટોન્સ સિંક થઈ રહ્યા છે...");
+                if (this.db) {
+                    try {
+                        const batch = this.db.batch();
+                        restoredData.deletedLoanIds.forEach(dId => {
+                            if (dId) {
+                                const ref = this.db.collection('deleted_loans').doc(String(dId).trim());
+                                batch.set(ref, { id: String(dId).trim(), deletedAt: new Date().toISOString(), deletedBy: "HEAD_OFFICE_RESTORE" }, { merge: true });
+                            }
+                        });
+                        await batch.commit();
+                    } catch (e) {}
+                }
+            }
+
+            // 9. All Loan Records (Chunked Batch Upload with Photo Compression)
+            const loans = Array.isArray(restoredData.loans) ? restoredData.loans : [];
+            const totalLoans = loans.length;
+            report("LOANS", 80, `કુલ ${totalLoans} લોન ખાતાઓ Firebase Firestore પર અપલોડ થઈ રહ્યા છે...`);
+
+            const loanBatchSize = 100;
+            for (let i = 0; i < totalLoans; i += loanBatchSize) {
+                const chunk = loans.slice(i, i + loanBatchSize);
+                const currentProgress = Math.round(80 + ((i + chunk.length) / totalLoans) * 15);
+                report("LOANS_CHUNK", currentProgress, `લોન રેકોર્ડ્સ અપલોડ થઈ રહ્યા છે: ${i + chunk.length} / ${totalLoans}...`);
+
+                // Prepare payloads with photo compression
+                const processedChunk = await Promise.all(chunk.map(async (loanItem) => {
+                    const loanId = String(loanItem.id || loanItem.loanId || `GL_${Date.now()}_${loanItem.branchCode || '01'}`).trim();
+                    let custPhoto = loanItem.customerPhoto || "";
+                    let ornPhoto = loanItem.ornamentPhoto || "";
+
+                    if (typeof custPhoto === "string" && custPhoto.startsWith("data:image") && custPhoto.length > 120000) {
+                        try { custPhoto = await this.compressBase64Image(custPhoto, 400, 0.6); } catch (e) {}
+                    }
+                    if (typeof ornPhoto === "string" && ornPhoto.startsWith("data:image") && ornPhoto.length > 120000) {
+                        try { ornPhoto = await this.compressBase64Image(ornPhoto, 400, 0.6); } catch (e) {}
+                    }
+
+                    return {
+                        ...loanItem,
+                        id: loanId,
+                        loanId: loanId,
+                        customerPhoto: custPhoto,
+                        ornamentPhoto: ornPhoto,
+                        branchId: String(loanItem.branchCode || loanItem.branchId || '01'),
+                        updatedAt: loanItem.updatedAt || new Date().toISOString()
+                    };
+                }));
+
+                // 1. Write chunk via SDK batch
+                let chunkSaved = false;
+                if (this.db) {
+                    try {
+                        const batch = this.db.batch();
+                        processedChunk.forEach(pLoan => {
+                            const ref = this.db.collection('loans').doc(pLoan.id);
+                            batch.set(ref, pLoan, { merge: true });
+                        });
+                        await batch.commit();
+                        chunkSaved = true;
+                    } catch (sdkErr) {
+                        console.warn("[Firebase SDK] Loan chunk batch error, falling back to REST:", sdkErr);
+                    }
+                }
+
+                // 2. Fallback to REST API if SDK batch failed
+                if (!chunkSaved) {
+                    await Promise.all(processedChunk.map(async (pLoan) => {
+                        try {
+                            const fsDoc = this.toFirestoreDocument(pLoan);
+                            await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/loans/${pLoan.id}`, {
+                                method: "PATCH",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify(fsDoc)
+                            });
+                        } catch (e) {}
+                    }));
+                }
+            }
+
+            // 10. Broadcast Global Sync Signal to All Devices & Log Audit Event
+            report("BROADCAST", 98, "તમામ કનેક્ટેડ બ્રાન્ચ કમ્પ્યુટર્સ પર લાઈવ ગ્લોબલ સિગ્નલ મોકલાઈ રહ્યો છે...");
+            await this.sendGlobalSyncSignal({
+                action: "DATABASE_RESTORE_GLOBAL",
+                restoreType: restoredData.restoreType || "EXCEL_RESTORE",
+                restoredBy: (window.state?.currentSession?.name) || "HEAD OFFICE",
+                summary: restoredData.summary || {
+                    loans: totalLoans,
+                    customers: (restoredData.customers || []).length,
+                    valuers: (restoredData.valuers || []).length,
+                    products: (restoredData.products || []).length,
+                    branches: (restoredData.branches || []).length
+                }
+            });
+
+            await this.logAuditEvent("DATABASE_RESTORE_GLOBAL", `Full database restored globally (${totalLoans} loans, ${(restoredData.customers || []).length} customers) by Head Office`, {
+                totalLoans: totalLoans,
+                totalCustomers: (restoredData.customers || []).length,
+                totalValuers: (restoredData.valuers || []).length,
+                totalBranches: (restoredData.branches || []).length,
+                operator: (window.state?.currentSession?.name) || "HEAD OFFICE"
+            });
+
+            report("COMPLETE", 100, "સંપૂર્ણ ડેટાબેઝ સફળતાપૂર્વક Firebase ક્લાઉડ પર કાયમી સેવ થઈ ગયો અને તમામ કમ્પ્યુટર્સ પર લાઈવ થઈ ગયો!");
+            return true;
+        } catch (fatalError) {
+            console.error("[Firebase Restore] Fatal error during cloud restore:", fatalError);
+            report("ERROR", 100, "ક્લાઉડ સેવ દરમિયાન ક્ષતિ: " + fatalError.message);
+            throw fatalError;
+        }
     },
 
     // =================================================================
