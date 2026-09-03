@@ -11,7 +11,7 @@
     <!-- FontAwesome for Premium Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Style Sheet -->
-    <link rel="stylesheet" href="styles.css?v=20260903_v53">
+    <link rel="stylesheet" href="styles.css?v=20260903_v60">
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="jccb-logo.png">
     <link rel="shortcut icon" type="image/png" href="jccb-logo.png">
@@ -873,13 +873,15 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="filter-actions">
-                            <button id="clear-filters-btn" class="btn btn-secondary-sm">
-                                <i class="fa-solid fa-filter-circle-xmark"></i> Clear Filters
-                            </button>
-                            <button id="export-csv-btn" class="btn btn-success-sm">
-                                <i class="fa-solid fa-file-excel"></i> Export Ledger to CSV (Excel)
-                            </button>
+                        <div class="filter-actions" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                            <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                                <button id="clear-filters-btn" class="btn btn-secondary-sm">
+                                    <i class="fa-solid fa-filter-circle-xmark"></i> Clear Filters
+                                </button>
+                                <button id="export-csv-btn" class="btn btn-success-sm">
+                                    <i class="fa-solid fa-file-excel"></i> Export Ledger to CSV (Excel)
+                                </button>
+                            </div>
                             <button id="delete-all-loans-btn" class="btn btn-danger-sm" style="display: none; background-color: var(--danger); border-color: var(--danger); font-weight: 600;">
                                 <i class="fa-solid fa-trash-can"></i> બધી લોન ડીલીટ કરો (Delete All Loans)
                             </button>
@@ -889,7 +891,7 @@
                     <!-- Data Grid Card -->
                     <div class="card margin-top">
                         <div class="table-responsive">
-                            <table class="table table-hover table-striped" id="loans-register-table" style="min-width: 1280px; width: 100%; border-collapse: collapse;">
+                            <table class="table table-hover table-striped" id="loans-register-table" style="min-width: 1200px; width: 100%; border-collapse: collapse;">
                                 <thead>
                                     <tr>
                                         <th style="white-space:nowrap; width: 95px;">Date</th>
@@ -902,8 +904,8 @@
                                         <th style="text-align:right; white-space:nowrap; width: 95px;">Weight</th>
                                         <th style="text-align:right; white-space:nowrap; width: 105px;">Deductions (₹)</th>
                                         <th style="text-align:right; white-space:nowrap; width: 110px;">Net Paid (₹)</th>
-                                        <th style="text-align:center; min-width: 280px; width: 280px; white-space:nowrap;">Print Documents</th>
-                                        <th style="text-align:center; min-width: 100px; width: 100px; white-space:nowrap;">Action</th>
+                                        <th style="text-align:center; min-width: 220px; white-space:nowrap;">Print Documents</th>
+                                        <th style="text-align:center; min-width: 85px; width: 85px; white-space:nowrap;">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody id="register-tbody">
@@ -2603,7 +2605,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics-compat.js"></script>
-    <script src="firebase-config.js?v=20260903_v59"></script>
-    <script src="app_gold.js?v=20260903_v59"></script>
+    <script src="firebase-config.js?v=20260903_v60"></script>
+    <script src="app_gold.js?v=20260903_v60"></script>
 </body>
 </html>

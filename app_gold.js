@@ -4272,14 +4272,18 @@ function renderRegisterTable() {
             <td style="text-align:right; white-space:nowrap;">${parseFloat(loan.goldWeight || 0).toFixed(3)} g</td>
             <td style="text-align:right; white-space:nowrap; color:#b91c1c;">₹ ${deductions.toLocaleString("en-IN")}</td>
             <td style="text-align:right; font-weight:800; color:var(--success-dark); white-space:nowrap;">₹ ${netPaid.toLocaleString("en-IN")}</td>
-            <td style="text-align:center; white-space:nowrap; width:280px; min-width:280px; padding:6px 8px;">
+            <td style="text-align:center; white-space:nowrap; padding:6px 8px;">
                 <div style="display:inline-flex; gap:6px; justify-content:center; align-items:center; flex-wrap:nowrap;">
-                    <button class="btn btn-sm btn-gold print-doc-btn" data-id="${loan.id}" title="Loan Documents (૪-૫ પેઇજ)" style="display:inline-flex; align-items:center; gap:5px; padding:4px 10px; font-size:11.5px; font-weight:700; border-radius:5px; white-space:nowrap; height:29px; cursor:pointer;">
+                    <button class="btn btn-sm btn-gold print-doc-btn" data-id="${loan.id}" title="Loan Documents (૪-૫ પેઇજ)" style="display:inline-flex; align-items:center; gap:5px; padding:4px 9px; font-size:11.5px; font-weight:700; border-radius:5px; white-space:nowrap; height:29px; cursor:pointer;">
                         <i class="fa-solid fa-file-pdf"></i> Loan Documents
                     </button>
-                    <button class="btn btn-sm print-sanction-btn" data-id="${loan.id}" style="background:#0284c7; color:#ffffff; font-weight:700; border:none; border-radius:5px; padding:4px 10px; font-size:11.5px; white-space:nowrap; height:29px; cursor:pointer;">
+                    <button class="btn btn-sm print-sanction-btn" data-id="${loan.id}" style="background:#0284c7; color:#ffffff; font-weight:700; border:none; border-radius:5px; padding:4px 9px; font-size:11.5px; white-space:nowrap; height:29px; cursor:pointer;">
                         <i class="fa-solid fa-print"></i> Sanction
                     </button>
+                </div>
+            </td>
+            <td style="text-align:center; white-space:nowrap; padding:6px 8px;">
+                <div style="display:inline-flex; gap:5px; justify-content:center; align-items:center; flex-wrap:nowrap;">
                     <button class="btn-icon-blue edit-loan-btn" data-id="${loan.id}" title="Edit Loan Entry" style="width:29px; height:29px; display:inline-flex; align-items:center; justify-content:center; border-radius:5px;"><i class="fa-solid fa-pen-to-square"></i></button>
                     ${canDelete ? `<button class="btn-icon-red delete-loan-btn" data-id="${loan.id}" title="Delete Loan Entry" style="width:29px; height:29px; display:inline-flex; align-items:center; justify-content:center; border-radius:5px;"><i class="fa-solid fa-trash-can"></i></button>` : ''}
                 </div>

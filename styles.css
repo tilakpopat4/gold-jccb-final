@@ -431,7 +431,9 @@ input[readonly] {
 .app-layout {
     display: flex;
     min-height: 100vh;
-    width: 100vw;
+    width: 100%;
+    max-width: 100vw;
+    box-sizing: border-box;
 }
 
 /* Sidebar navigation */
@@ -714,6 +716,10 @@ input[readonly] {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    min-width: 0;
+    max-width: calc(100% - 260px);
+    width: calc(100% - 260px);
+    box-sizing: border-box;
 }
 
 /* Top App Header */
@@ -821,9 +827,12 @@ input[readonly] {
 
 /* Tab Panel Wrap */
 .content-body {
-    padding: 30px;
+    padding: 24px 28px;
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
+    min-width: 0;
+    box-sizing: border-box;
 }
 
 .tab-content {
@@ -2386,6 +2395,9 @@ label.required::after,
 .table-responsive {
     width: 100%;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    box-sizing: border-box;
+    padding-bottom: 6px;
 }
 
 .max-height-list {
@@ -2656,6 +2668,8 @@ label.required::after,
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
     margin-top: 15px;
     padding-top: 15px;
     border-top: 1.5px solid var(--border-color);
