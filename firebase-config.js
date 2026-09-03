@@ -472,6 +472,10 @@ const FirebaseService = {
             } catch (sdkErr) {
                 console.warn("[Firebase SDK] Firestore write notice:", sdkErr);
             }
+            try {
+                // Ensure this active loan is never treated as deleted
+                await this.db.collection('deleted_loans').doc(loanId).delete();
+            } catch (e) {}
         }
 
         // 2. Guaranteed REST API cloud write fallback
@@ -491,38 +495,53 @@ const FirebaseService = {
     },
 
     /**
-     * Fetch all loans from Firestore (Dual SDK + REST fallback)
+     * Fetch all loans from Firestore (Dual SDK + Paginated REST fallback)
      */
     getLoans: async function(branchCode = null) {
         let list = [];
-        // 1. Direct REST fetch (instant response, bypasses hanging SDK WebChannel & stale cache)
-        try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 4000);
-            const res = await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/loans`, {
-                signal: controller.signal
-            });
-            clearTimeout(timeoutId);
-            if (res.ok) {
-                const data = await res.json();
-                if (Array.isArray(data.documents)) {
-                    list = data.documents.map(d => this.fromFirestoreDocument(d));
-                    console.log("[Firebase REST] Fetched loans from cloud:", list.length);
-                }
-            }
-        } catch (restErr) {
-            console.warn("[Firebase REST] Error fetching loans via REST:", restErr);
-        }
-
-        // 2. Fallback to Firestore SDK
-        if (list.length === 0 && this.db) {
+        // 1. Primary: Firestore SDK (Full unpaginated collection fetch with offline caching)
+        if (this.db) {
             try {
                 const snapshot = await this.db.collection('loans').get();
                 snapshot.forEach(doc => {
                     const data = doc.data();
                     list.push({ ...data, id: doc.id, loanId: data.loanId || doc.id });
                 });
-            } catch (sdkErr) {}
+                if (list.length > 0) {
+                    if (branchCode && branchCode !== '99') {
+                        return list.filter(l => String(l.branchCode || l.branchId) === String(branchCode));
+                    }
+                    return list;
+                }
+            } catch (sdkErr) {
+                console.warn("[Firebase SDK] Error fetching loans via SDK:", sdkErr);
+            }
+        }
+
+        // 2. Fallback: Paginated REST API fetch (ensures 100% of loans are retrieved)
+        try {
+            let pageToken = "";
+            let maxPages = 40;
+            while (maxPages-- > 0) {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 6000);
+                const url = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/loans?pageSize=300${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ""}`;
+                const res = await fetch(url, { signal: controller.signal });
+                clearTimeout(timeoutId);
+                if (!res.ok) break;
+                const data = await res.json();
+                if (Array.isArray(data.documents)) {
+                    data.documents.forEach(d => list.push(this.fromFirestoreDocument(d)));
+                }
+                if (data.nextPageToken) {
+                    pageToken = data.nextPageToken;
+                } else {
+                    break;
+                }
+            }
+            console.log("[Firebase REST] Fetched all loans from cloud:", list.length);
+        } catch (restErr) {
+            console.warn("[Firebase REST] Error fetching loans via REST:", restErr);
         }
 
         if (branchCode && branchCode !== '99') {
@@ -625,30 +644,40 @@ const FirebaseService = {
      */
     getDeletedLoanIds: async function() {
         let list = [];
-        try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 3500);
-            const res = await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/deleted_loans`, {
-                signal: controller.signal
-            });
-            clearTimeout(timeoutId);
-            if (res.ok) {
-                const data = await res.json();
-                if (Array.isArray(data.documents)) {
-                    list = data.documents.map(d => {
-                        const parsed = this.fromFirestoreDocument(d);
-                        return parsed.id || d.name.split('/').pop();
-                    });
-                }
-            }
-        } catch (e) {}
-
-        if (list.length === 0 && this.db) {
+        // 1. Primary: SDK
+        if (this.db) {
             try {
                 const snap = await this.db.collection('deleted_loans').get();
                 snap.forEach(doc => list.push(doc.id));
+                if (list.length > 0) return list;
             } catch (e) {}
         }
+
+        // 2. Paginated REST fallback
+        try {
+            let pageToken = "";
+            let maxPages = 20;
+            while (maxPages-- > 0) {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 4000);
+                const url = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/deleted_loans?pageSize=300${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ""}`;
+                const res = await fetch(url, { signal: controller.signal });
+                clearTimeout(timeoutId);
+                if (!res.ok) break;
+                const data = await res.json();
+                if (Array.isArray(data.documents)) {
+                    data.documents.forEach(d => {
+                        const parsed = this.fromFirestoreDocument(d);
+                        list.push(parsed.id || d.name.split('/').pop());
+                    });
+                }
+                if (data.nextPageToken) {
+                    pageToken = data.nextPageToken;
+                } else {
+                    break;
+                }
+            }
+        } catch (e) {}
         return list;
     },
 
@@ -1644,13 +1673,31 @@ const FirebaseService = {
                 }
             }
 
-            // 8. Deleted Loan IDs
-            if (Array.isArray(restoredData.deletedLoanIds) && restoredData.deletedLoanIds.length > 0) {
+            // 8. Clean up deleted_loans tombstones for all restored active loans
+            const restoredLoanIdsSet = new Set((Array.isArray(restoredData.loans) ? restoredData.loans : []).map(l => String(l.id || l.loanId || "").trim()));
+            if (restoredLoanIdsSet.size > 0 && this.db) {
+                try {
+                    const cleanBatch = this.db.batch();
+                    let cCount = 0;
+                    for (const lId of restoredLoanIdsSet) {
+                        if (lId) {
+                            cleanBatch.delete(this.db.collection('deleted_loans').doc(lId));
+                            cCount++;
+                            if (cCount >= 400) break;
+                        }
+                    }
+                    await cleanBatch.commit();
+                } catch (e) {}
+            }
+
+            // Save only genuine deleted loans (excluding any restored active loans)
+            const trueDeletedIds = (Array.isArray(restoredData.deletedLoanIds) ? restoredData.deletedLoanIds : []).filter(dId => !restoredLoanIdsSet.has(String(dId).trim()));
+            if (trueDeletedIds.length > 0) {
                 report("DELETED", 75, "ડિલીટ કરેલ લોન ટૂમ્બસ્ટોન્સ સિંક થઈ રહ્યા છે...");
                 if (this.db) {
                     try {
                         const batch = this.db.batch();
-                        restoredData.deletedLoanIds.forEach(dId => {
+                        trueDeletedIds.forEach(dId => {
                             if (dId) {
                                 const ref = this.db.collection('deleted_loans').doc(String(dId).trim());
                                 batch.set(ref, { id: String(dId).trim(), deletedAt: new Date().toISOString(), deletedBy: "HEAD_OFFICE_RESTORE" }, { merge: true });

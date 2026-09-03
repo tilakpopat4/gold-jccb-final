@@ -741,7 +741,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
             }
 
-            // 3. Listen for realtime loan records
+            // 3. Listen for realtime loan records across all connected PCs
             if (typeof window.FirebaseService.listenLoans === "function") {
                 window.FirebaseService.listenLoans(null, (cloudLoans) => {
                     if (Array.isArray(cloudLoans)) {
@@ -753,33 +753,38 @@ document.addEventListener("DOMContentLoaded", () => {
                             return id && !deletedSet.has(id);
                         });
 
-                        const updatedList = [];
-                        const seenIds = new Set();
+                        const mergedMap = new Map();
 
-                        validCloudLoans.forEach(cl => {
-                            const id = String(cl.id || cl.loanId).trim();
-                            seenIds.add(id);
-                            const local = state.loans.find(x => String(x.id || x.loanId).trim() === id);
-                            if (local) {
-                                updatedList.push({ ...local, ...cl, id: id, loanId: id });
-                            } else {
-                                updatedList.push({ ...cl, id: id, loanId: id });
+                        // 1. Preserve all existing local loans
+                        (state.loans || []).forEach(localLoan => {
+                            const id = String(localLoan.id || localLoan.loanId || "").trim();
+                            if (id && !deletedSet.has(id)) {
+                                mergedMap.set(id, localLoan);
                             }
                         });
 
-                        state.loans.forEach(localLoan => {
-                            const id = String(localLoan.id || localLoan.loanId || "").trim();
-                            if (id && !seenIds.has(id) && !deletedSet.has(id)) {
-                                const createdTime = localLoan.createdAt ? new Date(localLoan.createdAt).getTime() : 0;
-                                const isRecent = createdTime > 0 && (Date.now() - createdTime < 3600000);
-                                if (isRecent) {
-                                    updatedList.unshift(localLoan);
-                                    seenIds.add(id);
+                        // 2. Merge cloud updates
+                        validCloudLoans.forEach(cl => {
+                            const id = String(cl.id || cl.loanId || "").trim();
+                            if (id) {
+                                const existing = mergedMap.get(id);
+                                if (existing) {
+                                    mergedMap.set(id, { ...existing, ...cl, id: id, loanId: id });
+                                } else {
+                                    mergedMap.set(id, { ...cl, id: id, loanId: id });
                                 }
                             }
                         });
 
-                        state.loans = updatedList;
+                        // 3. Sync any local loans missing in cloud to Firebase
+                        mergedMap.forEach((loan, id) => {
+                            const inCloud = validCloudLoans.some(cl => String(cl.id || cl.loanId || "").trim() === id);
+                            if (!inCloud && window.FirebaseService && typeof window.FirebaseService.saveLoan === "function") {
+                                window.FirebaseService.saveLoan(loan).catch(() => {});
+                            }
+                        });
+
+                        state.loans = Array.from(mergedMap.values());
                         saveState();
                         renderDashboard();
                         renderRegisterTable();
@@ -1087,7 +1092,7 @@ async function syncCloudData(isManual = false) {
             }
         }
 
-        // 8. Sync Loans
+        // 8. Sync Loans (Lossless Non-Destructive Bidirectional Merge)
         const fbLoans = await window.FirebaseService.getLoans();
         const deletedSet = new Set(state.deletedLoanIds || []);
 
@@ -1097,42 +1102,57 @@ async function syncCloudData(isManual = false) {
                 return id && !deletedSet.has(id);
             });
 
-            const mergedLoans = [];
-            const seen = new Set();
+            const mergedMap = new Map();
 
-            validFbLoans.forEach(cl => {
-                const id = String(cl.id || cl.loanId).trim();
-                seen.add(id);
-                const local = (state.loans || []).find(x => String(x.id || x.loanId).trim() === id);
-                if (local) {
-                    mergedLoans.push({ ...local, ...cl, id: id, loanId: id });
-                } else {
-                    mergedLoans.push({ ...cl, id: id, loanId: id });
+            // 1. Preserve all existing local loans
+            (state.loans || []).forEach(localLoan => {
+                const id = String(localLoan.id || localLoan.loanId || "").trim();
+                if (id && !deletedSet.has(id)) {
+                    mergedMap.set(id, localLoan);
                 }
             });
 
-            // Retain and upload only recently created offline loans
-            (state.loans || []).forEach(localLoan => {
-                const id = String(localLoan.id || localLoan.loanId || "").trim();
-                if (id && !seen.has(id) && !deletedSet.has(id)) {
-                    const createdTime = localLoan.createdAt ? new Date(localLoan.createdAt).getTime() : 0;
-                    const isRecent = createdTime > 0 && (Date.now() - createdTime < 3600000);
-                    if (isRecent) {
-                        mergedLoans.unshift(localLoan);
-                        seen.add(id);
-                        window.FirebaseService.saveLoan(localLoan).catch(() => { });
+            // 2. Merge cloud updates
+            validFbLoans.forEach(cl => {
+                const id = String(cl.id || cl.loanId || "").trim();
+                if (id) {
+                    const existing = mergedMap.get(id);
+                    if (existing) {
+                        mergedMap.set(id, { ...existing, ...cl, id: id, loanId: id });
+                    } else {
+                        mergedMap.set(id, { ...cl, id: id, loanId: id });
                     }
                 }
             });
 
-            state.loans = mergedLoans;
+            // 3. Sync any local loans missing in cloud to Firebase
+            mergedMap.forEach((loan, id) => {
+                const inCloud = validFbLoans.some(cl => String(cl.id || cl.loanId || "").trim() === id);
+                if (!inCloud && window.FirebaseService && typeof window.FirebaseService.saveLoan === "function") {
+                    window.FirebaseService.saveLoan(loan).catch(() => { });
+                }
+            });
+
+            state.loans = Array.from(mergedMap.values());
         }
 
-        // 9. Sync Customers Directory
+        // 9. Sync Customers Directory (Lossless Non-Destructive Merge)
         if (typeof window.FirebaseService.getCustomers === "function") {
             const fbCustomers = await window.FirebaseService.getCustomers();
             if (Array.isArray(fbCustomers) && fbCustomers.length > 0) {
-                state.customers = fbCustomers;
+                const custMap = new Map();
+                (state.customers || []).forEach(c => {
+                    const cId = String(c.customerNo || c.id || "").trim();
+                    if (cId) custMap.set(cId, c);
+                });
+                fbCustomers.forEach(c => {
+                    const cId = String(c.customerNo || c.id || "").trim();
+                    if (cId) {
+                        const existing = custMap.get(cId);
+                        custMap.set(cId, existing ? { ...existing, ...c } : c);
+                    }
+                });
+                state.customers = Array.from(custMap.values());
                 if (typeof renderCustomerMasterList === "function") renderCustomerMasterList();
             }
         }
@@ -8501,6 +8521,9 @@ async function importSecureVaultBackup() {
         }
         if (db.settings) state.settings = { ...state.settings, ...db.settings };
         if (Array.isArray(db.deletedLoanIds)) state.deletedLoanIds = db.deletedLoanIds;
+        else state.deletedLoanIds = [];
+        const activeRestoredLoanIds = new Set((state.loans || []).map(l => String(l.id || l.loanId || "").trim()));
+        state.deletedLoanIds = (state.deletedLoanIds || []).filter(id => !activeRestoredLoanIds.has(String(id).trim()));
 
         // Permanently write to Firebase Cloud Firestore
         if (window.FirebaseService && typeof window.FirebaseService.restoreFullDatabaseToFirebase === "function") {
@@ -9517,12 +9540,16 @@ async function importCompleteRestoreExcel(file) {
                 }
             }
 
-            // 9. Deleted Loan IDs Sheet
+            // 9. Deleted Loan IDs Sheet & Active Loan Reconciliation
             const deletedSheet = findSheet("delete");
             if (deletedSheet) {
                 const rawDeleted = XLSX.utils.sheet_to_json(deletedSheet);
                 state.deletedLoanIds = rawDeleted.map(d => String(d["DeletedLoanID"] || d["deletedLoanID"] || d["id"] || "")).filter(Boolean);
+            } else {
+                state.deletedLoanIds = [];
             }
+            const activeRestoredLoanIds = new Set((state.loans || []).map(l => String(l.id || l.loanId || "").trim()));
+            state.deletedLoanIds = (state.deletedLoanIds || []).filter(id => !activeRestoredLoanIds.has(String(id).trim()));
 
             // 10. Permanently write all collections to Firebase Firestore & Broadcast Globally
             if (window.FirebaseService && typeof window.FirebaseService.restoreFullDatabaseToFirebase === "function") {
