@@ -10969,7 +10969,7 @@ async function printContent(contentHtml, isLandscape = false) {
     <style>
         @page {
             size: ${pageSize};
-            margin: 0.50in 0.50in 0.50in 1.00in;
+            margin: 0 !important;
         }
         *, *:before, *:after {
             -webkit-print-color-adjust: exact !important;
@@ -10982,15 +10982,17 @@ async function printContent(contentHtml, isLandscape = false) {
             background: #ffffff !important;
             color: #000000 !important;
             font-family: 'Outfit', 'Noto Sans Gujarati', sans-serif !important;
+            width: 100% !important;
             height: auto !important;
             overflow: visible !important;
         }
         .print-page, .print-voucher, .print-requisition-form, .print-sanction-letter-page, .print-vouchers-page, .print-pledge-letter {
-            width: 100% !important;
-            min-height: 265mm !important;
-            max-height: 271.6mm !important;
-            height: 271.6mm !important;
+            width: 210mm !important;
+            min-height: 297mm !important;
+            max-height: 297mm !important;
+            height: 297mm !important;
             box-sizing: border-box !important;
+            padding: 0.40in 0.50in 0.40in 0.85in !important;
             margin: 0 auto !important;
             background: #ffffff !important;
             page-break-before: always !important;
@@ -11004,6 +11006,15 @@ async function printContent(contentHtml, isLandscape = false) {
             justify-content: space-between !important;
             position: relative !important;
             overflow: hidden !important;
+        }
+        .print-pledge-letter {
+            padding: 0.40in 0.50in 0.40in 0.85in !important;
+        }
+        .print-sanction-letter-page {
+            padding: 0.30in 0.40in 0.30in 0.40in !important;
+        }
+        .print-vouchers-page {
+            padding: 0.30in 0.40in 0.30in 0.40in !important;
         }
         .print-page:first-child {
             page-break-before: auto !important;
@@ -11074,16 +11085,19 @@ function generateLetterOfPledgeHTML(loan, isPageBreak = true) {
     <div class="print-page print-voucher print-pledge-letter ${pageBreakClass}">
         <div style="flex:1; display:flex; flex-direction:column; justify-content:space-between;">
             
-            <!-- Header Section -->
+            <!-- Continuous Content Flow: Header, Recipient, Declaration & All 10 Clauses -->
             <div>
+                <!-- Title -->
                 <div style="text-align:center; margin-bottom:10px;">
-                    <h2 style="font-size:22px; font-weight:900; margin:0; letter-spacing:0.8px; color:#000000; text-decoration:underline;">:: લેટર ઓફ પ્લેજ ::</h2>
+                    <h2 style="font-size:21px; font-weight:900; margin:0; letter-spacing:0.8px; color:#000000; text-decoration:underline;">:: લેટર ઓફ પ્લેજ ::</h2>
                 </div>
 
+                <!-- Date -->
                 <div style="text-align:right; font-size:13px; font-weight:800; margin-bottom:10px;">
                     તારીખ :- <strong>${dateFormatted}</strong>
                 </div>
 
+                <!-- Recipient -->
                 <div style="font-size:13px; font-weight:700; line-height:1.55; margin-bottom:12px;">
                     પ્રતિ,<br>
                     મેનેજર સાહેબ,<br>
@@ -11091,54 +11105,55 @@ function generateLetterOfPledgeHTML(loan, isPageBreak = true) {
                     શાખા :- <strong>${branchInfo.branchTitleGuj}</strong>
                 </div>
 
-                <div style="font-size:12.5px; line-height:1.65; text-align:justify; margin-bottom:12px; background:#f8fafc; padding:8px 10px; border:1px solid #cbd5e1; border-radius:4px;">
+                <!-- Declaration Box -->
+                <div style="font-size:12.8px; line-height:1.65; text-align:justify; margin-bottom:14px; background:#f8fafc; padding:8px 12px; border:1.2px solid #cbd5e1; border-radius:4px;">
                     હું <strong>${borrowerName}</strong>, ધંધો : <strong>${occupation}</strong>, ઉ.વ. <strong>${age}</strong>, જ્ઞાતિ : <strong>${caste}</strong>, ધર્મ : <strong>${religion}</strong>, રહેવાસી : <strong>${address}</strong> નીચે પ્રમાણે લખી બંધાઉં છું કે :-
                 </div>
+
+                <!-- Clauses List (Seamlessly follows Declaration Box) -->
+                <div style="font-size:12.4px; line-height:1.72; text-align:justify; display:flex; flex-direction:column; gap:8.5px;">
+                    <div>
+                        <strong>૧.</strong> આજરોજ મારી પોતાની માલિકીના સોનાના દાગીના કે જેની નોંધ બેંક તરફથી મને મળેલ જુદી પહોંચમાં કરેલ છે, તે બેંકને થાણમાં આપી મેં રૂ. <strong>${sanctionedAmt.toLocaleString("en-IN")}/-</strong> (અંકે રૂપિયા <strong>${amountInWords} પૂરા</strong>) નું ધિરાણ મેળવેલ છે.
+                    </div>
+                    <div>
+                        <strong>૨.</strong> સદરહુ રકમની આજરોજ મેં જુદી વચન ચિઠ્ઠી લખી છે અને ધિરાણની રકમ પર <strong>${interestRate}%</strong> ના વાર્ષિક વ્યાજ દરે, માસિક ચક્રવૃદ્ધિ લેખે ભરપાઈ કરવું છે.
+                    </div>
+                    <div>
+                        <strong>૩.</strong> સદરહુ ધિરાણની રકમ ૧ વર્ષમાં ચડત વ્યાજ સહિત બેંકને ભરપાઈ કરી આપવાની છે અને વ્યાજ દર મહિને જમા કરાવી આપવાનું છે, અન્યથા બેંક દર વર્ષે દર સેંકડે ૨.૦૦ % લેખે દંડનીય વ્યાજ સદર વ્યાજની રકમ ઉપરાંત વસુલ કરશે તે મને કબુલ-મંજુર છે.
+                    </div>
+                    <div>
+                        <strong>૪.</strong> બેંક દ્વારા વ્યાજ દરમાં વધારા / ઘટાડાની જાહેરાત બેંકના નોટીસ બોર્ડ પર કરી તેની અમલવારી જાહેરાતમાં દર્શાવેલી તારીખથી કરશે જે મને કબુલ-મંજૂર છે અને આવા વધારા / ઘટાડા અનુસાર બેંકને જે તે તારીખથી વ્યાજ ચુકવવા બંધાઉં છું.
+                    </div>
+                    <div>
+                        <strong>૫.</strong> હું બેંકનો સભાસદ / નોમિનલ સભાસદ છું અને બેંકના નિયમો તથા પેટા નિયમો વાંચ્યા અને સમજ્યા છે અને તે મને બંધનકર્તા છે અને તેમાં વખતોવખત જે ફેરફાર થાય તે પાળવા બંધાઉં છું.
+                    </div>
+                    <div>
+                        <strong>૬.</strong> મેં સોંપેલ દાગીના પર વારસનો હક છે. પરંતુ તેમને તે ખાતર કોઈપણ જાતનો વાંધો કરવાનો અધિકાર નથી.
+                    </div>
+                    <div>
+                        <strong>૭.</strong> બેંક માંગે ત્યારે ધિરાણ મેળવેલ તમામ રકમ વ્યાજ સહીત ભરપાઈ કરવાની છે અને તેમ કરવામાં હું કસુર કરું તો બેંક થાણમાં મુકેલ દાગીના વેંચી શકે છે. આવી રીતે બેંકે વેંચેલ દાગીના પરત્વે મારે કશો વાંધો રહેશે નહિ, આ અંગેની સર્વ જવાબદારી મારી રહેશે અને જે કાંઈપણ ખર્ચ થશે તે મારે શિરે રહેશે, જે મારા વંશ-વારસોને કબુલ-મંજુર છે. દાગીના વેંચાતા ઉપજેલી કિંમતમાંથી બેંક પોતાનું લ્હેણું વસુલ કરી બાકી રકમ મને આપશે અથવા મારા વારસને આપશે.
+                    </div>
+                    <div>
+                        <strong>૮.</strong> મેં થાણમાં મુકેલ દાગીના બેંક ફરીથી થાણમાં મૂકી શકશે.
+                    </div>
+                    <div>
+                        <strong>૯.</strong> મેં બેંકને થાણમાં આપેલાં દાગીનાનું સીલબંધ પેકેટ RBI ના નિર્દેશો અનુસાર રીચેકીંગના હેતુ માટે સક્ષમ અધિકારી સમક્ષ ખોલીને રીચેકીંગ કરાવી શકશે જેમાં મારી હાજરીની જરૂરી રહેશે નહીં.
+                    </div>
+                    <div>
+                        <strong>૧૦.</strong> રીઝર્વ બેંક ઓફ ઇન્ડિયાની સહકારી બેંકો ઉપર વખતોવખત જારી કરેલી ધિરાણ ખાતાઓમાં વ્યાજ ઉધારવા અંગેની સૂચનાઓ અનુસાર આ ધિરાણ ખાતામાં વ્યાજ ઉધારશે તે મને કબુલ અને બંધનકર્તા છે.
+                    </div>
+                </div>
             </div>
 
-            <!-- Clauses List -->
-            <div style="font-size:11.8px; line-height:1.68; text-align:justify; display:flex; flex-direction:column; gap:8px;">
-                <div>
-                    <strong>૧.</strong> આજરોજ મારી પોતાની માલિકીના સોનાના દાગીના કે જેની નોંધ બેંક તરફથી મને મળેલ જુદી પહોંચમાં કરેલ છે, તે બેંકને થાણમાં આપી મેં રૂ. <strong>${sanctionedAmt.toLocaleString("en-IN")}/-</strong> (અંકે રૂપિયા <strong>${amountInWords} પૂરા</strong>) નું ધિરાણ મેળવેલ છે.
-                </div>
-                <div>
-                    <strong>૨.</strong> સદરહુ રકમની આજરોજ મેં જુદી વચન ચિઠ્ઠી લખી છે અને ધિરાણની રકમ પર <strong>${interestRate}%</strong> ના વાર્ષિક વ્યાજ દરે, માસિક ચક્રવૃદ્ધિ લેખે ભરપાઈ કરવું છે.
-                </div>
-                <div>
-                    <strong>૩.</strong> સદરહુ ધિરાણની રકમ ૧ વર્ષમાં ચડત વ્યાજ સહિત બેંકને ભરપાઈ કરી આપવાની છે અને વ્યાજ દર મહિને જમા કરાવી આપવાનું છે, અન્યથા બેંક દર વર્ષે દર સેંકડે ૨.૦૦ % લેખે દંડનીય વ્યાજ સદર વ્યાજની રકમ ઉપરાંત વસુલ કરશે તે મને કબુલ-મંજુર છે.
-                </div>
-                <div>
-                    <strong>૪.</strong> બેંક દ્વારા વ્યાજ દરમાં વધારા / ઘટાડાની જાહેરાત બેંકના નોટીસ બોર્ડ પર કરી તેની અમલવારી જાહેરાતમાં દર્શાવેલી તારીખથી કરશે જે મને કબુલ-મંજૂર છે અને આવા વધારા / ઘટાડા અનુસાર બેંકને જે તે તારીખથી વ્યાજ ચુકવવા બંધાઉં છું.
-                </div>
-                <div>
-                    <strong>૫.</strong> હું બેંકનો સભાસદ / નોમિનલ સભાસદ છું અને બેંકના નિયમો તથા પેટા નિયમો વાંચ્યા અને સમજ્યા છે અને તે મને બંધનકર્તા છે અને તેમાં વખતોવખત જે ફેરફાર થાય તે પાળવા બંધાઉં છું.
-                </div>
-                <div>
-                    <strong>૬.</strong> મેં સોંપેલ દાગીના પર વારસનો હક છે. પરંતુ તેમને તે ખાતર કોઈપણ જાતનો વાંધો કરવાનો અધિકાર નથી.
-                </div>
-                <div>
-                    <strong>૭.</strong> બેંક માંગે ત્યારે ધિરાણ મેળવેલ તમામ રકમ વ્યાજ સહીત ભરપાઈ કરવાની છે અને તેમ કરવામાં હું કસુર કરું તો બેંક થાણમાં મુકેલ દાગીના વેંચી શકે છે. આવી રીતે બેંકે વેંચેલ દાગીના પરત્વે મારે કશો વાંધો રહેશે નહિ, આ અંગેની સર્વ જવાબદારી મારી રહેશે અને જે કાંઈપણ ખર્ચ થશે તે મારે શિરે રહેશે, જે મારા વંશ-વારસોને કબુલ-મંજુર છે. દાગીના વેંચાતા ઉપજેલી કિંમતમાંથી બેંક પોતાનું લ્હેણું વસુલ કરી બાકી રકમ મને આપશે અથવા મારા વારસને આપશે.
-                </div>
-                <div>
-                    <strong>૮.</strong> મેં થાણમાં મુકેલ દાગીના બેંક ફરીથી થાણમાં મૂકી શકશે.
-                </div>
-                <div>
-                    <strong>૯.</strong> મેં બેંકને થાણમાં આપેલાં દાગીનાનું સીલબંધ પેકેટ RBI ના નિર્દેશો અનુસાર રીચેકીંગના હેતુ માટે સક્ષમ અધિકારી સમક્ષ ખોલીને રીચેકીંગ કરાવી શકશે જેમાં મારી હાજરીની જરૂરી રહેશે નહીં.
-                </div>
-                <div>
-                    <strong>૧૦.</strong> રીઝર્વ બેંક ઓફ ઇન્ડિયાની સહકારી બેંકો ઉપર વખતોવખત જારી કરેલી ધિરાણ ખાતાઓમાં વ્યાજ ઉધારવા અંગેની સૂચનાઓ અનુસાર આ ધિરાણ ખાતામાં વ્યાજ ઉધારશે તે મને કબુલ અને બંધનકર્તા છે.
-                </div>
-            </div>
-
-            <!-- Footer & Signatures -->
-            <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:20px; padding-top:10px; border-top:1.2px solid #000;">
+            <!-- Footer & Signatures (Anchored Cleanly at Page Bottom Without Partition Line) -->
+            <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:24px;">
                 <div style="font-size:13px; font-weight:800; line-height:1.65;">
                     સ્થળ :- <strong>${branchInfo.cleanGuj}</strong><br>
                     તારીખ :- <strong>${dateFormatted}</strong>
                 </div>
                 <div style="text-align:center; min-width:220px;">
                     <div style="height:32px;"></div>
-                    <div style="border-bottom:1.8px solid #000000; width:200px; margin:0 auto 5px auto;"></div>
+                    <div style="border-bottom:1.8px solid #000000; width:210px; margin:0 auto 5px auto;"></div>
                     <div style="font-size:13px; font-weight:800; color:#000000; text-transform:uppercase;">${borrowerName}</div>
                     <div style="font-size:11.5px; font-weight:700; color:#333;">(અરજદાર / ગ્રાહકની સહી)</div>
                 </div>
@@ -11447,7 +11462,6 @@ function generatePage2ValuationReportHTML(loan, ltv, isPageBreak = true) {
                             <td colspan="2" style="border:1px solid #000; padding:4px 4px; text-align:right;">કુલ સરવાળો :</td>
                             <td style="border:1px solid #000; padding:4px 2px;"><strong>${totalQty}</strong></td>
                             <td style="border:1px solid #000; padding:4px 2px;">${normGrossGm}</td>
-                            <td style="border:1px solid #000; padding:4px 2px;">${normGrossMg}</td>
                             <td style="border:1px solid #000; padding:4px 2px;"><strong>${normNetGm}</strong></td>
                             <td style="border:1px solid #000; padding:4px 2px;"><strong>${normNetMg}</strong></td>
                             <td style="border:1px solid #000; padding:4px 2px;">-</td>
@@ -11834,6 +11848,7 @@ function generatePage4KFSHTML(loan, ltv, isPageBreak = false) {
     const intRate = parseFloat(loan.interestRate || 11.50);
     const apr = (intRate + 1.00).toFixed(2);
     const totalPayable = Math.round(sanctionedAmt + (sanctionedAmt * (intRate / 100)));
+    const ltvFormatted = (typeof ltv === "number" || !isNaN(parseFloat(ltv))) ? parseFloat(ltv).toFixed(2) : ltv;
 
     return `
     <div class="print-page print-voucher print-requisition-form ${pageBreakClass}">
@@ -11841,86 +11856,87 @@ function generatePage4KFSHTML(loan, ltv, isPageBreak = false) {
             
             <!-- TOP SECTION: HEADER & KFS TABLE -->
             <div>
-                <div style="display:flex; align-items:center; gap:10px; margin-bottom:3px;">
-                    <img src="${LOGO_SRC}" alt="JCCB Logo" loading="eager" decoding="sync" style="width:44px; height:44px; object-fit:contain;">
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:2px;">
+                    <img src="${LOGO_SRC}" alt="JCCB Logo" loading="eager" decoding="sync" style="width:38px; height:38px; object-fit:contain;">
                     <div style="flex:1; text-align:center;">
-                        <h1 style="font-size:16.5px; font-weight:900; margin:0; text-transform:uppercase; color:#000000; letter-spacing:0.4px;">THE JUNAGADH COMMERCIAL CO-OPERATIVE BANK LTD.</h1>
-                        <p style="font-size:10.5px; margin:2px 0 0 0; font-weight:700; color:#111111;">H.O. : “Chandrakant Malaviya Smruti Bhavan”, Choksi Bazar, Junagadh - 362001</p>
-                        <p style="font-size:11px; margin:2px 0 0 0; font-weight:800; color:#000000;">Branch : <strong>${branchInfo.cleanEng.toUpperCase()}</strong></p>
+                        <h1 style="font-size:15px; font-weight:900; margin:0; text-transform:uppercase; color:#000000; letter-spacing:0.3px;">THE JUNAGADH COMMERCIAL CO-OPERATIVE BANK LTD.</h1>
+                        <p style="font-size:10px; margin:1px 0 0 0; font-weight:700; color:#111111;">H.O. : “Chandrakant Malaviya Smruti Bhavan”, Choksi Bazar, Junagadh - 362001 &nbsp;|&nbsp; Branch : <strong>${branchInfo.cleanEng.toUpperCase()}</strong></p>
                     </div>
-                    <div style="width:44px;"></div>
+                    <div style="width:38px;"></div>
                 </div>
 
-                <div style="border-top:1.8px solid #000000; border-bottom:1.8px solid #000000; height:4px; margin:3px 0 6px 0;"></div>
+                <div style="border-top:1.8px solid #000000; border-bottom:1.8px solid #000000; height:3px; margin:2px 0 4px 0;"></div>
 
-                <div style="text-align:center; margin:2px 0 5px 0;">
-                    <h2 style="font-size:13.5px; font-weight:900; margin:0; text-decoration:underline;">KEY FACTS STATEMENT (KFS) – SUMMARY BOX</h2>
-                    <div style="font-size:10.5px; font-weight:700; margin-top:2px;">(Gold Loan - Bullet Repayment)</div>
+                <div style="text-align:center; margin:1px 0 4px 0;">
+                    <h2 style="font-size:13px; font-weight:900; margin:0; text-decoration:underline;">KEY FACTS STATEMENT (KFS) – SUMMARY BOX</h2>
+                    <div style="font-size:10px; font-weight:700; margin-top:1px;">(Gold Loan - Bullet Repayment)</div>
                 </div>
 
-                <!-- 20 Rows KFS Table: Expanded to cover 75-80% of page height -->
-                <table style="width:100%; border-collapse:collapse; border:1.8px solid #000000; font-size:10px; line-height:1.32; margin-bottom:6px;">
+                <!-- 29 Rows KFS Table: Stretched to cover empty space as max as possible -->
+                <table style="width:100%; border-collapse:collapse; border:1.8px solid #000000; font-size:10.5px; line-height:1.32; margin-bottom:0px;">
                     <thead>
-                        <tr style="background:#e2e8f0; font-weight:900; font-size:10.5px;">
-                            <th style="border:1.2px solid #000000; padding:4.5px 8px; width:36%; text-align:left;">Particulars</th>
-                            <th style="border:1.2px solid #000000; padding:4.5px 8px; width:64%; text-align:left;">Details</th>
+                        <tr style="background:#e2e8f0; font-weight:900; font-size:11px;">
+                            <th style="border:1.2px solid #000000; padding:5.6px 8px; width:36%; text-align:left;">Particulars</th>
+                            <th style="border:1.2px solid #000000; padding:5.6px 8px; width:64%; text-align:left;">Details</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:700;">Unique Proposal Number</td><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:900; font-size:10.5px;">${proposalNoFormatted}</td></tr>
-                        <tr><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:700;">Date of KFS</td><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:800;">${todayFormatted}</td></tr>
-                        <tr><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:700;">Borrower Name</td><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:900; font-size:10.2px;">${loan.borrowerName}</td></tr>
-                        <tr><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:700;">Customer ID</td><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:800;">${loan.customerNo || "-"}</td></tr>
-                        <tr><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:700;">Loan Account No.</td><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:900; font-size:10.5px;">${accFormatted}</td></tr>
-                        <tr><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:700;">Type of Loan</td><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:700;">Gold Loan</td></tr>
-                        <tr><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:700;">Purpose of Loan</td><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:800;">${loan.purpose || "BUSINESS USE"}</td></tr>
-                        <tr><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:800;">Sanctioned Loan Amount</td><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:900; font-size:10.5px;">₹ ${sanctionedAmt.toLocaleString("en-IN")}/-</td></tr>
-                        <tr><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:700;">Disbursed Amount</td><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:800;">₹ ${disbursedAmt.toLocaleString("en-IN")}/-</td></tr>
-                        <tr><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:700;">Tenure of Loan</td><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:800;">12 Months</td></tr>
-                        <tr><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:700;">Rate of Interest</td><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:800;">${intRate.toFixed(2)}% p.a. (Fixed / Floating)</td></tr>
-                        <tr><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:800;">Annual Percentage Rate (APR)</td><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:900;">${apr}%</td></tr>
-                        <tr><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:700;">Interest Recovery</td><td style="border:1.2px solid #000000; padding:3.8px 8px;">Monthly / Quarterly / At Maturity (as per sanction terms)</td></tr>
-                        <tr><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:800;">Repayment Type</td><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:800;">Bullet Repayment</td></tr>
-                        <tr><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:700;">Repayment Terms</td><td style="border:1.2px solid #000000; padding:3.8px 8px; line-height:1.25;">The principal amount is repayable in one lump sum on or before the due date. Interest shall be paid as per the sanctioned terms.</td></tr>
-                        <tr><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:700;">Due Date of Maturity</td><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:800;">${formatDateDMY(new Date(new Date().setFullYear(new Date().getFullYear() + 1)))}</td></tr>
-                        <tr><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:700;">Processing Charges</td><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:800;">₹ ${processingFee.toLocaleString("en-IN")}/-</td></tr>
-                        <tr><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:700;">Appraiser Charges</td><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:800;">₹ ${valuerFee.toLocaleString("en-IN")}/-</td></tr>
-                        <tr><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:700;">Documentation Charges</td><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:800;">₹ ${stampDuty.toLocaleString("en-IN")}/-</td></tr>
-                        <tr><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:700;">Other Charges (if any)</td><td style="border:1.2px solid #000000; padding:3.8px 8px;">₹ ${Math.max(0, otherDeductions).toLocaleString("en-IN")}/-</td></tr>
-                        <tr><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:700;">Penal Charges (in case of default)</td><td style="border:1.2px solid #000000; padding:3.8px 8px; color:#b91c1c; font-weight:700;">2.00% p.a. on overdue amount for delayed period</td></tr>
-                        <tr><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:700;">Security</td><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:800;">Pledge of Gold Ornaments (Packet #${loan.packetNo || "-"})</td></tr>
-                        <tr><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:700;">Gross Weight / Net Weight of Gold</td><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:800;">Gross: ${grossWt.toFixed(3)} g &nbsp;|&nbsp; Net: ${netWt.toFixed(3)} g</td></tr>
-                        <tr><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:700;">Purity of Gold</td><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:800;">${purityStr}</td></tr>
-                        <tr><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:800;">Loan-to-Value (LTV)</td><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:900;">${ltv}% (Max 75%)</td></tr>
-                        <tr><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:800;">Total Amount Payable at Maturity</td><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:900;">₹ ${totalPayable.toLocaleString("en-IN")}/- (Subject to interest accrued as per terms)</td></tr>
-                        <tr><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:700;">Prepayment / Foreclosure Charges</td><td style="border:1.2px solid #000000; padding:3.8px 8px;">Nil</td></tr>
-                        <tr><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:700;">Consequences of Default</td><td style="border:1.2px solid #000000; padding:3.8px 8px; line-height:1.25;">In case of non-payment on the due date, penal charges will apply. If the default continues, the Bank may enforce the pledge and recover dues by sale/auction of the pledged gold in accordance with RBI guidelines and the loan agreement, after giving the required notice.</td></tr>
-                        <tr><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:700;">Grievance Redressal Officer</td><td style="border:1.2px solid #000000; padding:3.8px 8px; font-weight:800;">Amrutlal Valjibhai Chavda</td></tr>
+                        <tr><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:700;">Unique Proposal Number</td><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:900; font-size:11px;">${proposalNoFormatted}</td></tr>
+                        <tr><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:700;">Date of KFS</td><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:800;">${todayFormatted}</td></tr>
+                        <tr><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:700;">Borrower Name</td><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:900; font-size:10.8px;">${loan.borrowerName}</td></tr>
+                        <tr><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:700;">Customer ID</td><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:800;">${loan.customerNo || "-"}</td></tr>
+                        <tr><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:700;">Loan Account No.</td><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:900; font-size:11px;">${accFormatted}</td></tr>
+                        <tr><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:700;">Type of Loan</td><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:700;">Gold Loan</td></tr>
+                        <tr><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:700;">Purpose of Loan</td><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:800;">${loan.purpose || "BUSINESS USE"}</td></tr>
+                        <tr><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:800;">Sanctioned Loan Amount</td><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:900; font-size:11px;">₹ ${sanctionedAmt.toLocaleString("en-IN")}/-</td></tr>
+                        <tr><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:700;">Disbursed Amount</td><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:800;">₹ ${disbursedAmt.toLocaleString("en-IN")}/-</td></tr>
+                        <tr><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:700;">Tenure of Loan</td><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:800;">12 Months</td></tr>
+                        <tr><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:700;">Rate of Interest</td><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:800;">${intRate.toFixed(2)}% p.a. (Fixed / Floating)</td></tr>
+                        <tr><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:800;">Annual Percentage Rate (APR)</td><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:900;">${apr}%</td></tr>
+                        <tr><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:700;">Interest Recovery</td><td style="border:1.2px solid #000000; padding:5.2px 8px;">Monthly / Quarterly / At Maturity (as per sanction terms)</td></tr>
+                        <tr><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:800;">Repayment Type</td><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:800;">Bullet Repayment</td></tr>
+                        <tr><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:700;">Repayment Terms</td><td style="border:1.2px solid #000000; padding:5.2px 8px; line-height:1.25;">The principal amount is repayable in one lump sum on or before the due date. Interest shall be paid as per the sanctioned terms.</td></tr>
+                        <tr><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:700;">Due Date of Maturity</td><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:800;">${formatDateDMY(new Date(new Date().setFullYear(new Date().getFullYear() + 1)))}</td></tr>
+                        <tr><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:700;">Processing Charges</td><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:800;">₹ ${processingFee.toLocaleString("en-IN")}/-</td></tr>
+                        <tr><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:700;">Appraiser Charges</td><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:800;">₹ ${valuerFee.toLocaleString("en-IN")}/-</td></tr>
+                        <tr><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:700;">Documentation Charges</td><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:800;">₹ ${stampDuty.toLocaleString("en-IN")}/-</td></tr>
+                        <tr><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:700;">Other Charges (if any)</td><td style="border:1.2px solid #000000; padding:5.2px 8px;">₹ ${Math.max(0, otherDeductions).toLocaleString("en-IN")}/-</td></tr>
+                        <tr><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:700;">Penal Charges (in case of default)</td><td style="border:1.2px solid #000000; padding:5.2px 8px; color:#b91c1c; font-weight:700;">2.00% p.a. on overdue amount for delayed period</td></tr>
+                        <tr><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:700;">Security</td><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:800;">Pledge of Gold Ornaments (Packet #${loan.packetNo || "-"})</td></tr>
+                        <tr><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:700;">Gross Weight / Net Weight of Gold</td><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:800;">Gross: ${grossWt.toFixed(3)} g &nbsp;|&nbsp; Net: ${netWt.toFixed(3)} g</td></tr>
+                        <tr><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:700;">Purity of Gold</td><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:800;">${purityStr}</td></tr>
+                        <tr><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:800;">Loan-to-Value (LTV)</td><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:900;">${ltvFormatted}% (Max 75%)</td></tr>
+                        <tr><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:800;">Total Amount Payable at Maturity</td><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:900;">₹ ${totalPayable.toLocaleString("en-IN")}/- (Subject to interest accrued as per terms)</td></tr>
+                        <tr><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:700;">Prepayment / Foreclosure Charges</td><td style="border:1.2px solid #000000; padding:5.2px 8px;">Nil</td></tr>
+                        <tr><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:700;">Consequences of Default</td><td style="border:1.2px solid #000000; padding:5.2px 8px; line-height:1.25;">In case of non-payment on the due date, penal charges will apply. If the default continues, the Bank may enforce the pledge and recover dues by sale/auction of the pledged gold in accordance with RBI guidelines and the loan agreement, after giving the required notice.</td></tr>
+                        <tr><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:700;">Grievance Redressal Officer</td><td style="border:1.2px solid #000000; padding:5.2px 8px; font-weight:800;">Amrutlal Valjibhai Chavda</td></tr>
                     </tbody>
                 </table>
             </div>
 
             <!-- BOTTOM SECTION: ACKNOWLEDGEMENT & SIGNATURES -->
             <div style="margin-top:6px;">
-                <div style="border:1.4px solid #000000; border-radius:3px; padding:5px 8px; background:#f8fafc; font-size:8.8px; line-height:1.35; margin-bottom:8px;">
-                    <div style="font-weight:900; text-align:center; font-size:9.5px; text-decoration:underline; margin-bottom:2px;">BORROWER'S ACKNOWLEDGEMENT</div>
+                <div style="border:1.4px solid #000000; border-radius:3px; padding:6px 10px; background:#f8fafc; font-size:9.2px; line-height:1.35; margin-bottom:10px;">
+                    <div style="font-weight:900; text-align:center; font-size:10px; text-decoration:underline; margin-bottom:2px;">BORROWER'S ACKNOWLEDGEMENT</div>
                     I/We acknowledge that I/We have received and understood this Key Facts Statement before execution of the loan documents. The loan amount, interest rate, applicable charges, bullet repayment terms, security, and consequences of default have been explained to me/us.
                 </div>
 
-                <div style="display:flex; justify-content:space-between; align-items:flex-end; font-size:9.5px; padding:0 4px 2px 4px;">
-                    <div style="line-height:1.4; font-weight:800;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-end; font-size:10px; padding:0 6px 3px 6px;">
+                    <div style="line-height:1.55; font-weight:800;">
                         Date: <strong>${todayFormatted}</strong><br>
                         Place: <strong>${branchInfo.cleanEng}</strong>
                     </div>
-                    <div style="text-align:center; min-width:160px;">
-                        <span style="display:inline-block; width:145px; border-bottom:1.6px solid #000000; margin-bottom:2px;"></span>
+                    <div style="text-align:center; min-width:180px;">
+                        <div style="height:32px;"></div>
+                        <span style="display:inline-block; width:160px; border-bottom:1.6px solid #000000; margin-bottom:3px;"></span>
                         <div style="font-weight:900;">Borrower's Signature:</div>
-                        <div style="font-weight:700; font-size:8.8px;">(<strong>${loan.borrowerName}</strong>)</div>
+                        <div style="font-weight:700; font-size:9.2px;">(<strong>${loan.borrowerName}</strong>)</div>
                     </div>
-                    <div style="text-align:center; min-width:160px;">
-                        <span style="display:inline-block; width:145px; border-bottom:1.6px solid #000000; margin-bottom:2px;"></span>
+                    <div style="text-align:center; min-width:180px;">
+                        <div style="height:32px;"></div>
+                        <span style="display:inline-block; width:160px; border-bottom:1.6px solid #000000; margin-bottom:3px;"></span>
                         <div style="font-weight:900;">Bank Official's Signature:</div>
-                        <div style="font-weight:700; font-size:8.8px;">(Officer / Manager)</div>
+                        <div style="font-weight:700; font-size:9.2px;">(Officer / Manager)</div>
                     </div>
                 </div>
             </div>

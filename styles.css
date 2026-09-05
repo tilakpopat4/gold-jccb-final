@@ -2861,7 +2861,7 @@ body.printing-mode #print-area {
     }
     @page {
         size: A4 portrait !important;
-        margin: 0.50in 0.50in 0.50in 1.00in !important; /* 1.00 inch Left (Binding Margin), 0.50 inch Top/Right/Bottom */
+        margin: 0 !important;
     }
     html, body {
         width: 210mm !important;
@@ -3769,7 +3769,7 @@ input.admin-editable:focus, select.admin-editable:focus {
 @media print {
     @page {
         size: A4 portrait;
-        margin: 3mm 4mm !important;
+        margin: 0 !important;
     }
     html, body {
         margin: 0 !important;

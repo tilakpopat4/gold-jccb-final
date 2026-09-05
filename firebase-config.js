@@ -787,6 +787,120 @@ const FirebaseService = {
         });
     },
 
+    /**
+     * Get gold rate history (Old Rates) from Firestore (Direct REST with SDK fallback)
+     */
+    getRateHistory: async function() {
+        // 1. Direct REST fetch (instant, resilient)
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 3500);
+            const res = await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/settings/rateHistory`, {
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+            if (res.ok) {
+                const data = await res.json();
+                const parsed = this.fromFirestoreDocument(data);
+                if (parsed && Array.isArray(parsed.list) && parsed.list.length > 0) {
+                    return parsed.list;
+                }
+            }
+        } catch (restErr) {
+            console.warn("[Firebase REST] Rate history REST fetch notice:", restErr);
+        }
+
+        // 2. Fallback check in rates/history
+        try {
+            const res = await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/rates/history`);
+            if (res.ok) {
+                const data = await res.json();
+                const parsed = this.fromFirestoreDocument(data);
+                if (parsed && Array.isArray(parsed.list) && parsed.list.length > 0) {
+                    return parsed.list;
+                }
+            }
+        } catch (e) {}
+
+        // 3. Fallback to SDK
+        if (this.db) {
+            try {
+                const doc = await this.db.collection('settings').doc('rateHistory').get();
+                if (doc && doc.exists && Array.isArray(doc.data().list) && doc.data().list.length > 0) {
+                    return doc.data().list;
+                }
+            } catch (e) {}
+            try {
+                const doc2 = await this.db.collection('rates').doc('history').get();
+                if (doc2 && doc2.exists && Array.isArray(doc2.data().list) && doc2.data().list.length > 0) {
+                    return doc2.data().list;
+                }
+            } catch (e) {}
+        }
+        return null;
+    },
+
+    /**
+     * Save rate history (Old Rates) to Firestore (Dual SDK + REST)
+     */
+    saveRateHistory: async function(historyList) {
+        if (!Array.isArray(historyList)) return null;
+        const payload = {
+            list: historyList,
+            updatedAt: new Date().toISOString(),
+            updatedBy: this.currentUser ? this.currentUser.uid : 'ADMIN'
+        };
+
+        // 1. Write via SDK
+        if (this.db) {
+            try {
+                await Promise.all([
+                    this.db.collection('settings').doc('rateHistory').set(payload, { merge: true }),
+                    this.db.collection('rates').doc('history').set(payload, { merge: true })
+                ]);
+            } catch (e) {}
+        }
+
+        // 2. Write via REST API
+        try {
+            const fsDoc = this.toFirestoreDocument(payload);
+            await Promise.all([
+                fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/settings/rateHistory`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(fsDoc)
+                }),
+                fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/rates/history`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(fsDoc)
+                })
+            ]);
+            console.log("[Firebase REST] Rate history (Old Rates) saved to cloud successfully:", historyList.length);
+        } catch (restErr) {
+            console.warn("[Firebase REST] Rate history REST save error:", restErr);
+        }
+
+        return payload;
+    },
+
+    /**
+     * Realtime listener for rate history (Old Rates) across all connected PCs
+     */
+    listenRateHistory: function(onUpdate) {
+        if (!this.db) return () => {};
+        return this.db.collection('settings').doc('rateHistory').onSnapshot((doc) => {
+            if (doc.exists && typeof onUpdate === 'function') {
+                const data = doc.data();
+                if (data && Array.isArray(data.list)) {
+                    onUpdate(data.list);
+                }
+            }
+        }, (err) => {
+            console.warn("[Firebase] Rate history listener notice:", err);
+        });
+    },
+
     // =================================================================
     // CUSTOMER DIRECTORY OPERATIONS & SYNC
     // =================================================================
