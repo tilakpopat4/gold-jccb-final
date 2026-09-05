@@ -10471,8 +10471,14 @@ async function print4PageDocument(loan) {
                        (loan.loanAmount !== undefined && loan.loanAmount !== null ? loan.loanAmount :
                        (loan.amount !== undefined && loan.amount !== null ? loan.amount : (loan.sanctionedAmt || 0)));
         const sanctionedAmt = Math.round(parseFloat(rawAmt || 0));
-        const valuationAmt = parseFloat(loan.valuationAmount || loan.valuationAmt || 0);
-        const ltv = valuationAmt > 0 ? (sanctionedAmt / valuationAmt) * 100 : 75;
+        let ornamentsMarketVal = 0;
+        if (loan.ornamentsTable && Array.isArray(loan.ornamentsTable) && loan.ornamentsTable.length > 0) {
+            loan.ornamentsTable.forEach((orn) => {
+                ornamentsMarketVal += Math.round(parseFloat(orn.marketVal || 0));
+            });
+        }
+        const valuationAmt = ornamentsMarketVal > 0 ? ornamentsMarketVal : Math.round(parseFloat(loan.valuationAmount || loan.valuationAmt || 0));
+        const ltv = valuationAmt > 0 ? ((sanctionedAmt / valuationAmt) * 100).toFixed(2) : "75.00";
 
         const hasShareGroupA = parseFloat(loan.shareA || 0) > 0;
         const hasShareGroupB = parseFloat(loan.shareB || 0) > 0;
@@ -10562,11 +10568,24 @@ async function print4PageDocument(loan) {
         // Page 4: Key Facts Statement (KFS)
         html += generatePage4KFSHTML(loanForPrint, ltv, true);
         
-        // Page 5: Membership Application Form
-        if (hasShareGroupA) {
-            html += generatePage5MembershipGroupAHTML(loanForPrint, true);
-        } else {
-            html += generatePage5MembershipGroupBHTML(loanForPrint, true);
+        // Page 5: Membership Application Form (Only for Non-Members / New Memberships)
+        const isMemberOrStaff = Boolean(
+            loan.isMember === true || 
+            loan.isMember === "Yes" || 
+            loan.isMember === "yes" || 
+            loan.isStaff === true || 
+            loan.isStaff === "Staff" || 
+            loan.isStaff === "staff" || 
+            loan.isStaffLoan === true || 
+            (loan.memberNo && String(loan.memberNo).trim() !== "" && String(loan.memberNo).trim() !== "-")
+        );
+
+        if (!isMemberOrStaff) {
+            if (hasShareGroupA) {
+                html += generatePage5MembershipGroupAHTML(loanForPrint, true);
+            } else {
+                html += generatePage5MembershipGroupBHTML(loanForPrint, true);
+            }
         }
         await printContent(html);
     } catch (err) {
@@ -11848,7 +11867,17 @@ function generatePage4KFSHTML(loan, ltv, isPageBreak = false) {
     const intRate = parseFloat(loan.interestRate || 11.50);
     const apr = (intRate + 1.00).toFixed(2);
     const totalPayable = Math.round(sanctionedAmt + (sanctionedAmt * (intRate / 100)));
-    const ltvFormatted = (typeof ltv === "number" || !isNaN(parseFloat(ltv))) ? parseFloat(ltv).toFixed(2) : ltv;
+    let ornamentsMarketVal = 0;
+    if (loan.ornamentsTable && Array.isArray(loan.ornamentsTable) && loan.ornamentsTable.length > 0) {
+        loan.ornamentsTable.forEach((orn) => {
+            ornamentsMarketVal += Math.round(parseFloat(orn.marketVal || 0));
+        });
+    }
+    const valuationAmt = ornamentsMarketVal > 0 ? ornamentsMarketVal : Math.round(parseFloat(loan.valuationAmount || loan.valuationAmt || 0));
+    const ltvNum = (ltv !== undefined && ltv !== null && ltv !== "" && !isNaN(parseFloat(ltv)))
+        ? parseFloat(ltv)
+        : (valuationAmt > 0 ? ((sanctionedAmt / valuationAmt) * 100) : 75.00);
+    const ltvFormatted = ltvNum.toFixed(2);
 
     return `
     <div class="print-page print-voucher print-requisition-form ${pageBreakClass}">
