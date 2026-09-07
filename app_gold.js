@@ -4046,15 +4046,30 @@ function generateNextProposalNo(branchCode) {
     const rawBranch = branchCode ? String(branchCode).trim() : (document.getElementById("loan-branch") ? document.getElementById("loan-branch").value : (state.currentSession ? state.currentSession.code : "99"));
     const numOnly = String(rawBranch).replace(/\D/g, '');
     const bCode2 = numOnly ? numOnly.padStart(2, "0") : "99";
-    const bCode3 = numOnly ? numOnly.padStart(3, "0") : "099";
 
     const baseSeed = getBranchProposalSeed(bCode2);
-    const branchLoans = (state.loans || []).filter(l => {
-        const lBranch = String(l.branchCode || "").replace(/\D/g, '');
-        return lBranch === numOnly || lBranch === bCode2 || lBranch === bCode3;
+    
+    // Find highest proposal serial among existing loans for this branch
+    let maxLoanProposal = 0;
+    (state.loans || []).forEach(l => {
+        if (isBranchMatch(l.branchCode, bCode2)) {
+            const propStr = String(l.proposalNo || l.uniqueProposalNo || l.loanNo || "");
+            if (propStr) {
+                const parts = propStr.split("/");
+                let num = 0;
+                if (parts.length >= 3) {
+                    num = parseInt(parts[parts.length - 1].replace(/\D/g, ""), 10) || 0;
+                } else {
+                    const match = propStr.match(/\d+$/);
+                    if (match) num = parseInt(match[0], 10) || 0;
+                }
+                if (num > maxLoanProposal) maxLoanProposal = num;
+            }
+        }
     });
 
-    const nextNo = baseSeed + branchLoans.length + 1;
+    const lastProposalNo = Math.max(baseSeed, maxLoanProposal);
+    const nextNo = lastProposalNo + 1;
     const branchLetters = getBranchFirst3Letters(rawBranch || bCode2);
     const currentYear = new Date().getFullYear();
     const serialFormatted = String(nextNo).padStart(4, "0");
@@ -4093,14 +4108,35 @@ function generateNextAccountNo(branchCode, productCode) {
 
     const baseSeed = getBranchProductSeed(bCode2, pCode4);
 
-    const branchProductLoans = (state.loans || []).filter(l => {
-        const lBranch = String(l.branchCode || "").replace(/\D/g, '');
-        const lProdMatch = String(l.loanType || "").match(/\d+/);
-        const lProd = lProdMatch ? lProdMatch[0].padStart(4, "0") : "";
-        return (lBranch === numOnly || lBranch === bCode2 || lBranch === bCode3) && (lProd === pCode4);
+    // Find highest account serial for this branch and product code
+    let maxLoanAccSerial = 0;
+    (state.loans || []).forEach(l => {
+        if (isBranchMatch(l.branchCode, bCode2)) {
+            const lProdMatch = String(l.loanType || "").match(/\d+/);
+            const lProd = lProdMatch ? lProdMatch[0].padStart(4, "0") : "";
+            if (lProd === pCode4) {
+                const acStr = String(l.accountNo || "");
+                if (acStr) {
+                    const parts = acStr.split("-");
+                    let num = 0;
+                    if (parts.length >= 3) {
+                        num = parseInt(parts[parts.length - 1].replace(/\D/g, ""), 10) || 0;
+                    } else {
+                        const digits = acStr.replace(/\D/g, "");
+                        if (digits.length >= 8) {
+                            num = parseInt(digits.slice(-8), 10) || 0;
+                        } else {
+                            num = parseInt(digits, 10) || 0;
+                        }
+                    }
+                    if (num > maxLoanAccSerial) maxLoanAccSerial = num;
+                }
+            }
+        }
     });
 
-    const nextSerial = baseSeed + branchProductLoans.length + 1;
+    const lastSerial = Math.max(baseSeed, maxLoanAccSerial);
+    const nextSerial = lastSerial + 1;
     const serialStr = String(nextSerial).padStart(8, "0");
 
     // Format: 001-3527-00000001 (શાખાનો કોડ ૩ ડીજીટ - પ્રોડક્ટ કોડ ૪ ડીજીટ - સીરીયલ ૮ ડીજીટ)
@@ -4120,15 +4156,22 @@ function generateNextPacketNo(branchCode) {
     const rawBranch = branchCode ? String(branchCode).trim() : (document.getElementById("loan-branch") ? document.getElementById("loan-branch").value : (state.currentSession ? state.currentSession.code : "99"));
     const numOnly = String(rawBranch).replace(/\D/g, '');
     const bCode2 = String(numOnly || "99").padStart(2, "0");
-    const bCode3 = String(numOnly || "99").padStart(3, "0");
 
     const baseSeed = getBranchPacketSeed(bCode2);
-    const branchLoans = (state.loans || []).filter(l => {
-        const lBranch = String(l.branchCode || "").replace(/\D/g, '');
-        return lBranch === numOnly || lBranch === bCode2 || lBranch === bCode3;
+
+    // Find highest packet number in existing loans for this branch
+    let maxLoanPacket = 0;
+    (state.loans || []).forEach(l => {
+        if (isBranchMatch(l.branchCode, bCode2)) {
+            const num = parseInt(String(l.packetNo || "").replace(/\D/g, ""), 10);
+            if (!isNaN(num) && num > maxLoanPacket) {
+                maxLoanPacket = num;
+            }
+        }
     });
 
-    const nextNo = baseSeed + branchLoans.length + 1;
+    const lastPacketNo = Math.max(baseSeed, maxLoanPacket);
+    const nextNo = lastPacketNo + 1;
     if (input && !input.dataset.userEdited) input.value = nextNo;
     return String(nextNo);
 }
@@ -7982,15 +8025,32 @@ function renderBranchSettings(targetBranch = null) {
             ? acSeeds[pCode4]
             : (acSeeds[p.code] !== undefined ? acSeeds[p.code] : (acSeeds[p.shortCode] || 0));
 
-        // Count existing loans for this branch & this product
-        const count = (state.loans || []).filter(l => {
-            const lBranch = String(l.branchCode || "").replace(/\D/g, '');
-            const lProdMatch = String(l.loanType || "").match(/\d+/);
-            const lProd = lProdMatch ? lProdMatch[0].padStart(4, "0") : "";
-            return (lBranch === numOnly || lBranch === bCode2 || lBranch === bCode3) && (lProd === pCode4);
-        }).length;
+        let maxLoanAccSerial = 0;
+        let count = 0;
+        (state.loans || []).forEach(l => {
+            if (isBranchMatch(l.branchCode, bCode2)) {
+                const lProdMatch = String(l.loanType || "").match(/\d+/);
+                const lProd = lProdMatch ? lProdMatch[0].padStart(4, "0") : "";
+                if (lProd === pCode4) {
+                    count++;
+                    const acStr = String(l.accountNo || "");
+                    if (acStr) {
+                        const parts = acStr.split("-");
+                        let num = 0;
+                        if (parts.length >= 3) {
+                            num = parseInt(parts[parts.length - 1].replace(/\D/g, ""), 10) || 0;
+                        } else {
+                            const digits = acStr.replace(/\D/g, "");
+                            num = parseInt(digits.slice(-8), 10) || 0;
+                        }
+                        if (num > maxLoanAccSerial) maxLoanAccSerial = num;
+                    }
+                }
+            }
+        });
 
-        const nextSerial = parseInt(currentVal || 0) + count + 1;
+        const effectiveLastSerial = Math.max(parseInt(currentVal || 0), maxLoanAccSerial);
+        const nextSerial = effectiveLastSerial + 1;
         const nextSampleAcc = `${bCode3}-${pCode4}-${String(nextSerial).padStart(8, '0')}`;
 
         const rowDiv = document.createElement("div");
@@ -8023,13 +8083,29 @@ function renderBranchSettings(targetBranch = null) {
         inp.addEventListener("input", () => {
             const pCode4 = inp.getAttribute("data-pcode");
             const val = parseInt(inp.value || 0);
-            const count = (state.loans || []).filter(l => {
-                const lBranch = String(l.branchCode || "").replace(/\D/g, '');
-                const lProdMatch = String(l.loanType || "").match(/\d+/);
-                const lProd = lProdMatch ? lProdMatch[0].padStart(4, "0") : "";
-                return (lBranch === numOnly || lBranch === bCode2 || lBranch === bCode3) && (lProd === pCode4);
-            }).length;
-            const nextSerial = val + count + 1;
+            let maxLoanAccSerial = 0;
+            (state.loans || []).forEach(l => {
+                if (isBranchMatch(l.branchCode, bCode2)) {
+                    const lProdMatch = String(l.loanType || "").match(/\d+/);
+                    const lProd = lProdMatch ? lProdMatch[0].padStart(4, "0") : "";
+                    if (lProd === pCode4) {
+                        const acStr = String(l.accountNo || "");
+                        if (acStr) {
+                            const parts = acStr.split("-");
+                            let num = 0;
+                            if (parts.length >= 3) {
+                                num = parseInt(parts[parts.length - 1].replace(/\D/g, ""), 10) || 0;
+                            } else {
+                                const digits = acStr.replace(/\D/g, "");
+                                num = parseInt(digits.slice(-8), 10) || 0;
+                            }
+                            if (num > maxLoanAccSerial) maxLoanAccSerial = num;
+                        }
+                    }
+                }
+            });
+            const effectiveLast = Math.max(val, maxLoanAccSerial);
+            const nextSerial = effectiveLast + 1;
             const previewEl = document.getElementById(`seed-preview-${pCode4}`);
             if (previewEl) {
                 previewEl.textContent = `${bCode3}-${pCode4}-${String(nextSerial).padStart(8, '0')}`;
@@ -8046,34 +8122,60 @@ function renderBranchSettings(targetBranch = null) {
     const curPacketVal = branchConfig.lastPacketNo !== undefined ? branchConfig.lastPacketNo : (state.settings.lastPacketSeed || 0);
     const curProposalVal = branchConfig.lastProposalNo || 0;
 
+    let maxLoanPacket = 0;
+    let maxLoanProposal = 0;
+    let branchLoanCount = 0;
+    (state.loans || []).forEach(l => {
+        if (isBranchMatch(l.branchCode, bCode2)) {
+            branchLoanCount++;
+            const pNum = parseInt(String(l.packetNo || "").replace(/\D/g, ""), 10);
+            if (!isNaN(pNum) && pNum > maxLoanPacket) maxLoanPacket = pNum;
+
+            const propStr = String(l.proposalNo || l.uniqueProposalNo || l.loanNo || "");
+            if (propStr) {
+                const parts = propStr.split("/");
+                let num = 0;
+                if (parts.length >= 3) {
+                    num = parseInt(parts[parts.length - 1].replace(/\D/g, ""), 10) || 0;
+                } else {
+                    const match = propStr.match(/\d+$/);
+                    if (match) num = parseInt(match[0], 10) || 0;
+                }
+                if (num > maxLoanProposal) maxLoanProposal = num;
+            }
+        }
+    });
+
+    const effectiveLastPacket = Math.max(parseInt(curPacketVal || 0), maxLoanPacket);
+    const effectiveLastProposal = Math.max(parseInt(curProposalVal || 0), maxLoanProposal);
+
     if (packetInp) packetInp.value = curPacketVal;
     if (proposalInp) proposalInp.value = curProposalVal;
 
-    const branchLoanCount = (state.loans || []).filter(l => {
-        const lBranch = String(l.branchCode || "").replace(/\D/g, '');
-        return lBranch === numOnly || lBranch === bCode2 || lBranch === bCode3;
-    }).length;
-
     const branchLetters = getBranchFirst3Letters(selectedBranch || bCode2);
     const currentYear = new Date().getFullYear();
-    const nextPacketNo = parseInt(curPacketVal || 0) + branchLoanCount + 1;
-    const nextProposalNo = parseInt(curProposalVal || 0) + branchLoanCount + 1;
+    const nextPacketNo = effectiveLastPacket + 1;
+    const nextProposalNo = effectiveLastProposal + 1;
     const proposalFormatted = `${branchLetters}/${currentYear}/${String(nextProposalNo).padStart(4, '0')}`;
 
-    if (packetHint) packetHint.innerHTML = `આવનાર નવો પેકેટ નંબર: <strong>${nextPacketNo}</strong> (શાખામાં કુલ લોન: ${branchLoanCount})`;
-    if (proposalHint) proposalHint.innerHTML = `આવનાર નવો પ્રપોઝલ / સીરીયલ નંબર: <strong>${proposalFormatted}</strong>`;
+    if (packetHint) packetHint.innerHTML = `આવનાર નવો પેકેટ નંબર: <strong>${nextPacketNo}</strong> (છેલ્લો પેકેટ: ${effectiveLastPacket})`;
+    if (proposalHint) proposalHint.innerHTML = `આવનાર નવો પ્રપોઝલ / સીરીયલ નંબર: <strong>${proposalFormatted}</strong> (છેલ્લો પ્રપોઝલ: ${effectiveLastProposal})`;
 
     if (packetInp) {
         packetInp.oninput = () => {
-            const nextP = (parseInt(packetInp.value || 0)) + branchLoanCount + 1;
-            if (packetHint) packetHint.innerHTML = `આવનાર નવો પેકેટ નંબર: <strong>${nextP}</strong> (શાખામાં કુલ લોન: ${branchLoanCount})`;
+            const typedVal = parseInt(packetInp.value || 0);
+            const eff = Math.max(typedVal, maxLoanPacket);
+            const nextP = eff + 1;
+            if (packetHint) packetHint.innerHTML = `આવનાર નવો પેકેટ નંબર: <strong>${nextP}</strong> (છેલ્લો પેકેટ: ${eff})`;
         };
     }
 
     if (proposalInp) {
         proposalInp.oninput = () => {
-            const nextProp = (parseInt(proposalInp.value || 0)) + branchLoanCount + 1;
-            if (proposalHint) proposalHint.innerHTML = `આવનાર નવો પ્રપોઝલ / સીરીયલ નંબર: <strong>${branchLetters}/${currentYear}/${String(nextProp).padStart(4, '0')}</strong>`;
+            const typedVal = parseInt(proposalInp.value || 0);
+            const eff = Math.max(typedVal, maxLoanProposal);
+            const nextProp = eff + 1;
+            if (proposalHint) proposalHint.innerHTML = `આવનાર નવો પ્રપોઝલ / સીરીયલ નંબર: <strong>${branchLetters}/${currentYear}/${String(nextProp).padStart(4, '0')}</strong> (છેલ્લો પ્રપોઝલ: ${eff})`;
         };
     }
 }
@@ -10432,7 +10534,8 @@ function getLoanProposalNo(loan) {
             }
             const cleanNum = serial.replace(/\D/g, "").replace(/^0+/, "");
             const formattedSerial = String(cleanNum || "1").padStart(4, "0");
-            return `${expectedPrefix}/${parts[1] || yearStr}/${formattedSerial}`;
+            const prefix = (parts[0] && /^[A-Za-z0-9]{2,5}$/.test(parts[0])) ? parts[0].toUpperCase() : expectedPrefix;
+            return `${prefix}/${parts[1] || yearStr}/${formattedSerial}`;
         }
         
         // Handle format: GL-P-xxx
