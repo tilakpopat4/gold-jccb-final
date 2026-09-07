@@ -12026,7 +12026,7 @@ function generatePage5MembershipGroupAHTML(loan, isPageBreak = true) {
                 </div>
 
                 <p style="text-align:justify; margin:4px 0 6px 0; font-size:11.5px; line-height:1.55;">
-                    જય ભારત સાથ અમો આપની બેન્કના દરેક રૂ. ૨૫/- અંકે રૂપિયા પચીસ પૂરાની કિંમતના શેર નંગ <strong>${loan.shareAQty || 1}</strong> (એક) લેવા ઈચ્છીએ છીએ તો અમોને સભ્ય તરીકે દાખલ કરવા વિનંતી કરું છું. બેન્કના હાલનાં અમલી પેટા નિયમો તથા ભવિષ્યમાં તેમાં જે સુધારા-વધારા થાય તેને આધીન રહેવા અમો કબૂલાત આપીએ છીએ.
+                    જય ભારત સાથ અમો આપની બેન્કના દરેક રૂ. 100/- અંકે રૂપિયા સો પૂરાની કિંમતના શેર નંગ <strong>${loan.shareAQty || 5}</strong> (પાંચ) લેવા ઈચ્છીએ છીએ તો અમોને સભ્ય તરીકે દાખલ કરવા વિનંતી કરું છું. બેન્કના હાલનાં અમલી પેટા નિયમો તથા ભવિષ્યમાં તેમાં જે સુધારા-વધારા થાય તેને આધીન રહેવા અમો કબૂલાત આપીએ છીએ.
                 </p>
 
                 <p style="text-align:justify; margin:4px 0 6px 0; font-size:11.5px; line-height:1.55;">
@@ -12048,7 +12048,7 @@ function generatePage5MembershipGroupAHTML(loan, isPageBreak = true) {
                 </table>
 
                 <p style="margin:4px 0 6px 0; font-size:11.5px; line-height:1.55;">
-                    અમો આ સાથે કુલ શેર ૧ ના રૂ. ૨૫/- અંકે રૂપિયા પચીસ પૂરા રોકડા / ચેકથી જમા કરાવીએ છીએ.
+                    અમો આ સાથે કુલ શેર 5 ના રૂ. 500/- અંકે રૂપિયા પાંચસો પૂરા રોકડા / ચેકથી જમા કરાવીએ છીએ.
                 </p>
             </div>
 
@@ -12093,7 +12093,7 @@ function generatePage5MembershipGroupAHTML(loan, isPageBreak = true) {
                         <td style="border:1px solid #000; padding:3px 6px; width:65%;">૨. પહોંચ નંબર : _______________</td>
                     </tr>
                     <tr>
-                        <td style="border:1px solid #000; padding:3px 6px;">૩. રૂપિયા : <strong>₹ ૨૫/-</strong></td>
+                        <td style="border:1px solid #000; padding:3px 6px;">૩. રૂપિયા : <strong>₹ ૫૦૦/-</strong></td>
                         <td style="border:1px solid #000; padding:3px 6px;">૪. થાપણ ખાતા પ્રકાર અને નંબર : બચત નં. <strong>${loan.savingsAc || "-"}</strong></td>
                     </tr>
                     <tr>
