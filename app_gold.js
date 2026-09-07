@@ -8051,8 +8051,6 @@ function renderBranchSettings(targetBranch = null) {
 
         const effectiveLastSerial = Math.max(parseInt(currentVal || 0), maxLoanAccSerial);
         const nextSerial = effectiveLastSerial + 1;
-        const nextSampleAcc = `${bCode3}-${pCode4}-${String(nextSerial).padStart(8, '0')}`;
-
         const rowDiv = document.createElement("div");
         rowDiv.className = "form-group";
         rowDiv.style.cssText = "background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:10px 14px;";
@@ -8064,53 +8062,12 @@ function renderBranchSettings(targetBranch = null) {
                 </div>
                 <small style="color:var(--text-secondary);">વર્તમાન લોન: <strong>${count}</strong></small>
             </div>
-            <div style="display:flex; align-items:center; gap:12px;">
-                <div style="flex:1;">
-                    <label style="font-size:11px; margin-bottom:2px;">છેલ્લો ખાતા નંબર (Last Account Serial):</label>
-                    <input type="number" id="seed-ac-${pCode4}" class="seed-ac-input" data-pcode="${pCode4}" value="${currentVal}" min="0" placeholder="0" style="font-weight:700; width:100%; height:38px;">
-                </div>
-                <div style="flex:1.2; background:#ffffff; border:1px solid #cbd5e1; border-radius:6px; padding:6px 10px;">
-                    <div style="font-size:10.5px; color:var(--text-secondary);">આગામી નવો ખાતા નંબર:</div>
-                    <div id="seed-preview-${pCode4}" style="font-weight:800; color:var(--primary); font-family:monospace; font-size:13px;">${nextSampleAcc}</div>
-                </div>
+            <div>
+                <label style="font-size:11px; margin-bottom:2px; display:block;">છેલ્લો ખાતા નંબર (Last Account Serial):</label>
+                <input type="number" id="seed-ac-${pCode4}" class="seed-ac-input" data-pcode="${pCode4}" value="${currentVal}" min="0" placeholder="0" style="font-weight:700; width:100%; height:38px;">
             </div>
         `;
         container.appendChild(rowDiv);
-    });
-
-    // Real-time calculation on typing in seed input
-    container.querySelectorAll(".seed-ac-input").forEach(inp => {
-        inp.addEventListener("input", () => {
-            const pCode4 = inp.getAttribute("data-pcode");
-            const val = parseInt(inp.value || 0);
-            let maxLoanAccSerial = 0;
-            (state.loans || []).forEach(l => {
-                if (isBranchMatch(l.branchCode, bCode2)) {
-                    const lProdMatch = String(l.loanType || "").match(/\d+/);
-                    const lProd = lProdMatch ? lProdMatch[0].padStart(4, "0") : "";
-                    if (lProd === pCode4) {
-                        const acStr = String(l.accountNo || "");
-                        if (acStr) {
-                            const parts = acStr.split("-");
-                            let num = 0;
-                            if (parts.length >= 3) {
-                                num = parseInt(parts[parts.length - 1].replace(/\D/g, ""), 10) || 0;
-                            } else {
-                                const digits = acStr.replace(/\D/g, "");
-                                num = parseInt(digits.slice(-8), 10) || 0;
-                            }
-                            if (num > maxLoanAccSerial) maxLoanAccSerial = num;
-                        }
-                    }
-                }
-            });
-            const effectiveLast = Math.max(val, maxLoanAccSerial);
-            const nextSerial = effectiveLast + 1;
-            const previewEl = document.getElementById(`seed-preview-${pCode4}`);
-            if (previewEl) {
-                previewEl.textContent = `${bCode3}-${pCode4}-${String(nextSerial).padStart(8, '0')}`;
-            }
-        });
     });
 
     // Packet & Proposal numbers
