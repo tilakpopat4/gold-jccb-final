@@ -1506,81 +1506,66 @@ function updateBranchContextUI() {
     if (settingsNav) settingsNav.classList.remove("hidden");
     if (configNavDivider) configNavDivider.classList.remove("hidden");
 
-    // 3. Daily Gold Rate Master: View-Only for Branch, Editable for Head Office
+    // 3. Daily Gold Rate Master: Fully Editable & Savable for all branches
     const goldRateFormCard = document.querySelector("#gold-rate-master-view .master-form-card");
     const goldRateSaveBtn = document.getElementById("btn-save-gold-rate-master");
     const goldRateDateInput = document.getElementById("m-gold-rate-date");
     const goldRateValInput = document.getElementById("m-gold-rate-val");
 
     let branchNotice = document.getElementById("gold-rate-branch-notice");
-    if (!branchNotice && goldRateFormCard) {
-        branchNotice = document.createElement("div");
-        branchNotice.id = "gold-rate-branch-notice";
-        branchNotice.style.cssText = "background:#fffbeb; color:#92400e; padding:10px 12px; border-radius:6px; font-size:12px; margin-bottom:12px; border:1px solid #fde68a;";
-        branchNotice.innerHTML = `<i class="fa-solid fa-lock text-gold"></i> <strong>Read-Only Mode:</strong> દૈનિક ગોલ્ડ રેટ ફક્ત હેડ ઓફિસ (Head Office) દ્વારા જ સેટ અથવા અપડેટ કરી શકાય છે. શાખા અહીં માત્ર રેટ હિસ્ટ્રી જોઈ શકે છે.`;
-        const formEl = goldRateFormCard.querySelector("form");
-        if (formEl) goldRateFormCard.insertBefore(branchNotice, formEl);
-        else goldRateFormCard.appendChild(branchNotice);
-    }
+    if (branchNotice) branchNotice.classList.add("hidden");
 
-    if (branchNotice) {
-        branchNotice.classList.toggle("hidden", isHO);
-    }
     if (goldRateSaveBtn) {
-        goldRateSaveBtn.disabled = !isHO;
-        goldRateSaveBtn.style.opacity = isHO ? "1" : "0.5";
-        goldRateSaveBtn.style.cursor = isHO ? "pointer" : "not-allowed";
-        if (!isHO) goldRateSaveBtn.title = "Only Head Office can update gold rates";
+        goldRateSaveBtn.disabled = false;
+        goldRateSaveBtn.style.opacity = "1";
+        goldRateSaveBtn.style.cursor = "pointer";
+        goldRateSaveBtn.title = "Save 22K Gold Rate";
     }
     if (goldRateDateInput) {
-        goldRateDateInput.disabled = !isHO;
+        goldRateDateInput.disabled = false;
+        goldRateDateInput.readOnly = false;
         goldRateDateInput.style.color = "#000000";
-        goldRateDateInput.style.backgroundColor = isHO ? "#ffffff" : "#f1f5f9";
+        goldRateDateInput.style.backgroundColor = "#ffffff";
     }
     if (goldRateValInput) {
-        goldRateValInput.disabled = !isHO;
+        goldRateValInput.disabled = false;
+        goldRateValInput.readOnly = false;
         goldRateValInput.style.color = "#000000";
-        goldRateValInput.style.backgroundColor = isHO ? "#ffffff" : "#f1f5f9";
+        goldRateValInput.style.backgroundColor = "#ffffff";
     }
 
-    // 4. Dashboard Gold Rate Lock for Branch users
+    // 4. Dashboard Gold Rate: Editable & Savable for all branches
     const dashGoldRateInput = document.getElementById("dashboard-gold-rate");
     const dashSaveRateBtn = document.getElementById("save-gold-rate-btn");
     const dashRateLockBadge = document.getElementById("dashboard-gold-rate-lock-badge");
     const dashRateNote = document.getElementById("dashboard-rate-note");
 
     if (dashGoldRateInput) {
-        dashGoldRateInput.disabled = !isHO;
-        dashGoldRateInput.readOnly = !isHO;
+        dashGoldRateInput.disabled = false;
+        dashGoldRateInput.readOnly = false;
         dashGoldRateInput.style.color = "#000000";
-        dashGoldRateInput.style.backgroundColor = isHO ? "#ffffff" : "#f1f5f9";
-        dashGoldRateInput.style.cursor = isHO ? "text" : "not-allowed";
+        dashGoldRateInput.style.backgroundColor = "#ffffff";
+        dashGoldRateInput.style.cursor = "text";
     }
     if (dashSaveRateBtn) {
-        dashSaveRateBtn.style.display = isHO ? "inline-flex" : "none";
-        dashSaveRateBtn.disabled = !isHO;
+        dashSaveRateBtn.style.display = "inline-flex";
+        dashSaveRateBtn.disabled = false;
     }
     if (dashRateLockBadge) {
-        dashRateLockBadge.classList.toggle("hidden", isHO);
+        dashRateLockBadge.classList.add("hidden");
     }
     if (dashRateNote) {
-        dashRateNote.textContent = isHO
-            ? "* Head Office: ૨૨ કેરેટ સોનાનો આજનો ભાવ દાખલ કરો અથવા સુધારો કરો."
-            : "* દૈનિક રેટ ફક્ત હેડ ઓફિસ દ્વારા જ સેટ/અપડેટ કરી શકાય છે (Branch Read-Only)";
+        dashRateNote.textContent = "* ૨૨ કેરેટ સોનાનો આજનો ભાવ દાખલ કરો અથવા સુધારો કરો.";
     }
 
-    // 5. Loan Entry Gold Rate Lock for Branch users
+    // 5. Loan Entry Gold Rate: Editable for all branches
     const valGoldRateInput = document.getElementById("val-gold-rate-input");
     if (valGoldRateInput) {
-        valGoldRateInput.disabled = !isHO;
-        valGoldRateInput.readOnly = !isHO;
-        valGoldRateInput.style.backgroundColor = isHO ? "#ffffff" : "#fefcf0";
-        valGoldRateInput.style.cursor = isHO ? "text" : "not-allowed";
-        if (!isHO) {
-            valGoldRateInput.title = "Gold rate is locked by Head Office";
-        } else {
-            valGoldRateInput.title = "";
-        }
+        valGoldRateInput.disabled = false;
+        valGoldRateInput.readOnly = false;
+        valGoldRateInput.style.backgroundColor = "#ffffff";
+        valGoldRateInput.style.cursor = "text";
+        valGoldRateInput.title = "૨૨ કેરેટ સોનાનો ભાવ દાખલ / સુધારો";
     }
 
     // 6. Dashboard Shortcut Cards Visibility
@@ -1839,17 +1824,11 @@ function updateHeaderGoldRate() {
 
 // ==================== GOLD RATE LOCK & HEAD OFFICE PERMISSIONS ====================
 function isDailyGoldRateLocked() {
-    // For Branch sessions, gold rate is ALWAYS locked and read-only
-    if (!isHeadOfficeSession()) return true;
     if (!state.goldRates) return false;
     return !!state.goldRates.isLocked;
 }
 
 function getLockRemainingInfo() {
-    const isHO = isHeadOfficeSession();
-    if (!isHO) {
-        return { isLocked: true, text: "🔒 Head Office Locked (ફક્ત હેડ ઓફિસ દ્વારા જ બદલી શકાય)" };
-    }
     if (!isDailyGoldRateLocked()) {
         return { isLocked: false, text: "🔓 Unlocked (ભાવ સુધારી શકાય છે)" };
     }
@@ -1860,11 +1839,6 @@ function getLockRemainingInfo() {
 }
 
 function lockGoldRateFor24Hours() {
-    if (!isHeadOfficeSession()) {
-        alert("સોનાનો ભાવ લૉક કરવાનો અધિકાર ફક્ત હેડ ઓફિસ (Head Office) પાસે છે.");
-        return false;
-    }
-
     const rate22 = getActiveGoldRate22K();
     if (rate22 <= 0) {
         alert("ભાવ લૉક કરતાં પહેલાં આજનો ૨૨ કેરેટ સોનાનો ભાવ દાખલ કરવો જરૂરી છે.");
@@ -1899,11 +1873,6 @@ function lockGoldRateFor24Hours() {
 }
 
 function unlockGoldRate() {
-    if (!isHeadOfficeSession()) {
-        alert("સોનાનો ભાવ અનલૉક કરવાનો અધિકાર ફક્ત હેડ ઓફિસ (Head Office) પાસે છે.");
-        return false;
-    }
-
     if (!confirm("શું તમે સોનાનો ભાવ અનલૉક કરવા માંગો છો જેથી નવો ભાવ દાખલ અથવા સુધારી શકાય?")) {
         return false;
     }
@@ -1985,11 +1954,6 @@ function applyDailyGoldRate(val, targetDate = null, lockData = null) {
 }
 
 function setDailyGoldRate(val, targetDate = null) {
-    if (!isHeadOfficeSession()) {
-        alert("દૈનિક સોનાનો ભાવ ફક્ત હેડ ઓફિસ (Head Office) દ્વારા જ દાખલ અથવા સુધારી શકાય છે. શાખા માટે આ ફીલ્ડ લોક છે.");
-        return false;
-    }
-
     const todayStr = getTodayDateYMD();
     const date = targetDate || todayStr;
     const rate22 = parseFloat(val || 0);
@@ -2012,13 +1976,14 @@ function setDailyGoldRate(val, targetDate = null) {
             rate24K: rate24,
             isLocked: true,
             lockedAt: new Date().toISOString(),
-            lockedBy: state.currentSession ? state.currentSession.name : "HEAD OFFICE"
+            lockedBy: state.currentSession ? state.currentSession.name : "HEAD OFFICE",
+            updatedBy: state.currentSession ? state.currentSession.name : "HEAD OFFICE"
         }).then(() => {
             console.log("[Firebase] Daily rate synced to cloud Firestore successfully:", rate22);
         }).catch(e => console.error("[Firebase] Daily rate cloud sync error:", e));
 
         if (typeof window.FirebaseService.logAuditEvent === "function") {
-            window.FirebaseService.logAuditEvent("RATE_UPDATE", `Updated 22K Gold Rate to ₹${rate22.toLocaleString("en-IN")}/10g (24K: ₹${rate24.toLocaleString("en-IN")})`, {
+            window.FirebaseService.logAuditEvent("RATE_UPDATE", `Updated 22K Gold Rate to ₹${rate22.toLocaleString("en-IN")}/10g (24K: ₹${rate24.toLocaleString("en-IN")}) by ${state.currentSession ? state.currentSession.name : 'Branch'}`, {
                 rate22K: rate22,
                 rate24K: rate24
             });
@@ -5735,12 +5700,8 @@ function renderGoldRateMaster() {
                 ${loanBadge}
             </td>
             <td style="text-align:center; white-space:nowrap;">
-                ${isHeadOfficeSession() ? `
-                    <button type="button" class="btn-icon-blue edit-rate-btn" data-date="${r.date}" data-rate="${rate22}" title="Edit 22K Gold Rate"><i class="fa-solid fa-pen-to-square"></i></button>
-                    <button type="button" class="btn-icon-red delete-rate-btn" data-date="${r.date}" title="Delete Rate Record"><i class="fa-solid fa-trash-can"></i></button>
-                ` : `
-                    <span style="color:var(--text-muted); font-size:11px; font-weight:600;"><i class="fa-solid fa-lock"></i> Head Office Only</span>
-                `}
+                <button type="button" class="btn-icon-blue edit-rate-btn" data-date="${r.date}" data-rate="${rate22}" title="Edit 22K Gold Rate"><i class="fa-solid fa-pen-to-square"></i></button>
+                <button type="button" class="btn-icon-red delete-rate-btn" data-date="${r.date}" title="Delete Rate Record"><i class="fa-solid fa-trash-can"></i></button>
             </td>
         `;
         tbody.appendChild(tr);
