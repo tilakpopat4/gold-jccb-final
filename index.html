@@ -388,6 +388,10 @@
                                     <i class="fa-solid fa-cog"></i>
                                     <span>Settings</span>
                                 </button>
+                                <button class="shortcut-btn" data-go-tab="backup-restore-view">
+                                    <i class="fa-solid fa-database text-gold"></i>
+                                    <span>Backup & Restore</span>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -885,8 +889,14 @@
                                 <button id="clear-filters-btn" class="btn btn-secondary-sm">
                                     <i class="fa-solid fa-filter-circle-xmark"></i> Clear Filters
                                 </button>
-                                <button id="export-csv-btn" class="btn btn-success-sm">
-                                    <i class="fa-solid fa-file-excel"></i> Export Ledger to CSV (Excel)
+                                <button id="export-csv-btn" class="btn btn-secondary-sm">
+                                    <i class="fa-solid fa-file-csv"></i> Export CSV
+                                </button>
+                                <button id="btn-export-register-excel" class="btn btn-success-sm" style="background:#16a34a; border-color:#16a34a; color:#ffffff; font-weight:700;">
+                                    <i class="fa-solid fa-file-excel"></i> Download Excel (.xlsx)
+                                </button>
+                                <button id="btn-export-register-json" class="btn btn-primary-sm" style="background:#0f1c3f; color:#ffd700; border:1px solid #ffd700; font-weight:700;">
+                                    <i class="fa-solid fa-file-code"></i> Download JSON Backup (.json)
                                 </button>
                             </div>
                             <button id="delete-all-loans-btn" class="btn btn-danger-sm" style="display: none; background-color: var(--danger); border-color: var(--danger); font-weight: 600;">

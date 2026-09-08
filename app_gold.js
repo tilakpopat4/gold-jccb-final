@@ -1502,7 +1502,7 @@ function updateBranchContextUI() {
     if (valuerMasterNav) valuerMasterNav.classList.toggle("hidden", !isHO);
     if (productMasterNav) productMasterNav.classList.toggle("hidden", !isHO);
     if (rulesMasterNav) rulesMasterNav.classList.toggle("hidden", !isHO);
-    if (backupRestoreNav) backupRestoreNav.classList.toggle("hidden", !isHO);
+    if (backupRestoreNav) backupRestoreNav.classList.remove("hidden");
     if (settingsNav) settingsNav.classList.remove("hidden");
     if (configNavDivider) configNavDivider.classList.remove("hidden");
 
@@ -1571,7 +1571,7 @@ function updateBranchContextUI() {
     // 6. Dashboard Shortcut Cards Visibility
     document.querySelectorAll(".shortcut-btn").forEach(btn => {
         const tab = btn.getAttribute("data-go-tab");
-        if (tab === "branch-master-view" || tab === "valuer-master-view" || tab === "product-master-view" || tab === "rules-master-view" || tab === "backup-restore-view") {
+        if (tab === "branch-master-view" || tab === "valuer-master-view" || tab === "product-master-view" || tab === "rules-master-view") {
             btn.style.display = isHO ? "" : "none";
         }
     });
@@ -1688,7 +1688,7 @@ function initNavigation() {
             if (!targetId) return;
 
             const isHO = isHeadOfficeSession();
-            const restrictedTabs = ["branch-master-view", "valuer-master-view", "product-master-view", "rules-master-view", "backup-restore-view"];
+            const restrictedTabs = ["branch-master-view", "valuer-master-view", "product-master-view", "rules-master-view"];
             if (!isHO && restrictedTabs.includes(targetId)) {
                 alert("આ સેક્શન ફક્ત હેડ ઓફિસ (Head Office) માટે ઉપલબ્ધ છે.");
                 return;
@@ -1710,7 +1710,7 @@ function initNavigation() {
             if (targetId === "branch-master-view" && isHO) renderBranchMaster();
             if (targetId === "product-master-view" && isHO) renderProductMaster();
             if (targetId === "rules-master-view" && isHO) renderRulesMaster();
-            if (targetId === "backup-restore-view" && isHO) updateBackupStats();
+            if (targetId === "backup-restore-view") updateBackupStats();
             if (targetId === "daily-vouchers-view") initDailyVouchers();
             if (targetId === "reports-view") {
                 initReports();
@@ -3735,6 +3735,20 @@ function initRegister() {
 
     if (exportBtn) {
         exportBtn.addEventListener("click", exportRegisterCSV);
+    }
+
+    const exportRegExcelBtn = document.getElementById("btn-export-register-excel");
+    if (exportRegExcelBtn) {
+        exportRegExcelBtn.addEventListener("click", () => {
+            exportCompleteBackupExcel();
+        });
+    }
+
+    const exportRegJsonBtn = document.getElementById("btn-export-register-json");
+    if (exportRegJsonBtn) {
+        exportRegJsonBtn.addEventListener("click", () => {
+            exportJSONMasterBackup();
+        });
     }
 
     if (deleteAllBtn) {
@@ -7930,7 +7944,13 @@ function exportCompleteBackupExcel() {
         XLSX.utils.book_append_sheet(wb, wsDeleted, "10_Deleted_Loan_IDs");
 
         const dateStr = new Date().toISOString().split("T")[0];
-        const fileName = `JCCB_GoldLoan_Universal_Database_${dateStr}.xlsx`;
+        const isHO = isHeadOfficeSession();
+        const userBranch = state.currentSession ? state.currentSession.code : "99";
+        const branchName = state.currentSession ? (state.currentSession.name || `Branch_${userBranch}`) : "HeadOffice";
+        const safeBranchName = branchName.replace(/[^a-zA-Z0-9_-]/g, '_');
+        const fileName = isHO
+            ? `JCCB_GoldLoan_Universal_Database_${dateStr}.xlsx`
+            : `JCCB_GoldLoan_Backup_${safeBranchName}_${dateStr}.xlsx`;
 
         // Direct binary blob download for maximum cross-browser reliability
         const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
@@ -7944,7 +7964,7 @@ function exportCompleteBackupExcel() {
         document.body.removeChild(a);
         setTimeout(() => URL.revokeObjectURL(url), 1000);
 
-        showToast("સંપૂર્ણ સિસ્ટમનો યુનિવર્સલ એક્સેલ બેકઅપ સફળતાપૂર્વક ડાઉનલોડ થયો!");
+        showToast(`સંપૂર્ણ ડેટાબેઝ એક્સેલ બેકઅપ ફાઈલ (${fileName}) સફળતાપૂર્વક ડાઉનલોડ થઈ ગઈ છે!`);
     } catch (err) {
         console.error("Backup Excel Export Error:", err);
         alert("બેકઅપ ડાઉનલોડ કરતી વખતે ક્ષતિ આવી: " + err.message);
@@ -8007,7 +8027,13 @@ function exportSecureVaultBackup(format = "jccb") {
         const finalOutputStr = JSON.stringify(vaultPackage, null, 2);
         const ext = format === "json" ? "json" : "jccb";
         const mimeType = format === "json" ? "application/json" : "application/octet-stream";
-        const fileName = `JCCB_GoldLoan_SecureVault_${dateStr}.${ext}`;
+        const isHO = isHeadOfficeSession();
+        const userBranch = state.currentSession ? state.currentSession.code : "99";
+        const branchName = state.currentSession ? (state.currentSession.name || `Branch_${userBranch}`) : "HeadOffice";
+        const safeBranchName = branchName.replace(/[^a-zA-Z0-9_-]/g, '_');
+        const fileName = isHO
+            ? `JCCB_GoldLoan_SecureVault_${dateStr}.${ext}`
+            : `JCCB_GoldLoan_Backup_${safeBranchName}_${dateStr}.${ext}`;
 
         const blob = new Blob([finalOutputStr], { type: mimeType });
         const url = URL.createObjectURL(blob);
