@@ -53,7 +53,7 @@
         <div class="mgmt-header-actions">
             <div class="live-indicator">
                 <span class="pulse-dot"></span>
-                <span id="mgmt-cloud-status">Cloud Live</span>
+                <span id="mgmt-cloud-status">Local Host Active</span>
             </div>
             <a href="index.html" class="btn btn-gold">
                 <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Gold Portal
@@ -362,29 +362,29 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td><strong>Cloud Firestore Endpoint</strong></td>
-                                <td><code>gold-jccb.firebaseapp.com</code></td>
-                                <td><span class="badge badge-live">Connected & Healthy</span></td>
+                                 <td><strong>Storage Architecture</strong></td>
+                                 <td><code>Local PC Storage (IndexedDB + LocalStorage)</code></td>
+                                 <td><span class="badge badge-live">Air-Gapped & Active</span></td>
                             </tr>
                             <tr>
-                                <td><strong>Project ID</strong></td>
-                                <td><code>gold-jccb</code></td>
-                                <td>Central Production Multi-Tenant Cloud Database</td>
+                                 <td><strong>Database Host</strong></td>
+                                 <td><code>localhost (Personal Branch PC)</code></td>
+                                 <td>Standalone Local Storage Engine (Zero Cloud Dependencies)</td>
                             </tr>
                             <tr>
-                                <td><strong>Synchronization Protocol</strong></td>
-                                <td><code>Dual WebChannel (WebSocket) + REST Fallback</code></td>
-                                <td>Zero-downtime resilient auto-syncing</td>
+                                 <td><strong>Data Security</strong></td>
+                                 <td><code>Local Machine Encrypted / Scoped</code></td>
+                                 <td>All loans and entries stay on this PC</td>
                             </tr>
                             <tr>
-                                <td><strong>Active Application Version</strong></td>
-                                <td><code>v20260831_v10 (Enterprise Gold Core)</code></td>
-                                <td>Synced across Head Office and all branch terminals</td>
+                                 <td><strong>Active Application Version</strong></td>
+                                 <td><code>v20260908_v1.0 (Local Host Edition)</code></td>
+                                 <td>Autonomous Branch Tool</td>
                             </tr>
                             <tr>
-                                <td><strong>Chief Architect & Developer</strong></td>
-                                <td><strong>Rahul Popat</strong> (<a href="tel:+919898180810">+91 9898180810</a>)</td>
-                                <td>Technical In-Charge & System Administrator</td>
+                                 <td><strong>Chief Architect & Developer</strong></td>
+                                 <td><strong>Rahul Popat</strong> (<a href="tel:+919898180810">+91 9898180810</a>)</td>
+                                 <td>Technical In-Charge & System Administrator</td>
                             </tr>
                         </tbody>
                     </table>
@@ -394,12 +394,7 @@
 
     </main>
 
-    <!-- Firebase SDK (v10 Compat) -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
-    <script src="firebase-config.js?v=20260831_v10"></script>
-    <script src="management.js?v=20260831_v10"></script>
+    <script src="firebase-config.js?v=20260908_local"></script>
+    <script src="management.js?v=20260908_local"></script>
 </body>
 </html>

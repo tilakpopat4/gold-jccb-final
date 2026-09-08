@@ -28,14 +28,14 @@ document.addEventListener("DOMContentLoaded", () => {
     initFilters();
     initExportButtons();
 
-    // Initialize Firebase and start listeners
-    if (window.FirebaseService) {
-        window.FirebaseService.init().then(() => {
-            console.log("[Management] Firebase Central initialized.");
-            startRealtimeListeners();
+    // Initialize Local Storage DB and load all data
+    if (window.LocalDBService || window.FirebaseService) {
+        const dbService = window.LocalDBService || window.FirebaseService;
+        dbService.init().then(() => {
+            console.log("[Management] Local Database Engine initialized.");
             loadAllData();
         }).catch(err => {
-            console.warn("[Management] Firebase init error:", err);
+            console.warn("[Management] Local init notice:", err);
             loadLocalFallbackData();
         });
     } else {
@@ -55,7 +55,8 @@ function initAuth() {
     const isUnlocked = sessionStorage.getItem("jccb_mgmt_unlocked") === "true";
     let isHOUser = false;
     try {
-        const savedState = JSON.parse(localStorage.getItem("jccb_gold_state") || "{}");
+        const raw = localStorage.getItem("jccb_gold_system_state_v2") || localStorage.getItem("jccb_gold_state") || "{}";
+        const savedState = JSON.parse(raw);
         if (savedState.currentSession && (savedState.currentSession.code === "99" || savedState.currentSession.isHO)) {
             isHOUser = true;
         }
@@ -142,64 +143,19 @@ function initTabs() {
     });
 }
 
-// ==================== REALTIME LISTENERS ====================
+// ==================== LOCAL DATA SYNC & PRESENCE ====================
 function startRealtimeListeners() {
-    if (!window.FirebaseService) return;
-
-    // 1. Listen for active connected sessions
-    if (typeof window.FirebaseService.listenActiveSessions === "function") {
-        window.FirebaseService.listenActiveSessions((sessions) => {
-            if (Array.isArray(sessions)) {
-                mgmtState.activeSessions = sessions;
+    // Local host mode: Session presence is recorded locally
+    const dbService = window.LocalDBService || window.FirebaseService;
+    if (dbService && typeof dbService.getDevicePresences === "function") {
+        dbService.getDevicePresences().then(presences => {
+            if (Array.isArray(presences)) {
+                mgmtState.activeSessions = presences;
                 renderActiveSessions();
                 updateTopMetadata();
             }
-        });
+        }).catch(() => {});
     }
-
-    // 2. Listen for audit logs
-    if (typeof window.FirebaseService.listenAuditLogs === "function") {
-        window.FirebaseService.listenAuditLogs((logs) => {
-            if (Array.isArray(logs)) {
-                mgmtState.auditLogs = logs;
-                renderAuditLogs();
-                updateTopMetadata();
-            }
-        });
-    }
-
-    // 3. Listen for loans
-    if (typeof window.FirebaseService.listenLoans === "function") {
-        window.FirebaseService.listenLoans(null, (loans) => {
-            if (Array.isArray(loans)) {
-                mgmtState.loans = loans;
-                updateTopMetadata();
-            }
-        });
-    }
-
-    // 4. Listen for branches
-    if (typeof window.FirebaseService.listenBranches === "function") {
-        window.FirebaseService.listenBranches((branches) => {
-            if (Array.isArray(branches)) {
-                mgmtState.branches = branches;
-                populateBranchFilters();
-            }
-        });
-    }
-
-    // 5. Listen for customers
-    if (typeof window.FirebaseService.listenCustomers === "function") {
-        window.FirebaseService.listenCustomers((customers) => {
-            if (Array.isArray(customers)) {
-                mgmtState.customers = customers;
-                updateTopMetadata();
-            }
-        });
-    }
-
-    // Continuous 5-second polling fallback
-    setInterval(() => loadAllData(false), 5000);
 }
 
 async function loadAllData(showSpinner = true) {
@@ -236,7 +192,8 @@ async function loadAllData(showSpinner = true) {
 
 function loadLocalFallbackData() {
     try {
-        const saved = JSON.parse(localStorage.getItem("jccb_gold_state") || "{}");
+        const raw = localStorage.getItem("jccb_gold_system_state_v2") || localStorage.getItem("jccb_gold_state") || "{}";
+        const saved = JSON.parse(raw);
         if (saved.loans) mgmtState.loans = saved.loans;
         if (saved.customers) mgmtState.customers = saved.customers;
         if (saved.branches) mgmtState.branches = saved.branches;

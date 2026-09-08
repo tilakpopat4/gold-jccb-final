@@ -1,12 +1,12 @@
 @echo off
-title JCCB Gold Loan - Central Management Portal
+title JCCB Gold Loan - Management Console (Local PC)
 echo ========================================================
 echo   JCCB Central Management & Security Audit Portal
+echo   (100%% Local Host / Air-Gapped Standalone Mode)
 echo ========================================================
 echo.
 echo Launching Management Console in default browser...
-start http://localhost:3000/management
+start "" "%~dp0management.html"
 echo.
-echo Management Portal URL: http://localhost:3000/management
 echo Passcode: Rahul#80810
 echo ========================================================

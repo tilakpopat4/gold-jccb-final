@@ -49,8 +49,8 @@
     <!-- ==================== SYNC OVERLAY ==================== -->
     <div id="sync-overlay" class="sync-overlay hidden">
         <div class="sync-spinner">
-            <i class="fa-solid fa-cloud-arrow-up fa-bounce"></i>
-            <p>Syncing with Database...</p>
+            <i class="fa-solid fa-hard-drive fa-bounce"></i>
+            <p>Saving to Local PC Storage...</p>
         </div>
     </div>
     <!-- ==================== LOGIN SCREEN ==================== -->
@@ -219,12 +219,12 @@
                         <p class="subtitle">Gold Loan Entry & Accounting Portal</p>
                     </div>
                 </div>
-                <!-- Cloud Sync Status & Manual Sync Trigger -->
+                <!-- Local Storage Status & Refresh Trigger -->
                 <div class="header-sync-widget" id="header-sync-widget" style="display:flex; align-items:center; gap:8px; background:#f0fdf4; border:1px solid #86efac; padding:4px 12px; border-radius:20px; font-size:12px; color:#15803d; font-weight:600;">
                     <span id="cloud-sync-dot" style="display:inline-block; width:8px; height:8px; background:#22c55e; border-radius:50%; box-shadow:0 0 6px rgba(34,197,94,0.6);"></span>
-                    <span id="cloud-sync-text">Cloud Live</span>
-                    <button type="button" id="btn-manual-cloud-sync" title="Click to force fetch live data from Cloud Firestore" style="background:#dcfce7; border:1px solid #86efac; color:#15803d; cursor:pointer; font-size:11px; padding:2px 8px; border-radius:12px; font-weight:700;">
-                        <i class="fa-solid fa-arrows-rotate" id="cloud-sync-spin-icon"></i> Sync
+                    <span id="cloud-sync-text">Local PC Storage</span>
+                    <button type="button" id="btn-manual-cloud-sync" title="Refresh local data" style="background:#dcfce7; border:1px solid #86efac; color:#15803d; cursor:pointer; font-size:11px; padding:2px 8px; border-radius:12px; font-weight:700;">
+                        <i class="fa-solid fa-database" id="cloud-sync-spin-icon"></i> Refresh
                     </button>
                 </div>
                 <div class="header-actions">
@@ -412,8 +412,8 @@
                                         <select id="loan-branch" required style="font-weight:600;"></select>
                                     </div>
                                     <div class="form-group">
-                                        <label for="unique-proposal-no">Proposal Number</label>
-                                        <input type="text" id="unique-proposal-no" placeholder="Proposal No" readonly class="auto-calc-field" required>
+                                        <label for="unique-proposal-no">Proposal Number (દરખાસ્ત નં.) <i class="fa-solid fa-pen" style="font-size:10px; color:var(--primary); opacity:0.8;" title="Editable"></i></label>
+                                        <input type="text" id="unique-proposal-no" placeholder="Proposal No (Auto / Editable)" class="highlight-input" required>
                                     </div>
                                 </div>
                                 <div class="form-row two-col">
@@ -449,8 +449,8 @@
                                 </div>
                                 <div class="form-row two-col">
                                     <div class="form-group">
-                                        <label for="packet-no">Gold Packet No</label>
-                                        <input type="number" id="packet-no" placeholder="Auto" readonly class="auto-calc-field" required>
+                                        <label for="packet-no">Gold Packet No (પેકેટ નં.) <i class="fa-solid fa-pen" style="font-size:10px; color:var(--primary); opacity:0.8;" title="Editable"></i></label>
+                                        <input type="number" id="packet-no" placeholder="Packet No (Auto / Editable)" class="highlight-input" required>
                                     </div>
                                     <div class="form-group">
                                         <label for="valuer-select" class="required-label">Soni Valuer</label>
@@ -586,8 +586,8 @@
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label for="loan-ac-no">Loan Account No</label>
-                                        <input type="text" id="loan-ac-no" class="highlight-input auto-calc-field" readonly placeholder="Auto-generated">
+                                        <label for="loan-ac-no">Loan Account No (લોન ખાતા નં.) <i class="fa-solid fa-pen" style="font-size:10px; color:var(--primary); opacity:0.8;" title="Editable"></i></label>
+                                        <input type="text" id="loan-ac-no" class="highlight-input" placeholder="001-3725-00000001 (Auto / Editable)">
                                     </div>
                                 </div>
                                 <div class="form-row two-col">
@@ -2596,13 +2596,7 @@
         }
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
-    <!-- Firebase SDK (v10 Compat) -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics-compat.js"></script>
-    <script src="firebase-config.js?v=20260905_v87"></script>
-    <script src="app_gold.js?v=20260907_v92"></script>
+    <script src="firebase-config.js?v=20260908_local"></script>
+    <script src="app_gold.js?v=20260908_local"></script>
 </body>
 </html>

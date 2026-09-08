@@ -418,7 +418,7 @@ function formatLoanAccountNo(accNo, branchCode, productCode) {
 // ==================== SESSION PERSISTENCE (PER-TAB & STORAGE) ====================
 function getActiveSession() {
     try {
-        const raw = sessionStorage.getItem("jccb_active_session");
+        const raw = localStorage.getItem("jccb_active_session") || sessionStorage.getItem("jccb_active_session");
         if (raw) return JSON.parse(raw);
     } catch (e) { }
     return null;
@@ -428,8 +428,10 @@ function setActiveSession(sess) {
     try {
         if (sess) {
             sessionStorage.setItem("jccb_active_session", JSON.stringify(sess));
+            localStorage.setItem("jccb_active_session", JSON.stringify(sess));
         } else {
             sessionStorage.removeItem("jccb_active_session");
+            localStorage.removeItem("jccb_active_session");
         }
     } catch (e) { }
 }
@@ -520,35 +522,51 @@ async function syncFromIndexedDBOnInit() {
         if (idbState && typeof idbState === "object") {
             let updated = false;
             if (Array.isArray(idbState.loans) && idbState.loans.length > 0) {
-                // If IndexedDB has loans with photos or more recent loans, merge them
-                const idbMap = new Map();
-                idbState.loans.forEach(l => { if (l && l.id) idbMap.set(l.id, l); });
-
-                if (Array.isArray(state.loans)) {
-                    state.loans = state.loans.map(l => {
-                        const idbLoan = idbMap.get(l.id);
-                        if (idbLoan) {
-                            return {
-                                ...idbLoan,
+                // Ensure non-destructive union merge of all loans from IndexedDB and state.loans
+                const allLoansMap = new Map();
+                (state.loans || []).forEach(l => {
+                    if (l && (l.id || l.proposalNo)) {
+                        allLoansMap.set(String(l.id || l.proposalNo), l);
+                    }
+                });
+                (idbState.loans || []).forEach(l => {
+                    if (l && (l.id || l.proposalNo)) {
+                        const key = String(l.id || l.proposalNo);
+                        if (allLoansMap.has(key)) {
+                            const existing = allLoansMap.get(key);
+                            allLoansMap.set(key, {
                                 ...l,
-                                applicantPhoto: idbLoan.applicantPhoto || l.applicantPhoto || "",
-                                ornamentPhoto: idbLoan.ornamentPhoto || l.ornamentPhoto || "",
-                                customerPhoto: idbLoan.customerPhoto || l.customerPhoto || ""
-                            };
+                                ...existing,
+                                applicantPhoto: l.applicantPhoto || existing.applicantPhoto || "",
+                                ornamentPhoto: l.ornamentPhoto || existing.ornamentPhoto || "",
+                                customerPhoto: l.customerPhoto || existing.customerPhoto || ""
+                            });
+                        } else {
+                            allLoansMap.set(key, l);
                         }
-                        return l;
-                    });
-                } else {
-                    state.loans = idbState.loans;
-                }
+                    }
+                });
+                state.loans = Array.from(allLoansMap.values());
                 updated = true;
             }
 
             if (Array.isArray(idbState.customers) && idbState.customers.length > 0) {
-                if (!Array.isArray(state.customers) || state.customers.length === 0) {
-                    state.customers = idbState.customers;
-                    updated = true;
-                }
+                const allCustMap = new Map();
+                (state.customers || []).forEach(c => {
+                    if (c && (c.id || c.customerNo)) allCustMap.set(String(c.id || c.customerNo), c);
+                });
+                (idbState.customers || []).forEach(c => {
+                    if (c && (c.id || c.customerNo)) {
+                        const key = String(c.id || c.customerNo);
+                        if (allCustMap.has(key)) {
+                            allCustMap.set(key, { ...c, ...allCustMap.get(key) });
+                        } else {
+                            allCustMap.set(key, c);
+                        }
+                    }
+                });
+                state.customers = Array.from(allCustMap.values());
+                updated = true;
             }
 
             if (updated) {
@@ -570,7 +588,10 @@ let currentPhotoTarget = null;
 // ==================== STATE PERSISTENCE ====================
 function loadState() {
     try {
-        const raw = localStorage.getItem(STORAGE_KEY);
+        let raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) {
+            raw = localStorage.getItem("jccb_gold_state");
+        }
         if (raw) {
             const parsed = JSON.parse(raw);
             let prods = parsed.products;
@@ -738,488 +759,40 @@ document.addEventListener("DOMContentLoaded", () => {
     safeRun(initReports, "initReports");
     safeRun(updateHeaderGoldRate, "updateHeaderGoldRate");
 
-    // Wire manual sync button in header immediately
+    // Wire manual refresh button in header
     const btnManualSync = document.getElementById("btn-manual-cloud-sync");
     if (btnManualSync) {
         btnManualSync.addEventListener("click", (e) => {
             e.preventDefault();
-            syncCloudData(true);
+            syncLocalData(true);
         });
     }
 
-    // Trigger immediate sync on page startup
-    syncCloudData();
+    // Trigger immediate local storage sync on page startup
+    syncLocalData(false);
 
-    // Continuous 5-second resilient background cloud polling across all machines
-    setInterval(() => syncCloudData(false), 5000);
-
-    // Initialize Firebase Realtime Cloud Backend & Background Auto-Sync
-    if (window.FirebaseService) {
-        window.FirebaseService.init().then(() => {
-            console.log("[Firebase] Central Cloud Database Initialized.");
-
-            // 1. Listen for realtime gold rate changes
-            if (typeof window.FirebaseService.listenDailyRates === "function") {
-                window.FirebaseService.listenDailyRates((cloudRates) => {
-                    if (cloudRates && (parseFloat(cloudRates.rate22K) > 0 || parseFloat(cloudRates.rate24K) > 0)) {
-                        const cloud22 = parseFloat(cloudRates.rate22K || cloudRates.rate24K);
-                        applyDailyGoldRate(cloud22, getTodayDateYMD(), {
-                            isLocked: cloudRates.isLocked,
-                            lockedAt: cloudRates.lockedAt,
-                            lockedBy: cloudRates.lockedBy
-                        });
-                    }
-                });
-            }
-
-            // 2. Listen for realtime deleted loans across all devices
-            if (typeof window.FirebaseService.listenDeletedLoans === "function") {
-                window.FirebaseService.listenDeletedLoans((deletedId) => {
-                    if (!deletedId) return;
-                    const cleanId = String(deletedId).trim();
-                    if (!state.deletedLoanIds) state.deletedLoanIds = [];
-                    if (!state.deletedLoanIds.includes(cleanId)) {
-                        state.deletedLoanIds.push(cleanId);
-                        if (state.deletedLoanIds.length > 500) {
-                            state.deletedLoanIds = state.deletedLoanIds.slice(-500);
-                        }
-                    }
-                    const prevCount = (state.loans || []).length;
-                    state.loans = (state.loans || []).filter(l => {
-                        const lid = String(l.id || l.loanId || "").trim();
-                        return lid !== cleanId;
-                    });
-                    if (state.loans.length !== prevCount) {
-                        saveState();
-                        renderDashboard();
-                        renderRegisterTable();
-                        if (typeof renderReportsTable === "function") renderReportsTable();
-                        console.log("[Firebase] Loan deletion synced from another device:", cleanId);
-                    }
-                });
-            }
-
-            // 3. Listen for realtime loan records across all connected PCs
-            if (typeof window.FirebaseService.listenLoans === "function") {
-                window.FirebaseService.listenLoans(null, (cloudLoans) => {
-                    if (Array.isArray(cloudLoans)) {
-                        if (!state.loans) state.loans = [];
-                        const deletedSet = new Set(state.deletedLoanIds || []);
-
-                        const validCloudLoans = cloudLoans.filter(cl => {
-                            const id = String(cl.id || cl.loanId || "").trim();
-                            return id && !deletedSet.has(id);
-                        });
-
-                        const mergedMap = new Map();
-
-                        // 1. Preserve all existing local loans
-                        (state.loans || []).forEach(localLoan => {
-                            const id = String(localLoan.id || localLoan.loanId || "").trim();
-                            if (id && !deletedSet.has(id)) {
-                                mergedMap.set(id, localLoan);
-                            }
-                        });
-
-                        // 2. Merge cloud updates
-                        validCloudLoans.forEach(cl => {
-                            const id = String(cl.id || cl.loanId || "").trim();
-                            if (id) {
-                                const existing = mergedMap.get(id);
-                                if (existing) {
-                                    mergedMap.set(id, { ...existing, ...cl, id: id, loanId: id });
-                                } else {
-                                    mergedMap.set(id, { ...cl, id: id, loanId: id });
-                                }
-                            }
-                        });
-
-                        // 3. Sync any local loans missing in cloud to Firebase
-                        mergedMap.forEach((loan, id) => {
-                            const inCloud = validCloudLoans.some(cl => String(cl.id || cl.loanId || "").trim() === id);
-                            if (!inCloud && window.FirebaseService && typeof window.FirebaseService.saveLoan === "function") {
-                                window.FirebaseService.saveLoan(loan).catch(() => {});
-                            }
-                        });
-
-                        state.loans = Array.from(mergedMap.values());
-                        saveState();
-                        renderDashboard();
-                        renderRegisterTable();
-                        if (typeof renderReportsTable === "function") renderReportsTable();
-                    }
-                });
-            }
-
-            // 4. Listen for realtime Branch Settings & Account/Packet Seeds
-            if (typeof window.FirebaseService.listenSettings === "function") {
-                window.FirebaseService.listenSettings((cloudSettings) => {
-                    if (cloudSettings && typeof cloudSettings === "object") {
-                        state.settings = { ...state.settings, ...cloudSettings };
-                        saveState();
-                        if (typeof renderBranchSettings === "function") {
-                            const branchSelect = document.getElementById("settings-branch-select");
-                            renderBranchSettings(branchSelect ? branchSelect.value : null);
-                        }
-                        const curBranch = document.getElementById("loan-branch") ? document.getElementById("loan-branch").value : (state.currentSession ? state.currentSession.code : "99");
-                        generateNextProposalNo(curBranch);
-                        generateNextPacketNo(curBranch);
-                        console.log("[Firebase] Realtime settings & seeds synced across PCs.");
-                    }
-                });
-            }
-
-            // 5. Listen for realtime Rules Master
-            if (typeof window.FirebaseService.listenRules === "function") {
-                window.FirebaseService.listenRules((cloudRules) => {
-                    if (cloudRules && typeof cloudRules === "object" && cloudRules.membership) {
-                        state.rules = { ...state.rules, ...cloudRules };
-                        saveState();
-                        calculateAllCharges();
-                        if (typeof renderRulesMaster === "function") renderRulesMaster();
-                        if (typeof renderCustomChargesTable === "function") renderCustomChargesTable();
-                        console.log("[Firebase] Realtime Rules Master synced across PCs.");
-                    }
-                });
-            }
-
-            // 6. Listen for realtime Branches Master (passwords & branch changes)
-            if (typeof window.FirebaseService.listenBranches === "function") {
-                window.FirebaseService.listenBranches((cloudBranches) => {
-                    if (Array.isArray(cloudBranches) && cloudBranches.length > 0) {
-                        const merged = cloudBranches.map(fbB => {
-                            const localB = (state.branches || []).find(b => b.code === fbB.code);
-                            const savedPwd = localStorage.getItem(`jccb_branch_pwd_${fbB.code}`);
-                            let finalPwd = "Admin@123";
-                            if (fbB.code === "99") {
-                                finalPwd = fbB.password || (savedPwd && savedPwd.trim()) || (localB ? localB.password : "Rahul#80810");
-                            } else if (fbB.password && fbB.password !== "Admin@123") {
-                                finalPwd = fbB.password;
-                                localStorage.setItem(`jccb_branch_pwd_${fbB.code}`, finalPwd);
-                            } else if (savedPwd && savedPwd !== "Admin@123") {
-                                finalPwd = savedPwd;
-                            } else if (localB && localB.password && localB.password !== "Admin@123") {
-                                finalPwd = localB.password;
-                            }
-                            const isDef = (fbB.code !== "99" && finalPwd === "Admin@123");
-                            return {
-                                ...fbB,
-                                password: finalPwd,
-                                isDefaultPassword: isDef,
-                                passwordChanged: !isDef
-                            };
-                        });
-                        state.branches = merged;
-                        saveState();
-                        if (typeof populateLoginBranches === "function") populateLoginBranches();
-                        if (typeof renderBranchMaster === "function") renderBranchMaster();
-                        if (typeof updateBranchContextUI === "function") updateBranchContextUI();
-                        console.log("[Firebase] Realtime Branches & Passwords synced across PCs.");
-                    }
-                });
-            }
-
-            // 7. Listen for realtime Valuers Master
-            if (typeof window.FirebaseService.listenValuers === "function") {
-                window.FirebaseService.listenValuers((cloudValuers, cloudDeletedIds) => {
-                    if (Array.isArray(cloudDeletedIds) && cloudDeletedIds.length > 0) {
-                        if (!state.deletedValuerIds) state.deletedValuerIds = [];
-                        cloudDeletedIds.forEach(id => {
-                            if (id && !state.deletedValuerIds.includes(id)) state.deletedValuerIds.push(id);
-                        });
-                    }
-                    const delIds = state.deletedValuerIds || [];
-                    if (Array.isArray(cloudValuers) && cloudValuers.length > 0) {
-                        const valMap = new Map();
-                        (DEFAULT_VALUERS || []).forEach(v => {
-                            if (v && !delIds.includes(v.id) && !delIds.includes(v.name)) {
-                                valMap.set(v.name || v.id, { ...v });
-                            }
-                        });
-                        (state.valuers || []).forEach(v => {
-                            if (v && !delIds.includes(v.id) && !delIds.includes(v.name)) {
-                                valMap.set(v.name || v.id, { ...(valMap.get(v.name || v.id) || {}), ...v });
-                            }
-                        });
-                        cloudValuers.forEach(v => {
-                            if (v && !delIds.includes(v.id) && !delIds.includes(v.name)) {
-                                valMap.set(v.name || v.id, { ...(valMap.get(v.name || v.id) || {}), ...v });
-                            }
-                        });
-                        state.valuers = Array.from(valMap.values());
-                        saveState();
-                        if (typeof renderValuers === "function") renderValuers();
-                        console.log("[Firebase] Realtime Valuers Master synced & merged across PCs:", state.valuers.length);
-                    }
-                });
-            }
-
-            // 8. Listen for realtime Product Schemes Master
-            if (typeof window.FirebaseService.listenProducts === "function") {
-                window.FirebaseService.listenProducts((cloudProducts) => {
-                    if (Array.isArray(cloudProducts) && cloudProducts.length > 0) {
-                        state.products = cloudProducts;
-                        saveState();
-                        if (typeof renderProductMaster === "function") renderProductMaster();
-                        console.log("[Firebase] Realtime Product Schemes synced across PCs.");
-                    }
-                });
-            }
-
-            // 9. Listen for realtime Customer Profiles
-            if (typeof window.FirebaseService.listenCustomers === "function") {
-                window.FirebaseService.listenCustomers((cloudCustomers) => {
-                    if (Array.isArray(cloudCustomers) && cloudCustomers.length > 0) {
-                        state.customers = cloudCustomers;
-                        saveState();
-                        if (typeof renderCustomerMasterList === "function") renderCustomerMasterList();
-                        console.log("[Firebase] Realtime Customers synced across PCs.");
-                    }
-                });
-            }
-
-            // 10. Listen for realtime Global Database Restore & Multi-Device Update Signal
-            if (typeof window.FirebaseService.listenGlobalSyncSignal === "function") {
-                window.FirebaseService.listenGlobalSyncSignal(async (signal) => {
-                    if (!signal || !signal.restoreTimestamp) return;
-                    const lastProcessed = parseInt(localStorage.getItem("jccb_last_global_restore_ts") || "0", 10);
-                    if (signal.restoreTimestamp > lastProcessed) {
-                        localStorage.setItem("jccb_last_global_restore_ts", String(signal.restoreTimestamp));
-                        console.log("[Firebase] Global database update / restore signal received:", signal);
-
-                        // Trigger fresh full pull from Firestore
-                        await syncCloudData(false);
-
-                        // Notify user with clear banner toast
-                        const restoredBy = signal.restoredBy || "હેડ ઓફિસ (Head Office)";
-                        const actionText = signal.restoreType === "EXCEL_RESTORE" ? "એક્સેલ ડેટાબેઝ રીસ્ટોર" : "ડેટાબેઝ અપડેટ";
-                        showToast(`🔔 ${restoredBy} દ્વારા નવો ${actionText} થયેલ છે. તમામ શાખાઓનો ડેટા લાઈવ અપડેટ થઈ ગયો છે!`, 6000);
-                    }
-                });
-            }
-
-            // Ensure all 18 branches are seeded into Firebase Firestore branches collection & settings
-            if (typeof window.FirebaseService.saveBranchesList === "function") {
-                window.FirebaseService.saveBranchesList(state.branches && state.branches.length > 0 ? state.branches : DEFAULT_BRANCHES).catch(() => {});
-            }
-        }).catch(err => console.warn("[Firebase] Init warning:", err));
+    // Initialize Local Database Engine
+    if (window.LocalDBService || window.FirebaseService) {
+        const service = window.LocalDBService || window.FirebaseService;
+        service.init().then(() => {
+            console.log("[LocalDB] Standalone Local PC Database active. Ready for offline branch operations.");
+        }).catch(err => console.warn("[LocalDB] Init warning:", err));
     }
 });
 
-// Centralized Hybrid Cloud Synchronizer (Dual REST + SDK)
-async function syncCloudData(isManual = false) {
-    if (!window.FirebaseService) return;
+// Centralized Standalone Local Storage Synchronizer (100% Offline)
+async function syncLocalData(isManual = false) {
     const spinIcon = document.getElementById("cloud-sync-spin-icon");
     const syncText = document.getElementById("cloud-sync-text");
     const syncDot = document.getElementById("cloud-sync-dot");
 
     if (spinIcon) spinIcon.classList.add("fa-spin");
-    if (syncText && isManual) syncText.textContent = "Syncing...";
+    if (syncText && isManual) syncText.textContent = "Checking...";
 
     try {
-        // 0. Check Global Sync Signal
-        if (typeof window.FirebaseService.getGlobalSyncSignal === "function") {
-            const globalSignal = await window.FirebaseService.getGlobalSyncSignal();
-            if (globalSignal && globalSignal.restoreTimestamp) {
-                const lastTs = parseInt(localStorage.getItem("jccb_last_global_restore_ts") || "0", 10);
-                if (globalSignal.restoreTimestamp > lastTs) {
-                    localStorage.setItem("jccb_last_global_restore_ts", String(globalSignal.restoreTimestamp));
-                }
-            }
-        }
-
-        // 1. Sync Daily Rates
-        const fbRates = await window.FirebaseService.getDailyRates();
-        let activeCloudRate = null;
-        if (fbRates && (parseFloat(fbRates.rate22K) > 0 || parseFloat(fbRates.rate24K) > 0)) {
-            activeCloudRate = parseFloat(fbRates.rate22K || fbRates.rate24K);
-            if (!state.goldRates || parseFloat(state.goldRates["22K"]) !== activeCloudRate) {
-                applyDailyGoldRate(activeCloudRate, getTodayDateYMD(), {
-                    isLocked: fbRates.isLocked,
-                    lockedAt: fbRates.lockedAt,
-                    lockedBy: fbRates.lockedBy
-                });
-            }
-        }
-
-        // 2. Sync Settings & Branch Seeds
-        if (typeof window.FirebaseService.getSettings === "function") {
-            const fbSettings = await window.FirebaseService.getSettings();
-            if (fbSettings && typeof fbSettings === "object") {
-                state.settings = { ...state.settings, ...fbSettings };
-            } else if (state.settings && Object.keys(state.settings.branchSeeds || {}).length > 0) {
-                window.FirebaseService.saveSettings(state.settings).catch(() => { });
-            }
-        }
-
-        // 3. Sync Rules Master
-        if (typeof window.FirebaseService.getRules === "function") {
-            const fbRules = await window.FirebaseService.getRules();
-            if (fbRules && typeof fbRules === "object" && fbRules.membership) {
-                state.rules = { ...state.rules, ...fbRules };
-            } else if (state.rules && state.rules.membership) {
-                window.FirebaseService.saveRules(state.rules).catch(() => { });
-            }
-        }
-
-        // 4. Sync Branches List
-        if (typeof window.FirebaseService.getBranchesList === "function") {
-            const fbBranches = await window.FirebaseService.getBranchesList();
-            if (Array.isArray(fbBranches) && fbBranches.length > 0) {
-                const merged = fbBranches.map(fbB => {
-                    const localB = (state.branches || []).find(b => b.code === fbB.code);
-                    const savedPwd = localStorage.getItem(`jccb_branch_pwd_${fbB.code}`);
-                    let finalPwd = "Admin@123";
-                    if (fbB.code === "99") {
-                        finalPwd = fbB.password || (savedPwd && savedPwd.trim()) || (localB ? localB.password : "Rahul#80810");
-                    } else if (fbB.password && fbB.password !== "Admin@123") {
-                        finalPwd = fbB.password;
-                        localStorage.setItem(`jccb_branch_pwd_${fbB.code}`, finalPwd);
-                    } else if (savedPwd && savedPwd !== "Admin@123") {
-                        finalPwd = savedPwd;
-                    } else if (localB && localB.password && localB.password !== "Admin@123") {
-                        finalPwd = localB.password;
-                    }
-                    const isDef = (fbB.code !== "99" && finalPwd === "Admin@123");
-                    return {
-                        ...fbB,
-                        password: finalPwd,
-                        isDefaultPassword: isDef,
-                        passwordChanged: !isDef
-                    };
-                });
-                state.branches = merged;
-                saveState();
-            } else if (Array.isArray(state.branches) && state.branches.length > 0) {
-                window.FirebaseService.saveBranchesList(state.branches).catch(() => { });
-            }
-        }
-
-        // 5. Sync Valuers List (Non-destructive Smart Union Merge)
-        if (typeof window.FirebaseService.getValuersList === "function") {
-            const fbValuersRes = await window.FirebaseService.getValuersList();
-            if (fbValuersRes) {
-                const fbList = Array.isArray(fbValuersRes.list) ? fbValuersRes.list : (Array.isArray(fbValuersRes) ? fbValuersRes : []);
-                const cloudDeletedIds = Array.isArray(fbValuersRes.deletedIds) ? fbValuersRes.deletedIds : [];
-                if (cloudDeletedIds.length > 0) {
-                    if (!state.deletedValuerIds) state.deletedValuerIds = [];
-                    cloudDeletedIds.forEach(id => {
-                        if (id && !state.deletedValuerIds.includes(id)) state.deletedValuerIds.push(id);
-                    });
-                }
-                const delIds = state.deletedValuerIds || [];
-
-                const valMap = new Map();
-                (DEFAULT_VALUERS || []).forEach(v => {
-                    if (v && !delIds.includes(v.id) && !delIds.includes(v.name)) {
-                        valMap.set(v.name || v.id, { ...v });
-                    }
-                });
-                (state.valuers || []).forEach(v => {
-                    if (v && !delIds.includes(v.id) && !delIds.includes(v.name)) {
-                        valMap.set(v.name || v.id, { ...(valMap.get(v.name || v.id) || {}), ...v });
-                    }
-                });
-                fbList.forEach(v => {
-                    if (v && !delIds.includes(v.id) && !delIds.includes(v.name)) {
-                        valMap.set(v.name || v.id, { ...(valMap.get(v.name || v.id) || {}), ...v });
-                    }
-                });
-
-                state.valuers = Array.from(valMap.values());
-                saveState();
-                if (typeof renderValuers === "function") renderValuers();
-                window.FirebaseService.saveValuersList(state.valuers, state.deletedValuerIds).catch(() => { });
-            }
-        }
-
-        // 6. Sync Products List
-        if (typeof window.FirebaseService.getProductsList === "function") {
-            const fbProducts = await window.FirebaseService.getProductsList();
-            if (Array.isArray(fbProducts) && fbProducts.length > 0) {
-                state.products = fbProducts;
-            } else if (Array.isArray(state.products) && state.products.length > 0) {
-                window.FirebaseService.saveProductsList(state.products).catch(() => { });
-            }
-        }
-
-        // 7. Sync Deleted Loans catchup
-        if (typeof window.FirebaseService.getDeletedLoanIds === "function") {
-            const cloudDeletedIds = await window.FirebaseService.getDeletedLoanIds();
-            if (Array.isArray(cloudDeletedIds) && cloudDeletedIds.length > 0) {
-                if (!state.deletedLoanIds) state.deletedLoanIds = [];
-                cloudDeletedIds.forEach(id => {
-                    const cleanId = String(id).trim();
-                    if (cleanId && !state.deletedLoanIds.includes(cleanId)) {
-                        state.deletedLoanIds.push(cleanId);
-                    }
-                });
-            }
-        }
-
-        // 8. Sync Loans (Lossless Non-Destructive Bidirectional Merge)
-        const fbLoans = await window.FirebaseService.getLoans();
-        const deletedSet = new Set(state.deletedLoanIds || []);
-
-        if (Array.isArray(fbLoans)) {
-            const validFbLoans = fbLoans.filter(cl => {
-                const id = String(cl.id || cl.loanId || "").trim();
-                return id && !deletedSet.has(id);
-            });
-
-            const mergedMap = new Map();
-
-            // 1. Preserve all existing local loans
-            (state.loans || []).forEach(localLoan => {
-                const id = String(localLoan.id || localLoan.loanId || "").trim();
-                if (id && !deletedSet.has(id)) {
-                    mergedMap.set(id, localLoan);
-                }
-            });
-
-            // 2. Merge cloud updates
-            validFbLoans.forEach(cl => {
-                const id = String(cl.id || cl.loanId || "").trim();
-                if (id) {
-                    const existing = mergedMap.get(id);
-                    if (existing) {
-                        mergedMap.set(id, { ...existing, ...cl, id: id, loanId: id });
-                    } else {
-                        mergedMap.set(id, { ...cl, id: id, loanId: id });
-                    }
-                }
-            });
-
-            // 3. Sync any local loans missing in cloud to Firebase
-            mergedMap.forEach((loan, id) => {
-                const inCloud = validFbLoans.some(cl => String(cl.id || cl.loanId || "").trim() === id);
-                if (!inCloud && window.FirebaseService && typeof window.FirebaseService.saveLoan === "function") {
-                    window.FirebaseService.saveLoan(loan).catch(() => { });
-                }
-            });
-
-            state.loans = Array.from(mergedMap.values());
-        }
-
-        // 9. Sync Customers Directory (Lossless Non-Destructive Merge)
-        if (typeof window.FirebaseService.getCustomers === "function") {
-            const fbCustomers = await window.FirebaseService.getCustomers();
-            if (Array.isArray(fbCustomers) && fbCustomers.length > 0) {
-                const custMap = new Map();
-                (state.customers || []).forEach(c => {
-                    const cId = String(c.customerNo || c.id || "").trim();
-                    if (cId) custMap.set(cId, c);
-                });
-                fbCustomers.forEach(c => {
-                    const cId = String(c.customerNo || c.id || "").trim();
-                    if (cId) {
-                        const existing = custMap.get(cId);
-                        custMap.set(cId, existing ? { ...existing, ...c } : c);
-                    }
-                });
-                state.customers = Array.from(custMap.values());
-                if (typeof renderCustomerMasterList === "function") renderCustomerMasterList();
-            }
+        // Ensure state is updated from IndexedDB if available
+        if (typeof syncFromIndexedDBOnInit === "function") {
+            await syncFromIndexedDBOnInit();
         }
 
         saveState();
@@ -1228,24 +801,23 @@ async function syncCloudData(isManual = false) {
         renderRegisterTable();
         if (typeof renderReportsTable === "function") renderReportsTable();
 
-        if (syncText) syncText.textContent = "Cloud Live";
+        if (syncText) syncText.textContent = "Local PC Storage";
         if (syncDot) syncDot.style.background = "#22c55e";
 
         if (isManual) {
-            const currentR = getActiveGoldRate22K();
-            showToast(`✅ Cloud Synced: All Masters & Loans Live across PCs`);
+            showToast(`✅ Local Storage Active: All loans & settings saved on this PC`);
         }
     } catch (e) {
-        console.warn("[CloudSync] Background sync check notice:", e);
-        if (syncText) syncText.textContent = "Offline/Retrying";
-        if (syncDot) syncDot.style.background = "#f59e0b";
-        if (isManual) {
-            showToast("⚠️ Cloud Sync Notice: Checking connection...");
-        }
+        console.warn("[LocalSync] Storage check notice:", e);
+        if (syncText) syncText.textContent = "Local Host";
+        if (syncDot) syncDot.style.background = "#22c55e";
     } finally {
         if (spinIcon) spinIcon.classList.remove("fa-spin");
     }
 }
+
+// Backward-compatible alias for any legacy triggers
+const syncCloudData = syncLocalData;
 
 // ==================== GLOBAL UPPERCASE & ENGLISH ENFORCER ====================
 function initGlobalUppercaseEnforcer() {
@@ -1837,83 +1409,53 @@ function updateBranchContextUI() {
         }
     }
 
-    // 1.5 Proposal No, Account No, Packet No: Editable for Head Office with live sync, locked for branch terminals
+    // 1.5 Proposal No, Account No, Packet No: Fully Editable for all branches
     const proposalNoInp = document.getElementById("unique-proposal-no");
     const packetNoInp = document.getElementById("packet-no");
     const accountNoInp = document.getElementById("loan-ac-no");
 
     if (proposalNoInp) {
-        if (isHO) {
-            proposalNoInp.removeAttribute("readonly");
-            proposalNoInp.readOnly = false;
-            proposalNoInp.style.backgroundColor = "#ffffff";
-            proposalNoInp.style.cursor = "text";
-            proposalNoInp.style.border = "1.5px solid var(--primary)";
-            proposalNoInp.title = "Head Office Admin Privilege: Editable Proposal Number";
-            if (!proposalNoInp.dataset.boundUserEdit) {
-                proposalNoInp.dataset.boundUserEdit = "true";
-                proposalNoInp.addEventListener("input", () => {
-                    proposalNoInp.dataset.userEdited = "true";
-                });
-            }
-        } else {
-            proposalNoInp.setAttribute("readonly", "true");
-            proposalNoInp.readOnly = true;
-            proposalNoInp.style.backgroundColor = "#f8fafc";
-            proposalNoInp.style.cursor = "not-allowed";
-            proposalNoInp.style.border = "1px solid var(--border-color)";
-            proposalNoInp.title = "Locked: Admin Privilege Only";
-            delete proposalNoInp.dataset.userEdited;
+        proposalNoInp.removeAttribute("readonly");
+        proposalNoInp.readOnly = false;
+        proposalNoInp.style.backgroundColor = "#ffffff";
+        proposalNoInp.style.cursor = "text";
+        proposalNoInp.style.border = "1.5px solid var(--primary)";
+        proposalNoInp.title = "Click to edit Proposal Number (Auto or Custom)";
+        if (!proposalNoInp.dataset.boundUserEdit) {
+            proposalNoInp.dataset.boundUserEdit = "true";
+            proposalNoInp.addEventListener("input", () => {
+                proposalNoInp.dataset.userEdited = "true";
+            });
         }
     }
 
     if (packetNoInp) {
-        if (isHO) {
-            packetNoInp.removeAttribute("readonly");
-            packetNoInp.readOnly = false;
-            packetNoInp.style.backgroundColor = "#ffffff";
-            packetNoInp.style.cursor = "text";
-            packetNoInp.style.border = "1.5px solid var(--primary)";
-            packetNoInp.title = "Head Office Admin Privilege: Editable Gold Packet Number";
-            if (!packetNoInp.dataset.boundUserEdit) {
-                packetNoInp.dataset.boundUserEdit = "true";
-                packetNoInp.addEventListener("input", () => {
-                    packetNoInp.dataset.userEdited = "true";
-                });
-            }
-        } else {
-            packetNoInp.setAttribute("readonly", "true");
-            packetNoInp.readOnly = true;
-            packetNoInp.style.backgroundColor = "#f8fafc";
-            packetNoInp.style.cursor = "not-allowed";
-            packetNoInp.style.border = "1px solid var(--border-color)";
-            packetNoInp.title = "Locked: Admin Privilege Only";
-            delete packetNoInp.dataset.userEdited;
+        packetNoInp.removeAttribute("readonly");
+        packetNoInp.readOnly = false;
+        packetNoInp.style.backgroundColor = "#ffffff";
+        packetNoInp.style.cursor = "text";
+        packetNoInp.style.border = "1.5px solid var(--primary)";
+        packetNoInp.title = "Click to edit Gold Packet Number (Auto or Custom)";
+        if (!packetNoInp.dataset.boundUserEdit) {
+            packetNoInp.dataset.boundUserEdit = "true";
+            packetNoInp.addEventListener("input", () => {
+                packetNoInp.dataset.userEdited = "true";
+            });
         }
     }
 
     if (accountNoInp) {
-        if (isHO) {
-            accountNoInp.removeAttribute("readonly");
-            accountNoInp.readOnly = false;
-            accountNoInp.style.backgroundColor = "#ffffff";
-            accountNoInp.style.cursor = "text";
-            accountNoInp.style.border = "1.5px solid var(--primary)";
-            accountNoInp.title = "Head Office Admin Privilege: Editable Loan Account Number";
-            if (!accountNoInp.dataset.boundUserEdit) {
-                accountNoInp.dataset.boundUserEdit = "true";
-                accountNoInp.addEventListener("input", () => {
-                    accountNoInp.dataset.userEdited = "true";
-                });
-            }
-        } else {
-            accountNoInp.setAttribute("readonly", "true");
-            accountNoInp.readOnly = true;
-            accountNoInp.style.backgroundColor = "#f8fafc";
-            accountNoInp.style.cursor = "not-allowed";
-            accountNoInp.style.border = "1px solid var(--border-color)";
-            accountNoInp.title = "Locked: Admin Privilege Only";
-            delete accountNoInp.dataset.userEdited;
+        accountNoInp.removeAttribute("readonly");
+        accountNoInp.readOnly = false;
+        accountNoInp.style.backgroundColor = "#ffffff";
+        accountNoInp.style.cursor = "text";
+        accountNoInp.style.border = "1.5px solid var(--primary)";
+        accountNoInp.title = "Click to edit Loan Account Number (Auto or Custom)";
+        if (!accountNoInp.dataset.boundUserEdit) {
+            accountNoInp.dataset.boundUserEdit = "true";
+            accountNoInp.addEventListener("input", () => {
+                accountNoInp.dataset.userEdited = "true";
+            });
         }
     }
 
@@ -4316,15 +3858,15 @@ function renderRegisterTable() {
         tr.innerHTML = `
             <td style="white-space:nowrap;"><strong>${formatDateDMY(loan.date)}</strong></td>
             <td style="white-space:nowrap; text-align:center;"><span class="badge badge-primary">${loan.branchCode}</span></td>
-            <td style="white-space:nowrap;"><strong>${accFormatted}</strong></td>
+            <td style="white-space:nowrap;">
+                <span class="account-no-pill" data-id="${loan.id}" title="Click to edit Loan Account Number" style="cursor:pointer; display:inline-flex; align-items:center; gap:4px; padding:3px 8px; border-radius:6px; background:#f8fafc; border:1px solid #cbd5e1; font-weight:800; color:var(--primary);">
+                    ${accFormatted} <i class="fa-solid fa-pen" style="font-size:9.5px; opacity:0.6;"></i>
+                </span>
+            </td>
             <td style="white-space:nowrap; text-align:center;">
-                ${isHO ? `
-                <span class="packet-no-pill" data-id="${loan.id}" title="Head Office Privilege: Click to edit Packet Number" style="cursor:pointer; display:inline-flex; align-items:center; gap:4px; padding:3px 8px; border-radius:6px; background:#f0f6fa; border:1px solid var(--accent-slate); font-weight:800; color:var(--primary);">
+                <span class="packet-no-pill" data-id="${loan.id}" title="Click to edit Gold Packet Number" style="cursor:pointer; display:inline-flex; align-items:center; gap:4px; padding:3px 8px; border-radius:6px; background:#f0f6fa; border:1px solid var(--accent-slate); font-weight:800; color:var(--primary);">
                     ${loan.packetNo || "-"} <i class="fa-solid fa-pen" style="font-size:9.5px; opacity:0.7;"></i>
                 </span>
-                ` : `
-                <strong style="font-weight:800; color:#334155;">${loan.packetNo || "-"}</strong>
-                `}
             </td>
             <td style="min-width:160px; font-weight:700;">${loan.borrowerName}</td>
             <td style="white-space:nowrap; text-align:center;"><span class="badge badge-gold">${loan.loanType || "GW-3725"}</span></td>
@@ -4352,26 +3894,45 @@ function renderRegisterTable() {
         tbody.appendChild(tr);
     });
 
-    if (isHO) {
-        tbody.querySelectorAll(".packet-no-pill").forEach(pill => {
-            pill.addEventListener("click", () => {
-                const id = pill.getAttribute("data-id");
-                const loan = state.loans.find(l => l.id === id);
-                if (!loan) return;
-                const currentPacket = loan.packetNo || "";
-                const newPacket = prompt(`[Head Office Admin Privilege]\nપેકેટ નંબર સુધારો (Edit Packet Number):\nખાતા નંબર: ${loan.accountNo || ""}\nગ્રાહક: ${loan.borrowerName || ""}`, currentPacket);
-                if (newPacket !== null && newPacket.trim() !== "") {
-                    loan.packetNo = newPacket.trim();
-                    saveState();
-                    if (window.FirebaseService && typeof window.FirebaseService.saveLoan === "function") {
-                        window.FirebaseService.saveLoan(loan).catch(() => { });
-                    }
-                    renderRegisterTable();
-                    showToast(`પેકેટ નંબર ${newPacket.trim()} સફળતાપૂર્વક અપડેટ થયો!`);
+    // Wire Packet Number Quick-Edit for ALL branches
+    tbody.querySelectorAll(".packet-no-pill").forEach(pill => {
+        pill.addEventListener("click", () => {
+            const id = pill.getAttribute("data-id");
+            const loan = state.loans.find(l => l.id === id);
+            if (!loan) return;
+            const currentPacket = loan.packetNo || "";
+            const newPacket = prompt(`પેકેટ નંબર સુધારો (Edit Packet Number):\nખાતા નંબર: ${loan.accountNo || ""}\nગ્રાહક: ${loan.borrowerName || ""}`, currentPacket);
+            if (newPacket !== null && newPacket.trim() !== "") {
+                loan.packetNo = newPacket.trim();
+                saveState();
+                if (window.FirebaseService && typeof window.FirebaseService.saveLoan === "function") {
+                    window.FirebaseService.saveLoan(loan).catch(() => { });
                 }
-            });
+                renderRegisterTable();
+                showToast(`પેકેટ નંબર ${newPacket.trim()} સફળતાપૂર્વક અપડેટ થયો!`);
+            }
         });
-    }
+    });
+
+    // Wire Loan Account Number Quick-Edit for ALL branches
+    tbody.querySelectorAll(".account-no-pill").forEach(pill => {
+        pill.addEventListener("click", () => {
+            const id = pill.getAttribute("data-id");
+            const loan = state.loans.find(l => l.id === id);
+            if (!loan) return;
+            const currentAcc = formatLoanAccountNo(loan.accountNo, loan.branchCode, loan.loanType);
+            const newAcc = prompt(`લોન ખાતા નંબર સુધારો (Edit Loan Account Number):\nગ્રાહક: ${loan.borrowerName || ""}\nવર્તમાન ખાતા નં: ${currentAcc}`, currentAcc);
+            if (newAcc !== null && newAcc.trim() !== "") {
+                loan.accountNo = newAcc.trim();
+                saveState();
+                if (window.FirebaseService && typeof window.FirebaseService.saveLoan === "function") {
+                    window.FirebaseService.saveLoan(loan).catch(() => { });
+                }
+                renderRegisterTable();
+                showToast(`લોન ખાતા નંબર ${newAcc.trim()} સફળતાપૂર્વક અપડેટ થયો!`);
+            }
+        });
+    });
 
     tbody.querySelectorAll(".print-doc-btn").forEach(btn => {
         btn.addEventListener("click", () => {

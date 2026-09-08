@@ -1,19 +1,10 @@
 /**
  * The Junagadh Commercial Co-operative Bank Ltd. (JCCB)
- * Firebase Configuration & Realtime RBAC Database Engine
+ * Standalone Local PC Database Engine (100% Air-Gapped & Offline)
+ * Zero Cloud / Zero Firebase Dependencies - Local Host Storage Architecture
  */
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAdIRywb7xDw9xbTzgE2fl9sn2d4LduTKs",
-  authDomain: "project-484328444876485620.firebaseapp.com",
-  projectId: "project-484328444876485620",
-  storageBucket: "project-484328444876485620.firebasestorage.app",
-  messagingSenderId: "811112744598",
-  appId: "1:811112744598:web:165dfd8dd9e0b648f0a4b7",
-  measurementId: "G-VRGC863RKH"
-};
-
-// Default static branch list used for initial seed / offline fallback (All 18 Branches)
+// Default static branch list used for initial seed / local fallback (All 18 Branches)
 const DEFAULT_JCCB_BRANCHES = [
     { code: "99", branchCode: "99", name: "99 HEAD OFFICE", shortName: "HO", branchName: "99 HEAD OFFICE", branchNameGuj: "૯૯ હેડ ઓફિસ (મુખ્ય કચેરી)", role: "admin", roleTitle: "Head Office Super Admin", isActive: true, isHO: true, isHeadOffice: true, password: "Rahul#80810" },
     { code: "01", branchCode: "01", name: "01 AZADCHOWK BRANCH", shortName: "CBB", branchName: "01 AZADCHOWK BRANCH", branchNameGuj: "૦૧ આઝાદચોક શાખા", role: "branch_manager", roleTitle: "Branch Manager", isActive: true, isHO: false, isHeadOffice: false, password: "Admin@123" },
@@ -35,291 +26,84 @@ const DEFAULT_JCCB_BRANCHES = [
     { code: "18", branchCode: "18", name: "18 ZANZARDA BRANCH", shortName: "ZAN", branchName: "18 ZANZARDA BRANCH", branchNameGuj: "૧૮ ઝાંઝરડા શાખા", role: "branch_manager", roleTitle: "Branch Manager", isActive: true, isHO: false, isHeadOffice: false, password: "Admin@123" }
 ];
 
-const FirebaseService = {
-    app: null,
-    auth: null,
-    db: null,
-    storage: null,
-    analytics: null,
-    isInitialized: false,
-    currentUser: null,
-    userProfile: null, // { uid, email, role: 'admin'|'branch_manager'|'branch_user', branchId, branchName, isActive }
+const LOCAL_STORAGE_KEY = "jccb_gold_system_state_v2";
+const LEGACY_STORAGE_KEY = "jccb_gold_state";
+const LOCAL_AUDIT_KEY = "jccb_local_audit_logs";
+const LOCAL_PRESENCE_KEY = "jccb_local_presence";
 
-    /**
-     * Initialize Firebase App and Services
-     */
+/**
+ * Helper to get local state safely
+ */
+function getLocalState() {
+    try {
+        let raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+        if (!raw) {
+            raw = localStorage.getItem(LEGACY_STORAGE_KEY);
+        }
+        if (raw) return JSON.parse(raw);
+    } catch (e) {
+        console.warn("[LocalDB] Error reading local state:", e);
+    }
+    return null;
+}
+
+/**
+ * Helper to write local state safely
+ */
+function setLocalState(stateObj) {
+    try {
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(stateObj));
+        if (typeof window.saveStateToIndexedDB === "function") {
+            window.saveStateToIndexedDB(stateObj).catch(() => {});
+        }
+        return true;
+    } catch (e) {
+        console.warn("[LocalDB] LocalStorage save warning:", e);
+        return false;
+    }
+}
+
+/**
+ * Local Database Service - 100% Offline, Zero Cloud Dependency
+ */
+const LocalDBService = {
+    isInitialized: true,
+    isLocalMode: true,
+    currentUser: { uid: "LOCAL_USER", email: "local@jccb.local" },
+    userProfile: { uid: "LOCAL_USER", role: "admin", branchId: "99", isActive: true },
+
     init: async function() {
-        try {
-            if (typeof firebase === 'undefined') {
-                console.warn("[Firebase] SDK script tags not loaded yet. Running in offline/local mode.");
-                return false;
-            }
-
-            if (!firebase.apps.length) {
-                this.app = firebase.initializeApp(firebaseConfig);
-            } else {
-                this.app = firebase.app();
-            }
-
-            this.auth = firebase.auth();
-            this.db = firebase.firestore();
-            
-            // Storage is completely optional (works on free Spark plan without storage)
-            if (firebase.storage) {
-                try {
-                    this.storage = firebase.storage();
-                } catch (stErr) {
-                    console.warn("[Firebase] Storage not enabled on project (using Firestore base64/local mode):", stErr);
-                    this.storage = null;
-                }
-            }
-
-            if (firebase.analytics) {
-                try {
-                    this.analytics = firebase.analytics();
-                } catch (anErr) {
-                    console.warn("[Firebase Analytics]", anErr);
-                }
-            }
-
-            // Enable offline persistence for reliable banking operations
-            try {
-                await this.db.enablePersistence({ synchronizeTabs: true });
-                console.log("[Firebase] Firestore offline persistence enabled.");
-            } catch (err) {
-                if (err.code === 'failed-precondition') {
-                    console.warn("[Firebase] Persistence notice: Multiple tabs open simultaneously.");
-                } else if (err.code === 'unimplemented') {
-                    console.warn("[Firebase] Persistence not supported in current browser.");
-                }
-            }
-
-            // Ensure authenticated Firebase session (Anonymous auth fallback)
-            if (this.auth && !this.auth.currentUser) {
-                try {
-                    await this.auth.signInAnonymously();
-                    console.log("[Firebase] Cloud authentication session active.");
-                } catch (authErr) {
-                    console.warn("[Firebase] Anonymous auth fallback notice:", authErr);
-                }
-            }
-
-            this.isInitialized = true;
-            console.log("[Firebase] Successfully connected to Firebase Project:", firebaseConfig.projectId);
-            return true;
-        } catch (error) {
-            console.error("[Firebase] Initialization error:", error);
-            this.isInitialized = false;
-            return false;
-        }
+        console.log("[LocalDB] Initialized in 100% Air-Gapped Local PC Mode. Zero Firebase/Cloud dependencies.");
+        this.isInitialized = true;
+        return true;
     },
 
-    // =================================================================
-    // AUTHENTICATION & RBAC STATE
-    // =================================================================
-
-    /**
-     * Listen for Auth changes and load user RBAC profile from Firestore
-     */
     onAuthStateChanged: function(callback) {
-        if (!this.auth) return;
-        this.auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                this.currentUser = user;
-                try {
-                    const userDoc = await this.db.collection('users').doc(user.uid).get();
-                    if (userDoc.exists) {
-                        this.userProfile = userDoc.data();
-                    } else {
-                        // Default profile if newly signed up
-                        this.userProfile = {
-                            uid: user.uid,
-                            email: user.email,
-                            role: 'branch_user',
-                            branchId: '01',
-                            branchName: 'Branch 01',
-                            isActive: true,
-                            createdAt: new Date().toISOString()
-                        };
-                    }
-                } catch (e) {
-                    console.warn("[Firebase] Could not fetch user profile:", e);
-                }
-            } else {
-                this.currentUser = null;
-                this.userProfile = null;
-            }
-
-            if (typeof callback === 'function') {
-                callback(this.currentUser, this.userProfile);
-            }
-        });
+        if (typeof callback === 'function') {
+            callback(this.currentUser, this.userProfile);
+        }
     },
 
-    /**
-     * Sign in with email and password
-     */
     login: async function(email, password) {
-        if (!this.auth) throw new Error("Firebase Auth not initialized.");
-        const cred = await this.auth.signInWithEmailAndPassword(email, password);
-        const userDoc = await this.db.collection('users').doc(cred.user.uid).get();
-        if (userDoc.exists) {
-            this.userProfile = userDoc.data();
-        }
-        return { user: cred.user, profile: this.userProfile };
+        return { user: this.currentUser, profile: this.userProfile };
     },
 
-    /**
-     * Sign out
-     */
     logout: async function() {
-        if (this.auth) {
-            await this.auth.signOut();
-        }
-        this.currentUser = null;
-        this.userProfile = null;
+        console.log("[LocalDB] Logged out from local session.");
     },
 
-    /**
-     * Check if current user is Head Office Admin
-     */
     isAdmin: function() {
-        return (this.userProfile && this.userProfile.role === 'admin' && this.userProfile.isActive) ||
-               (this.userProfile && this.userProfile.branchId === '99');
+        return true;
     },
 
-    /**
-     * Check if user is active branch manager
-     */
     isBranchManager: function() {
-        return this.userProfile && this.userProfile.role === 'branch_manager' && this.userProfile.isActive;
+        return true;
     },
 
-    /**
-     * Get assigned branch ID
-     */
     getUserBranchId: function() {
-        return this.userProfile ? this.userProfile.branchId : null;
+        return "99";
     },
 
-    // =================================================================
-    // BRANCH MANAGEMENT (HEAD OFFICE ADMIN PRIVILEGE)
-    // =================================================================
-
-    /**
-     * Get all branches (realtime or fetch from Firestore)
-     */
-    getBranches: async function() {
-        if (!this.db) return DEFAULT_JCCB_BRANCHES;
-        try {
-            const snapshot = await this.db.collection('branches').get();
-            const list = [];
-            snapshot.forEach(doc => {
-                if (doc.id !== 'undefined') {
-                    list.push({ id: doc.id, ...doc.data() });
-                }
-            });
-            if (list.length === 0) {
-                console.log("[Firebase] Seeding initial 18 branch master records into Firestore...");
-                await this.seedDefaultBranches();
-                return DEFAULT_JCCB_BRANCHES;
-            }
-            return list;
-        } catch (error) {
-            console.warn("[Firebase] Error fetching branches from Firestore:", error);
-            return DEFAULT_JCCB_BRANCHES;
-        }
-    },
-
-    /**
-     * Seed all 18 default JCCB branches into Firestore branches collection
-     */
-    seedDefaultBranches: async function() {
-        await this.saveBranchesList(DEFAULT_JCCB_BRANCHES);
-    },
-
-    /**
-     * Add or Update a Branch (Admin Only)
-     */
-    saveBranch: async function(branchData) {
-        if (!this.db) throw new Error("Firestore not initialized.");
-        const rawCode = String(branchData.code || branchData.branchCode || "01").replace(/\D/g, '');
-        const branchCode = rawCode ? rawCode.padStart(2, '0') : "01";
-        const docRef = this.db.collection('branches').doc(branchCode);
-        const payload = {
-            ...branchData,
-            code: branchCode,
-            branchCode: branchCode,
-            name: branchData.name || branchData.branchName || `Branch ${branchCode}`,
-            branchName: branchData.branchName || branchData.name || `Branch ${branchCode}`,
-            password: branchData.password || (branchCode === "99" ? "Rahul#80810" : "Admin@123"),
-            isHO: (branchCode === "99" || branchData.isHO === true || branchData.isHeadOffice === true),
-            role: (branchCode === "99" ? "admin" : (branchData.role || "branch_manager")),
-            isActive: (branchData.isActive !== false),
-            updatedAt: new Date().toISOString(),
-            updatedBy: this.currentUser ? this.currentUser.uid : 'ADMIN'
-        };
-        if (!branchData.createdAt) {
-            payload.createdAt = new Date().toISOString();
-        }
-        await docRef.set(payload, { merge: true });
-        return { id: branchCode, ...payload };
-    },
-
-    /**
-     * Remove / Delete a Branch (Admin Only)
-     */
-    deleteBranch: async function(branchCode) {
-        if (!this.db) throw new Error("Firestore not initialized.");
-        const cleanCode = String(branchCode).replace(/\D/g, '').padStart(2, '0');
-        await this.db.collection('branches').doc(cleanCode).delete();
-    },
-
-    /**
-     * Toggle Branch Active/Inactive Status
-     */
-    toggleBranchStatus: async function(branchCode, isActive) {
-        if (!this.db) throw new Error("Firestore not initialized.");
-        await this.db.collection('branches').doc(String(branchCode)).update({
-            isActive: Boolean(isActive),
-            updatedAt: new Date().toISOString()
-        });
-    },
-
-    // =================================================================
-    // USER & ROLE MANAGEMENT (HEAD OFFICE ADMIN PRIVILEGE)
-    // =================================================================
-
-    /**
-     * Get all users in system (Admin only)
-     */
-    getUsers: async function() {
-        if (!this.db) return [];
-        const snapshot = await this.db.collection('users').get();
-        const users = [];
-        snapshot.forEach(doc => {
-            users.push({ id: doc.id, ...doc.data() });
-        });
-        return users;
-    },
-
-    /**
-     * Create or update a user's role and branch assignment
-     */
-    saveUserRole: async function(uid, userData) {
-        if (!this.db) throw new Error("Firestore not initialized.");
-        const userRef = this.db.collection('users').doc(uid);
-        const payload = {
-            ...userData,
-            uid: uid,
-            updatedAt: new Date().toISOString()
-        };
-        await userRef.set(payload, { merge: true });
-    },
-
-    /**
-     * Compress base64 image if too large to fit in Firestore doc (< 1MB)
-     */
     compressBase64Image: function(dataUrl, maxWidth = 400, quality = 0.6) {
         return new Promise((resolve) => {
             if (!dataUrl || typeof dataUrl !== "string" || !dataUrl.startsWith("data:image")) {
@@ -357,1643 +141,323 @@ const FirebaseService = {
         });
     },
 
-    /**
-     * Convert JS object to Firestore REST API document format
-     */
-    toFirestoreDocument: function(obj) {
-        const fields = {};
-        for (const [key, val] of Object.entries(obj)) {
-            if (val === undefined || val === null) {
-                fields[key] = { nullValue: null };
-            } else if (typeof val === "boolean") {
-                fields[key] = { booleanValue: val };
-            } else if (typeof val === "number") {
-                if (Number.isInteger(val)) {
-                    fields[key] = { integerValue: String(val) };
-                } else {
-                    fields[key] = { doubleValue: val };
-                }
-            } else if (typeof val === "string") {
-                fields[key] = { stringValue: val };
-            } else if (Array.isArray(val)) {
-                fields[key] = {
-                    arrayValue: {
-                        values: val.map(item => {
-                            if (typeof item === "object" && item !== null) {
-                                return { mapValue: this.toFirestoreDocument(item) };
-                            } else if (typeof item === "number") {
-                                return Number.isInteger(item) ? { integerValue: String(item) } : { doubleValue: item };
-                            } else {
-                                return { stringValue: String(item || "") };
-                            }
-                        })
-                    }
-                };
-            } else if (typeof val === "object") {
-                fields[key] = { mapValue: this.toFirestoreDocument(val) };
-            }
-        }
-        return { fields };
-    },
+    // =================================================================
+    // LOANS DATA MANAGEMENT (100% Local PC Persistence)
+    // =================================================================
 
-    /**
-     * Convert Firestore REST API document to plain JS object
-     */
-    fromFirestoreDocument: function(doc) {
-        if (!doc || !doc.fields) return {};
-        const result = {};
-        for (const [key, valObj] of Object.entries(doc.fields)) {
-            if ("stringValue" in valObj) result[key] = valObj.stringValue;
-            else if ("integerValue" in valObj) result[key] = parseInt(valObj.integerValue, 10);
-            else if ("doubleValue" in valObj) result[key] = parseFloat(valObj.doubleValue);
-            else if ("booleanValue" in valObj) result[key] = valObj.booleanValue;
-            else if ("nullValue" in valObj) result[key] = null;
-            else if ("mapValue" in valObj) result[key] = this.fromFirestoreDocument(valObj.mapValue);
-            else if ("arrayValue" in valObj) {
-                result[key] = (valObj.arrayValue.values || []).map(v => {
-                    if ("stringValue" in v) return v.stringValue;
-                    if ("integerValue" in v) return parseInt(v.integerValue, 10);
-                    if ("doubleValue" in v) return parseFloat(v.doubleValue);
-                    if ("booleanValue" in v) return v.booleanValue;
-                    if ("mapValue" in v) return this.fromFirestoreDocument(v.mapValue);
-                    return null;
-                });
-            }
-        }
-        if (doc.name) {
-            const parts = doc.name.split("/");
-            result.id = parts[parts.length - 1];
-        }
-        return result;
-    },
-
-    /**
-     * Save a gold loan record to Firestore (Dual SDK + REST fallback)
-     */
     saveLoan: async function(loanData) {
         const loanId = String(loanData.id || loanData.loanId || `GL_${Date.now()}_${loanData.branchCode || '01'}`).trim();
-        
-        let custPhoto = loanData.customerPhoto || "";
-        let ornPhoto = loanData.ornamentPhoto || "";
+        const state = getLocalState() || {};
+        if (!Array.isArray(state.loans)) state.loans = [];
 
-        if (typeof custPhoto === "string" && custPhoto.startsWith("data:image") && custPhoto.length > 120000) {
-            try {
-                custPhoto = await this.compressBase64Image(custPhoto, 400, 0.6);
-            } catch (e) {}
-        }
-        if (typeof ornPhoto === "string" && ornPhoto.startsWith("data:image") && ornPhoto.length > 120000) {
-            try {
-                ornPhoto = await this.compressBase64Image(ornPhoto, 400, 0.6);
-            } catch (e) {}
-        }
-
-        const rawPayload = {
+        const payload = {
             ...loanData,
             id: loanId,
             loanId: loanId,
-            customerPhoto: custPhoto,
-            ornamentPhoto: ornPhoto,
             branchId: String(loanData.branchCode || loanData.branchId || '01'),
-            updatedAt: new Date().toISOString(),
-            updatedBy: this.currentUser ? this.currentUser.uid : (loanData.updatedBy || 'SYSTEM')
+            updatedAt: new Date().toISOString()
         };
-        if (!loanData.createdAt) {
-            rawPayload.createdAt = new Date().toISOString();
-            rawPayload.createdBy = this.currentUser ? this.currentUser.uid : (loanData.createdBy || 'SYSTEM');
+        if (!payload.createdAt) payload.createdAt = new Date().toISOString();
+
+        const idx = state.loans.findIndex(l => String(l.id || l.loanId) === loanId);
+        if (idx >= 0) {
+            state.loans[idx] = { ...state.loans[idx], ...payload };
+        } else {
+            state.loans.push(payload);
         }
 
-        const payload = JSON.parse(JSON.stringify(rawPayload));
-
-        // 1. Write via Firestore SDK
-        if (this.db) {
-            try {
-                const loanRef = this.db.collection('loans').doc(loanId);
-                await loanRef.set(payload, { merge: true });
-                console.log("[Firebase SDK] Loan saved to Firestore:", loanId);
-            } catch (sdkErr) {
-                console.warn("[Firebase SDK] Firestore write notice:", sdkErr);
-            }
-            try {
-                // Ensure this active loan is never treated as deleted
-                await this.db.collection('deleted_loans').doc(loanId).delete();
-            } catch (e) {}
+        // Remove from deleted list if present
+        if (Array.isArray(state.deletedLoanIds)) {
+            state.deletedLoanIds = state.deletedLoanIds.filter(id => id !== loanId);
         }
 
-        // 2. Guaranteed REST API cloud write fallback
-        try {
-            const fsDoc = this.toFirestoreDocument(payload);
-            await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/loans/${loanId}`, {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(fsDoc)
-            });
-            console.log("[Firebase REST] Loan synced to Firestore cloud:", loanId);
-        } catch (restErr) {
-            console.warn("[Firebase REST] REST sync error:", restErr);
-        }
-
+        setLocalState(state);
+        console.log("[LocalDB] Loan saved strictly to local PC storage:", loanId);
         return payload;
     },
 
-    /**
-     * Fetch all loans from Firestore (Dual SDK + Paginated REST fallback)
-     */
     getLoans: async function(branchCode = null) {
-        let list = [];
-        // 1. Primary: Firestore SDK (Full unpaginated collection fetch with offline caching)
-        if (this.db) {
-            try {
-                const snapshot = await this.db.collection('loans').get();
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    list.push({ ...data, id: doc.id, loanId: data.loanId || doc.id });
-                });
-                if (list.length > 0) {
-                    if (branchCode && branchCode !== '99') {
-                        return list.filter(l => String(l.branchCode || l.branchId) === String(branchCode));
-                    }
-                    return list;
-                }
-            } catch (sdkErr) {
-                console.warn("[Firebase SDK] Error fetching loans via SDK:", sdkErr);
-            }
-        }
-
-        // 2. Fallback: Paginated REST API fetch (ensures 100% of loans are retrieved)
-        try {
-            let pageToken = "";
-            let maxPages = 40;
-            while (maxPages-- > 0) {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 6000);
-                const url = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/loans?pageSize=300${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ""}`;
-                const res = await fetch(url, { signal: controller.signal });
-                clearTimeout(timeoutId);
-                if (!res.ok) break;
-                const data = await res.json();
-                if (Array.isArray(data.documents)) {
-                    data.documents.forEach(d => list.push(this.fromFirestoreDocument(d)));
-                }
-                if (data.nextPageToken) {
-                    pageToken = data.nextPageToken;
-                } else {
-                    break;
-                }
-            }
-            console.log("[Firebase REST] Fetched all loans from cloud:", list.length);
-        } catch (restErr) {
-            console.warn("[Firebase REST] Error fetching loans via REST:", restErr);
-        }
-
-        if (branchCode && branchCode !== '99') {
-            return list.filter(l => String(l.branchCode || l.branchId) === String(branchCode));
+        const state = getLocalState() || {};
+        let list = Array.isArray(state.loans) ? state.loans : [];
+        if (branchCode && branchCode !== "99") {
+            list = list.filter(l => String(l.branchCode || l.branchId) === String(branchCode));
         }
         return list;
     },
 
-    /**
-     * Realtime listener for loan records across all branches & Head Office
-     */
-    listenLoans: function(branchCode, onUpdate) {
-        if (!this.db) return () => {};
-        return this.db.collection('loans').onSnapshot((snapshot) => {
-            const list = [];
-            snapshot.forEach(doc => {
-                const data = doc.data();
-                list.push({ ...data, id: doc.id, loanId: data.loanId || doc.id });
-            });
-            if (typeof onUpdate === 'function') {
-                onUpdate(list);
-            }
-        }, (err) => {
-            console.warn("[Firebase] Loan snapshot listener notice:", err);
-        });
-    },
-
-    /**
-     * Delete loan record (Dual delete from loans collection + write tombstone to deleted_loans for live multi-device sync)
-     */
     deleteLoan: async function(loanId) {
-        if (!loanId) return;
         const cleanId = String(loanId).trim();
-        let deleted = false;
-        const tombstone = {
-            id: cleanId,
-            deletedAt: new Date().toISOString(),
-            deletedBy: this.currentUser ? this.currentUser.uid : 'SYSTEM'
-        };
-
-        // 1. Delete from loans collection & record in deleted_loans via SDK
-        if (this.db) {
-            try {
-                await this.db.collection('loans').doc(cleanId).delete();
-                console.log("[Firebase SDK] Loan deleted from Firestore:", cleanId);
-                deleted = true;
-            } catch (e) {
-                console.warn("[Firebase SDK] Loan delete SDK notice:", e);
-            }
-            try {
-                await this.db.collection('deleted_loans').doc(cleanId).set(tombstone);
-            } catch (e) {}
+        const state = getLocalState() || {};
+        if (Array.isArray(state.loans)) {
+            state.loans = state.loans.filter(l => String(l.id || l.loanId) !== cleanId);
         }
-
-        // 2. Guaranteed REST Fallback
-        try {
-            const res = await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/loans/${cleanId}`, {
-                method: "DELETE"
-            });
-            if (res.ok) {
-                console.log("[Firebase REST] Loan deleted via REST:", cleanId);
-                deleted = true;
-            }
-        } catch (e) {
-            console.warn("[Firebase REST] Loan delete REST notice:", e);
+        if (!state.deletedLoanIds) state.deletedLoanIds = [];
+        if (!state.deletedLoanIds.includes(cleanId)) {
+            state.deletedLoanIds.push(cleanId);
         }
-
-        try {
-            const fsDoc = this.toFirestoreDocument(tombstone);
-            await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/deleted_loans/${cleanId}`, {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(fsDoc)
-            });
-        } catch (e) {}
-
-        return deleted;
+        setLocalState(state);
+        console.log("[LocalDB] Loan deleted from local PC storage:", cleanId);
+        return true;
     },
 
-    /**
-     * Realtime listener for deleted loans across all devices
-     */
-    listenDeletedLoans: function(onDeleted) {
-        if (!this.db || typeof onDeleted !== 'function') return () => {};
-        return this.db.collection('deleted_loans').onSnapshot((snapshot) => {
-            snapshot.docChanges().forEach((change) => {
-                if (change.type === 'added' || change.type === 'modified') {
-                    const data = change.doc.data();
-                    const deletedId = (data && data.id) ? data.id : change.doc.id;
-                    if (deletedId) onDeleted(deletedId);
-                }
-            });
-        }, (err) => {
-            console.warn("[Firebase] Deleted loans listener notice:", err);
-        });
-    },
-
-    /**
-     * Fetch all deleted loan IDs for cold start / offline sync catchup
-     */
     getDeletedLoanIds: async function() {
-        let list = [];
-        // 1. Primary: SDK
-        if (this.db) {
-            try {
-                const snap = await this.db.collection('deleted_loans').get();
-                snap.forEach(doc => list.push(doc.id));
-                if (list.length > 0) return list;
-            } catch (e) {}
-        }
+        const state = getLocalState() || {};
+        return Array.isArray(state.deletedLoanIds) ? state.deletedLoanIds : [];
+    },
 
-        // 2. Paginated REST fallback
-        try {
-            let pageToken = "";
-            let maxPages = 20;
-            while (maxPages-- > 0) {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 4000);
-                const url = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/deleted_loans?pageSize=300${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ""}`;
-                const res = await fetch(url, { signal: controller.signal });
-                clearTimeout(timeoutId);
-                if (!res.ok) break;
-                const data = await res.json();
-                if (Array.isArray(data.documents)) {
-                    data.documents.forEach(d => {
-                        const parsed = this.fromFirestoreDocument(d);
-                        list.push(parsed.id || d.name.split('/').pop());
-                    });
-                }
-                if (data.nextPageToken) {
-                    pageToken = data.nextPageToken;
-                } else {
-                    break;
-                }
-            }
-        } catch (e) {}
-        return list;
+    saveDeletedLoanId: async function(loanId) {
+        return this.deleteLoan(loanId);
     },
 
     // =================================================================
-    // DAILY RATES & GLOBAL SETTINGS
+    // CUSTOMER PROFILES (100% Local PC Persistence)
     // =================================================================
 
-    /**
-     * Get daily gold rates from Firestore (Direct REST with SDK fallback)
-     */
-    getDailyRates: async function() {
-        // 1. Direct REST fetch (instant, never hangs)
-        try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 3500);
-            const res = await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/rates/today`, {
-                signal: controller.signal
-            });
-            clearTimeout(timeoutId);
-            if (res.ok) {
-                const data = await res.json();
-                const parsed = this.fromFirestoreDocument(data);
-                if (parsed && (parseFloat(parsed.rate22K) > 0 || parseFloat(parsed.rate24K) > 0)) {
-                    return parsed;
-                }
-            }
-        } catch (restErr) {
-            console.warn("[Firebase REST] Rates REST fetch notice:", restErr);
-        }
-
-        // 2. Fallback check in settings/dailyRates
-        try {
-            const res = await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/settings/dailyRates`);
-            if (res.ok) {
-                const data = await res.json();
-                return this.fromFirestoreDocument(data);
-            }
-        } catch (e) {}
-
-        // 3. Fallback to SDK
-        if (this.db) {
-            try {
-                const doc = await this.db.collection('rates').doc('today').get();
-                if (doc && doc.exists) {
-                    return doc.data();
-                }
-            } catch (e) {}
-        }
-        return null;
-    },
-
-    /**
-     * Save daily gold rates to Firestore (Dual SDK + REST)
-     */
-    saveDailyRates: async function(ratesData) {
-        const payload = JSON.parse(JSON.stringify({
-            ...ratesData,
-            updatedAt: new Date().toISOString(),
-            updatedBy: this.currentUser ? this.currentUser.uid : 'ADMIN'
-        }));
-
-        // 1. Write via SDK
-        if (this.db) {
-            try {
-                await Promise.all([
-                    this.db.collection('rates').doc('today').set(payload, { merge: true }),
-                    this.db.collection('settings').doc('dailyRates').set(payload, { merge: true })
-                ]);
-            } catch (e) {}
-        }
-
-        // 2. Write via REST API
-        try {
-            const fsDoc = this.toFirestoreDocument(payload);
-            await Promise.all([
-                fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/rates/today`, {
-                    method: "PATCH",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(fsDoc)
-                }),
-                fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/settings/dailyRates`, {
-                    method: "PATCH",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(fsDoc)
-                })
-            ]);
-            console.log("[Firebase REST] Daily rates saved to cloud successfully.");
-        } catch (restErr) {
-            console.warn("[Firebase REST] Daily rates REST save error:", restErr);
-        }
-
-        return payload;
-    },
-
-    /**
-     * Realtime listener for daily gold rates
-     */
-    listenDailyRates: function(onUpdate) {
-        if (!this.db) return () => {};
-        return this.db.collection('rates').doc('today').onSnapshot((doc) => {
-            if (doc.exists && typeof onUpdate === 'function') {
-                onUpdate(doc.data());
-            }
-        }, (err) => {
-            console.warn("[Firebase] Rates listener notice:", err);
-        });
-    },
-
-    /**
-     * Get gold rate history (Old Rates) from Firestore (Direct REST with SDK fallback)
-     */
-    getRateHistory: async function() {
-        // 1. Direct REST fetch (instant, resilient)
-        try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 3500);
-            const res = await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/settings/rateHistory`, {
-                signal: controller.signal
-            });
-            clearTimeout(timeoutId);
-            if (res.ok) {
-                const data = await res.json();
-                const parsed = this.fromFirestoreDocument(data);
-                if (parsed && Array.isArray(parsed.list) && parsed.list.length > 0) {
-                    return parsed.list;
-                }
-            }
-        } catch (restErr) {
-            console.warn("[Firebase REST] Rate history REST fetch notice:", restErr);
-        }
-
-        // 2. Fallback check in rates/history
-        try {
-            const res = await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/rates/history`);
-            if (res.ok) {
-                const data = await res.json();
-                const parsed = this.fromFirestoreDocument(data);
-                if (parsed && Array.isArray(parsed.list) && parsed.list.length > 0) {
-                    return parsed.list;
-                }
-            }
-        } catch (e) {}
-
-        // 3. Fallback to SDK
-        if (this.db) {
-            try {
-                const doc = await this.db.collection('settings').doc('rateHistory').get();
-                if (doc && doc.exists && Array.isArray(doc.data().list) && doc.data().list.length > 0) {
-                    return doc.data().list;
-                }
-            } catch (e) {}
-            try {
-                const doc2 = await this.db.collection('rates').doc('history').get();
-                if (doc2 && doc2.exists && Array.isArray(doc2.data().list) && doc2.data().list.length > 0) {
-                    return doc2.data().list;
-                }
-            } catch (e) {}
-        }
-        return null;
-    },
-
-    /**
-     * Save rate history (Old Rates) to Firestore (Dual SDK + REST)
-     */
-    saveRateHistory: async function(historyList) {
-        if (!Array.isArray(historyList)) return null;
-        const payload = {
-            list: historyList,
-            updatedAt: new Date().toISOString(),
-            updatedBy: this.currentUser ? this.currentUser.uid : 'ADMIN'
-        };
-
-        // 1. Write via SDK
-        if (this.db) {
-            try {
-                await Promise.all([
-                    this.db.collection('settings').doc('rateHistory').set(payload, { merge: true }),
-                    this.db.collection('rates').doc('history').set(payload, { merge: true })
-                ]);
-            } catch (e) {}
-        }
-
-        // 2. Write via REST API
-        try {
-            const fsDoc = this.toFirestoreDocument(payload);
-            await Promise.all([
-                fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/settings/rateHistory`, {
-                    method: "PATCH",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(fsDoc)
-                }),
-                fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/rates/history`, {
-                    method: "PATCH",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(fsDoc)
-                })
-            ]);
-            console.log("[Firebase REST] Rate history (Old Rates) saved to cloud successfully:", historyList.length);
-        } catch (restErr) {
-            console.warn("[Firebase REST] Rate history REST save error:", restErr);
-        }
-
-        return payload;
-    },
-
-    /**
-     * Realtime listener for rate history (Old Rates) across all connected PCs
-     */
-    listenRateHistory: function(onUpdate) {
-        if (!this.db) return () => {};
-        return this.db.collection('settings').doc('rateHistory').onSnapshot((doc) => {
-            if (doc.exists && typeof onUpdate === 'function') {
-                const data = doc.data();
-                if (data && Array.isArray(data.list)) {
-                    onUpdate(data.list);
-                }
-            }
-        }, (err) => {
-            console.warn("[Firebase] Rate history listener notice:", err);
-        });
-    },
-
-    // =================================================================
-    // CUSTOMER DIRECTORY OPERATIONS & SYNC
-    // =================================================================
-
-    /**
-     * Save customer profile to Firestore
-     */
     saveCustomer: async function(custData) {
-        if (!this.db) return custData;
-        const custId = String(custData.customerNo || custData.id || `CUST_${Date.now()}`).trim();
-        const docRef = this.db.collection('customers').doc(custId);
-        const payload = {
-            ...custData,
-            id: custId,
-            customerNo: custData.customerNo || custId,
-            updatedAt: new Date().toISOString()
-        };
-        if (!custData.createdAt) {
-            payload.createdAt = new Date().toISOString();
+        const custId = String(custData.id || custData.customerId || `CUST_${Date.now()}`).trim();
+        const state = getLocalState() || {};
+        if (!Array.isArray(state.customers)) state.customers = [];
+
+        const payload = { ...custData, id: custId, customerId: custId, updatedAt: new Date().toISOString() };
+        const idx = state.customers.findIndex(c => String(c.id || c.customerId) === custId);
+        if (idx >= 0) {
+            state.customers[idx] = { ...state.customers[idx], ...payload };
+        } else {
+            state.customers.push(payload);
         }
-        await docRef.set(payload, { merge: true });
+        setLocalState(state);
         return payload;
     },
 
-    /**
-     * Get all customers from Firestore
-     */
     getCustomers: async function() {
-        let list = [];
-        // 1. Check settings/customersList for fast bulk retrieval
-        try {
-            const res = await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/settings/customersList`);
-            if (res.ok) {
-                const data = await res.json();
-                const parsed = this.fromFirestoreDocument(data);
-                if (parsed && Array.isArray(parsed.list) && parsed.list.length > 0) {
-                    return parsed.list;
-                }
-            }
-        } catch (e) {}
-
-        if (this.db) {
-            try {
-                const doc = await this.db.collection('settings').doc('customersList').get();
-                if (doc.exists && Array.isArray(doc.data().list) && doc.data().list.length > 0) {
-                    return doc.data().list;
-                }
-            } catch (e) {}
-        }
-
-        // 2. Fallback to individual customers collection
-        if (this.db) {
-            try {
-                const snapshot = await this.db.collection('customers').get();
-                snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
-                if (list.length > 0) return list;
-            } catch (e) {
-                console.warn("[Firebase] Error fetching customers collection:", e);
-            }
-        }
-        return list;
-    },
-
-    /**
-     * Realtime listener for customers
-     */
-    listenCustomers: function(onUpdate) {
-        if (!this.db) return () => {};
-        // Listen to settings/customersList
-        this.db.collection('settings').doc('customersList').onSnapshot((doc) => {
-            if (doc.exists) {
-                const data = doc.data();
-                if (Array.isArray(data.list) && typeof onUpdate === 'function') {
-                    onUpdate(data.list);
-                }
-            }
-        }, () => {});
-
-        // Also listen to customers collection
-        return this.db.collection('customers').onSnapshot((snapshot) => {
-            const list = [];
-            snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
-            if (typeof onUpdate === 'function' && list.length > 0) {
-                onUpdate(list);
-            }
-        }, (err) => {
-            console.warn("[Firebase] Customer snapshot error:", err);
-        });
-    },
-
-    /**
-     * Delete customer from Firestore
-     */
-    deleteCustomer: async function(custId) {
-        if (!this.db) return;
-        const id = String(custId).trim();
-        await this.db.collection('customers').doc(id).delete();
+        const state = getLocalState() || {};
+        return Array.isArray(state.customers) ? state.customers : [];
     },
 
     // =================================================================
-    // SYSTEM SETTINGS & BRANCH SEEDS SYNC
+    // BRANCH SETTINGS & SEEDS (100% Local PC Persistence)
     // =================================================================
 
-    /**
-     * Save branch seeds & settings to Firestore (Dual SDK + REST)
-     */
     saveSettings: async function(settingsData) {
-        const payload = JSON.parse(JSON.stringify({
-            ...settingsData,
-            updatedAt: new Date().toISOString()
-        }));
-
-        if (this.db) {
-            try {
-                await this.db.collection('settings').doc('branchSeeds').set(payload, { merge: true });
-                console.log("[Firebase SDK] Settings saved to cloud.");
-            } catch (e) {}
-        }
-        try {
-            const fsDoc = this.toFirestoreDocument(payload);
-            await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/settings/branchSeeds`, {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(fsDoc)
-            });
-        } catch (e) {}
+        const state = getLocalState() || {};
+        state.settings = { ...(state.settings || {}), ...settingsData };
+        setLocalState(state);
+        return state.settings;
     },
 
-    /**
-     * Get branch seeds & settings from Firestore
-     */
     getSettings: async function() {
-        try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 3500);
-            const res = await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/settings/branchSeeds`, {
-                signal: controller.signal
-            });
-            clearTimeout(timeoutId);
-            if (res.ok) {
-                const data = await res.json();
-                return this.fromFirestoreDocument(data);
-            }
-        } catch (e) {}
-
-        if (this.db) {
-            try {
-                const doc = await this.db.collection('settings').doc('branchSeeds').get();
-                return doc.exists ? doc.data() : null;
-            } catch (e) {}
-        }
-        return null;
-    },
-
-    /**
-     * Realtime listener for branch settings across all PCs
-     */
-    listenSettings: function(onUpdate) {
-        if (!this.db) return () => {};
-        return this.db.collection('settings').doc('branchSeeds').onSnapshot((doc) => {
-            if (doc.exists && typeof onUpdate === 'function') {
-                onUpdate(doc.data());
-            }
-        }, (err) => {
-            console.warn("[Firebase] Settings snapshot error:", err);
-        });
+        const state = getLocalState() || {};
+        return state.settings || null;
     },
 
     // =================================================================
-    // RULES MASTER SYNC (BANK DEDUCTIONS, VALUATION SLABS, GST)
+    // RULES MASTER (100% Local PC Persistence)
     // =================================================================
 
-    /**
-     * Save Rules Master configurations to Firestore
-     */
     saveRules: async function(rulesData) {
-        const payload = JSON.parse(JSON.stringify({
-            ...rulesData,
-            updatedAt: new Date().toISOString(),
-            updatedBy: this.currentUser ? this.currentUser.uid : 'ADMIN'
-        }));
-
-        if (this.db) {
-            try {
-                await this.db.collection('settings').doc('rulesMaster').set(payload, { merge: true });
-                console.log("[Firebase SDK] Rules Master saved to cloud.");
-            } catch (e) {}
-        }
-        try {
-            const fsDoc = this.toFirestoreDocument(payload);
-            await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/settings/rulesMaster`, {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(fsDoc)
-            });
-        } catch (e) {}
+        const state = getLocalState() || {};
+        state.rules = { ...(state.rules || {}), ...rulesData };
+        setLocalState(state);
+        return state.rules;
     },
 
-    /**
-     * Get Rules Master from Firestore
-     */
     getRules: async function() {
-        try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 3500);
-            const res = await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/settings/rulesMaster`, {
-                signal: controller.signal
-            });
-            clearTimeout(timeoutId);
-            if (res.ok) {
-                const data = await res.json();
-                return this.fromFirestoreDocument(data);
-            }
-        } catch (e) {}
-
-        if (this.db) {
-            try {
-                const doc = await this.db.collection('settings').doc('rulesMaster').get();
-                return doc.exists ? doc.data() : null;
-            } catch (e) {}
-        }
-        return null;
-    },
-
-    /**
-     * Realtime listener for Rules Master
-     */
-    listenRules: function(onUpdate) {
-        if (!this.db) return () => {};
-        return this.db.collection('settings').doc('rulesMaster').onSnapshot((doc) => {
-            if (doc.exists && typeof onUpdate === 'function') {
-                onUpdate(doc.data());
-            }
-        }, (err) => {
-            console.warn("[Firebase] Rules listener error:", err);
-        });
+        const state = getLocalState() || {};
+        return state.rules || null;
     },
 
     // =================================================================
-    // BRANCHES, VALUERS & PRODUCTS MASTER SYNC
-    /**
-     * Save all branches list to Firestore (Writes both settings/branchesList and individual branches/{code} documents)
-     */
+    // BRANCHES MASTER & PASSWORDS (100% Local PC Persistence)
+    // =================================================================
+
     saveBranchesList: async function(branchesList) {
-        if (!Array.isArray(branchesList) || branchesList.length === 0) {
-            branchesList = DEFAULT_JCCB_BRANCHES;
-        }
-
-        const normalizedList = branchesList.map(b => {
-            const rawCode = String(b.code || b.branchCode || "01").replace(/\D/g, '');
-            const bCode = rawCode ? rawCode.padStart(2, '0') : "01";
-            return {
-                ...b,
-                code: bCode,
-                branchCode: bCode,
-                name: b.name || b.branchName || `Branch ${bCode}`,
-                branchName: b.branchName || b.name || `Branch ${bCode}`,
-                password: b.password || (bCode === "99" ? "Rahul#80810" : "Admin@123"),
-                isHO: (bCode === "99" || b.isHO === true || b.isHeadOffice === true),
-                role: (bCode === "99" ? "admin" : (b.role || "branch_manager")),
-                isActive: (b.isActive !== false),
-                updatedAt: new Date().toISOString()
-            };
-        });
-
-        // 1. Bulk document in settings/branchesList
-        const payload = {
-            list: normalizedList,
-            updatedAt: new Date().toISOString()
-        };
-        if (this.db) {
-            try {
-                await this.db.collection('settings').doc('branchesList').set(payload, { merge: true });
-            } catch (e) {}
-        }
-        try {
-            const fsDoc = this.toFirestoreDocument(payload);
-            await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/settings/branchesList`, {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(fsDoc)
-            });
-        } catch (e) {}
-
-        // 2. Individual documents in collection('branches') for all 18 branches
-        if (this.db) {
-            try {
-                const batch = this.db.batch();
-                // Clean up rogue undefined document
-                batch.delete(this.db.collection('branches').doc('undefined'));
-
-                normalizedList.forEach(nb => {
-                    const docRef = this.db.collection('branches').doc(nb.code);
-                    batch.set(docRef, nb, { merge: true });
-                });
-                await batch.commit();
-                console.log("[Firebase SDK] Seeded/updated all 18 branch docs in branches collection successfully!");
-            } catch (sdkErr) {
-                console.warn("[Firebase SDK] Error batch writing branch docs:", sdkErr);
-            }
-        }
-
-        // 3. REST API writes for individual branch docs (guaranteed cloud fallback)
-        normalizedList.forEach(async (nb) => {
-            try {
-                const fsDoc = this.toFirestoreDocument(nb);
-                await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/branches/${nb.code}`, {
-                    method: "PATCH",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(fsDoc)
-                });
-            } catch (e) {}
-        });
-
-        // Delete rogue undefined doc via REST
-        try {
-            await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/branches/undefined`, {
-                method: "DELETE"
-            });
-        } catch (e) {}
+        const state = getLocalState() || {};
+        state.branches = Array.isArray(branchesList) ? branchesList : DEFAULT_JCCB_BRANCHES;
+        setLocalState(state);
+        return state.branches;
     },
 
-    /**
-     * Get all branches list from Firestore
-     */
     getBranchesList: async function() {
-        try {
-            const res = await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/settings/branchesList`);
-            if (res.ok) {
-                const data = await res.json();
-                const parsed = this.fromFirestoreDocument(data);
-                if (parsed && Array.isArray(parsed.list)) return parsed.list;
-            }
-        } catch (e) {}
-
-        if (this.db) {
-            try {
-                const doc = await this.db.collection('settings').doc('branchesList').get();
-                if (doc.exists && doc.data().list) return doc.data().list;
-            } catch (e) {}
-        }
-        return null;
+        const state = getLocalState() || {};
+        return (Array.isArray(state.branches) && state.branches.length > 0) ? state.branches : DEFAULT_JCCB_BRANCHES;
     },
 
-    /**
-     * Realtime listener for Branches Master
-     */
-    listenBranches: function(onUpdate) {
-        if (!this.db) return () => {};
-        return this.db.collection('settings').doc('branchesList').onSnapshot((doc) => {
-            if (doc.exists && typeof onUpdate === 'function') {
-                const data = doc.data();
-                if (Array.isArray(data.list)) onUpdate(data.list);
-            }
-        }, (err) => {
-            console.warn("[Firebase] Branches listener error:", err);
-        });
+    getBranches: async function() {
+        return this.getBranchesList();
     },
 
-    /**
-     * Save all Valuers list to Firestore
-     */
-    saveValuersList: async function(valuersList, deletedIds = []) {
+    saveBranch: async function(branchData) {
+        const rawCode = String(branchData.code || branchData.branchCode || "01").replace(/\D/g, '');
+        const branchCode = rawCode ? rawCode.padStart(2, '0') : "01";
+        const state = getLocalState() || {};
+        if (!Array.isArray(state.branches)) state.branches = [...DEFAULT_JCCB_BRANCHES];
+
+        const idx = state.branches.findIndex(b => b.code === branchCode);
         const payload = {
-            list: valuersList,
-            deletedIds: Array.isArray(deletedIds) ? deletedIds : [],
+            ...branchData,
+            code: branchCode,
+            branchCode: branchCode,
             updatedAt: new Date().toISOString()
         };
-        if (this.db) {
-            try {
-                await this.db.collection('settings').doc('valuersList').set(payload);
-            } catch (e) {}
+        if (idx >= 0) {
+            state.branches[idx] = { ...state.branches[idx], ...payload };
+        } else {
+            state.branches.push(payload);
         }
-        try {
-            const fsDoc = this.toFirestoreDocument(payload);
-            await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/settings/valuersList`, {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(fsDoc)
-            });
-        } catch (e) {}
+        setLocalState(state);
+        return payload;
     },
 
-    /**
-     * Get all Valuers list from Firestore
-     */
+    // =================================================================
+    // VALUERS MASTER (100% Local PC Persistence)
+    // =================================================================
+
+    saveValuersList: async function(valuersList, deletedValuerIds = []) {
+        const state = getLocalState() || {};
+        state.valuers = Array.isArray(valuersList) ? valuersList : [];
+        if (Array.isArray(deletedValuerIds)) {
+            state.deletedValuerIds = deletedValuerIds;
+        }
+        setLocalState(state);
+        return state.valuers;
+    },
+
     getValuersList: async function() {
-        try {
-            const res = await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/settings/valuersList`);
-            if (res.ok) {
-                const data = await res.json();
-                const parsed = this.fromFirestoreDocument(data);
-                if (parsed && Array.isArray(parsed.list)) return { list: parsed.list, deletedIds: Array.isArray(parsed.deletedIds) ? parsed.deletedIds : [] };
-            }
-        } catch (e) {}
-
-        if (this.db) {
-            try {
-                const doc = await this.db.collection('settings').doc('valuersList').get();
-                if (doc.exists && doc.data().list) return { list: doc.data().list, deletedIds: Array.isArray(doc.data().deletedIds) ? doc.data().deletedIds : [] };
-            } catch (e) {}
-        }
-        return null;
+        const state = getLocalState() || {};
+        return {
+            list: Array.isArray(state.valuers) ? state.valuers : [],
+            deletedIds: Array.isArray(state.deletedValuerIds) ? state.deletedValuerIds : []
+        };
     },
 
-    /**
-     * Realtime listener for Valuers Master
-     */
-    listenValuers: function(onUpdate) {
-        if (!this.db) return () => {};
-        return this.db.collection('settings').doc('valuersList').onSnapshot((doc) => {
-            if (doc.exists && typeof onUpdate === 'function') {
-                const data = doc.data();
-                if (Array.isArray(data.list)) onUpdate(data.list, Array.isArray(data.deletedIds) ? data.deletedIds : []);
-            }
-        }, (err) => {
-            console.warn("[Firebase] Valuers listener error:", err);
-        });
-    },
+    // =================================================================
+    // PRODUCT SCHEMES (100% Local PC Persistence)
+    // =================================================================
 
-    /**
-     * Save all Product Schemes list to Firestore
-     */
     saveProductsList: async function(productsList) {
-        const payload = {
-            list: productsList,
-            updatedAt: new Date().toISOString()
-        };
-        if (this.db) {
-            try {
-                await this.db.collection('settings').doc('productsList').set(payload, { merge: true });
-            } catch (e) {}
-        }
-        try {
-            const fsDoc = this.toFirestoreDocument(payload);
-            await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/settings/productsList`, {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(fsDoc)
-            });
-        } catch (e) {}
+        const state = getLocalState() || {};
+        state.products = Array.isArray(productsList) ? productsList : [];
+        setLocalState(state);
+        return state.products;
     },
 
-    /**
-     * Get all Product Schemes list from Firestore
-     */
     getProductsList: async function() {
-        try {
-            const res = await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/settings/productsList`);
-            if (res.ok) {
-                const data = await res.json();
-                const parsed = this.fromFirestoreDocument(data);
-                if (parsed && Array.isArray(parsed.list)) return parsed.list;
-            }
-        } catch (e) {}
+        const state = getLocalState() || {};
+        return Array.isArray(state.products) ? state.products : null;
+    },
 
-        if (this.db) {
-            try {
-                const doc = await this.db.collection('settings').doc('productsList').get();
-                if (doc.exists && doc.data().list) return doc.data().list;
-            } catch (e) {}
+    // =================================================================
+    // DAILY GOLD RATES (100% Local PC Persistence)
+    // =================================================================
+
+    saveDailyRates: async function(ratesData) {
+        const state = getLocalState() || {};
+        state.goldRates = { ...(state.goldRates || {}), ...ratesData };
+        if (!Array.isArray(state.rateHistory)) state.rateHistory = [];
+        
+        const todayStr = ratesData.rateDate || new Date().toISOString().split("T")[0];
+        const existingIdx = state.rateHistory.findIndex(r => r.date === todayStr);
+        const histItem = {
+            date: todayStr,
+            rate22K: parseFloat(ratesData["22K"] || ratesData.rate22K || 0),
+            rate24K: parseFloat(ratesData["24K"] || ratesData.rate24K || 0),
+            isLocked: ratesData.isLocked || false,
+            lockedAt: ratesData.lockedAt || new Date().toISOString(),
+            lockedBy: ratesData.lockedBy || "LOCAL_ADMIN",
+            updatedBy: ratesData.updatedBy || "LOCAL_ADMIN"
+        };
+        if (existingIdx >= 0) {
+            state.rateHistory[existingIdx] = histItem;
+        } else {
+            state.rateHistory.push(histItem);
         }
-        return null;
+        setLocalState(state);
+        return state.goldRates;
     },
 
-    /**
-     * Realtime listener for Product Schemes Master
-     */
-    listenProducts: function(onUpdate) {
-        if (!this.db) return () => {};
-        return this.db.collection('settings').doc('productsList').onSnapshot((doc) => {
-            if (doc.exists && typeof onUpdate === 'function') {
-                const data = doc.data();
-                if (Array.isArray(data.list)) onUpdate(data.list);
-            }
-        }, (err) => {
-            console.warn("[Firebase] Products listener error:", err);
-        });
+    getDailyRates: async function() {
+        const state = getLocalState() || {};
+        return state.goldRates || null;
     },
 
     // =================================================================
-    // SECURITY AUDIT LOGS & CLIENT IP TRACKING
+    // AUDIT LOGS & PRESENCE (100% Local PC Persistence)
     // =================================================================
 
-    /**
-     * Get or resolve client IP address
-     */
-    getClientIp: async function() {
-        if (this._cachedIp) return this._cachedIp;
+    logAuditEvent: async function(eventType, description, metadata = {}) {
         try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 2000);
-            const res = await fetch("https://api.ipify.org?format=json", { signal: controller.signal });
-            clearTimeout(timeoutId);
-            if (res.ok) {
-                const data = await res.json();
-                if (data && data.ip) {
-                    this._cachedIp = data.ip;
-                    return data.ip;
-                }
-            }
-        } catch (e) {}
-        this._cachedIp = "Local / Office Network";
-        return this._cachedIp;
-    },
-
-    /**
-     * Record an audit event with timestamp, branch, operator, IP, and device metadata
-     */
-    logAuditEvent: async function(action, details, metadata = {}) {
-        try {
-            const ip = await this.getClientIp();
-            const logId = `LOG_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
-            const payload = {
-                id: logId,
-                action: String(action || 'ACTION').toUpperCase(),
-                details: String(details || ''),
-                branchCode: metadata.branchCode || (window.state?.currentSession?.code) || '99',
-                branchName: metadata.branchName || (window.state?.currentSession?.name) || 'Head Office',
-                operator: metadata.operator || (window.state?.currentSession?.name || 'ADMIN'),
-                ip: ip,
-                userAgent: navigator.userAgent || '',
-                platform: navigator.platform || '',
+            const raw = localStorage.getItem(LOCAL_AUDIT_KEY);
+            const logs = raw ? JSON.parse(raw) : [];
+            const newLog = {
+                id: `AUDIT_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
                 timestamp: new Date().toISOString(),
-                timestampMs: Date.now(),
-                ...metadata
+                eventType: eventType || "SYSTEM_EVENT",
+                description: description || "",
+                metadata: metadata || {}
             };
+            logs.unshift(newLog);
+            if (logs.length > 500) logs.length = 500;
+            localStorage.setItem(LOCAL_AUDIT_KEY, JSON.stringify(logs));
+        } catch (e) {
+            console.warn("[LocalDB] Audit log error:", e);
+        }
+    },
 
-            if (this.db) {
-                try {
-                    await this.db.collection('audit_logs').doc(logId).set(payload);
-                } catch (e) {}
-            }
-            try {
-                const fsDoc = this.toFirestoreDocument(payload);
-                await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/audit_logs/${logId}`, {
-                    method: "PATCH",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(fsDoc)
-                });
-            } catch (e) {}
+    getAuditLogs: async function(limit = 100) {
+        try {
+            const raw = localStorage.getItem(LOCAL_AUDIT_KEY);
+            const logs = raw ? JSON.parse(raw) : [];
+            return logs.slice(0, limit);
+        } catch (e) {
+            return [];
+        }
+    },
 
-            return payload;
-        } catch (err) {
-            console.warn("[Firebase] logAuditEvent notice:", err);
+    updateDevicePresence: async function(sessionInfo = {}) {
+        try {
+            const presence = {
+                ...sessionInfo,
+                lastSeen: new Date().toISOString(),
+                ip: "127.0.0.1 (Local Host)",
+                status: "ONLINE (Local PC)"
+            };
+            localStorage.setItem(LOCAL_PRESENCE_KEY, JSON.stringify(presence));
+            return presence;
+        } catch (e) {
             return null;
         }
     },
 
-    /**
-     * Get recent audit logs from Firestore
-     */
-    getAuditLogs: async function(limit = 200) {
-        if (this.db) {
-            try {
-                const snapshot = await this.db.collection('audit_logs').orderBy('timestampMs', 'desc').limit(limit).get();
-                const logs = [];
-                snapshot.forEach(doc => logs.push({ id: doc.id, ...doc.data() }));
-                if (logs.length > 0) return logs;
-            } catch (e) {}
-        }
+    getDevicePresences: async function() {
         try {
-            const res = await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/audit_logs?pageSize=${limit}`);
-            if (res.ok) {
-                const data = await res.json();
-                if (data.documents && Array.isArray(data.documents)) {
-                    return data.documents.map(d => this.fromFirestoreDocument(d)).sort((a, b) => (b.timestampMs || 0) - (a.timestampMs || 0));
-                }
-            }
+            const raw = localStorage.getItem(LOCAL_PRESENCE_KEY);
+            if (raw) return [JSON.parse(raw)];
         } catch (e) {}
-        return [];
+        return [{
+            branchCode: "01",
+            branchName: "Local Branch Terminal",
+            status: "ONLINE (Local Host)",
+            lastSeen: new Date().toISOString(),
+            ip: "127.0.0.1 (Local Host)"
+        }];
     },
 
-    /**
-     * Realtime listener for security audit logs
-     */
-    listenAuditLogs: function(onUpdate, limit = 200) {
-        if (!this.db) return () => {};
-        try {
-            return this.db.collection('audit_logs').orderBy('timestampMs', 'desc').limit(limit).onSnapshot((snapshot) => {
-                const logs = [];
-                snapshot.forEach(doc => logs.push({ id: doc.id, ...doc.data() }));
-                if (typeof onUpdate === 'function') onUpdate(logs);
-            }, (err) => {
-                console.warn("[Firebase] Audit logs listener error:", err);
-            });
-        } catch (e) {
-            return () => {};
-        }
-    },
-
-    // =================================================================
-    // ACTIVE DEVICE HEARTBEAT & LIVE BRANCH PRESENCE
-    // =================================================================
-
-    /**
-     * Update device heartbeat ping with IP and session details
-     */
-    updateDeviceHeartbeat: async function(sessionInfo = {}) {
-        try {
-            let sessionId = localStorage.getItem("jccb_device_session_id");
-            if (!sessionId) {
-                sessionId = `DEV_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
-                localStorage.setItem("jccb_device_session_id", sessionId);
-            }
-
-            // If this device was previously terminated by admin, do not send online heartbeat
-            if (localStorage.getItem("jccb_device_terminated") === sessionId) {
-                return { terminated: true };
-            }
-
-            const ip = await this.getClientIp();
-            const payload = {
-                sessionId: sessionId,
-                branchCode: sessionInfo.branchCode || (window.state?.currentSession?.code) || '99',
-                branchName: sessionInfo.branchName || (window.state?.currentSession?.name) || 'Head Office',
-                operator: sessionInfo.operator || (window.state?.currentSession?.name) || 'Operator',
-                ip: ip,
-                userAgent: navigator.userAgent || '',
-                platform: navigator.platform || '',
-                screenWidth: window.screen ? window.screen.width : 0,
-                screenHeight: window.screen ? window.screen.height : 0,
-                loginTime: sessionInfo.loginTime || localStorage.getItem("jccb_session_login_time") || new Date().toISOString(),
-                lastPing: new Date().toISOString(),
-                lastPingMs: Date.now(),
-                isOnline: true,
-                terminated: false,
-                status: "active"
-            };
-
-            if (!localStorage.getItem("jccb_session_login_time")) {
-                localStorage.setItem("jccb_session_login_time", payload.loginTime);
-            }
-
-            if (this.db) {
-                try {
-                    const doc = await this.db.collection('active_sessions').doc(sessionId).get();
-                    if (doc.exists && (doc.data().terminated === true || doc.data().status === "terminated")) {
-                        localStorage.setItem("jccb_device_terminated", sessionId);
-                        return { terminated: true };
-                    }
-                    await this.db.collection('active_sessions').doc(sessionId).set(payload, { merge: true });
-                } catch (e) {}
-            }
-            try {
-                const fsDoc = this.toFirestoreDocument(payload);
-                await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/active_sessions/${sessionId}`, {
-                    method: "PATCH",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(fsDoc)
-                });
-            } catch (e) {}
-
-            return payload;
-        } catch (err) {
-            return null;
-        }
-    },
-
-    /**
-     * Terminate / Force-Disconnect an active device session from Central Management
-     */
-    terminateActiveSession: async function(sessionId) {
-        const payload = {
-            sessionId: sessionId,
-            isOnline: false,
-            terminated: true,
-            status: "terminated",
-            terminatedAt: new Date().toISOString(),
-            terminatedAtMs: Date.now()
-        };
-
-        if (this.db) {
-            try {
-                await this.db.collection('active_sessions').doc(sessionId).set(payload, { merge: true });
-            } catch (e) {}
-        }
-        try {
-            const fsDoc = this.toFirestoreDocument(payload);
-            await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/active_sessions/${sessionId}`, {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(fsDoc)
-            });
-        } catch (e) {}
-
-        return payload;
-    },
-
-    /**
-     * Realtime listener on client device for remote killswitch / force logout
-     */
-    listenSessionKillswitch: function(sessionId, onTerminated) {
-        if (!this.db || !sessionId) return () => {};
-        try {
-            return this.db.collection('active_sessions').doc(sessionId).onSnapshot((doc) => {
-                if (doc.exists) {
-                    const data = doc.data();
-                    if (data && (data.terminated === true || data.status === "terminated" || data.isOnline === false)) {
-                        if (typeof onTerminated === "function") onTerminated(data);
-                    }
-                }
-            }, (err) => {
-                console.warn("[Firebase] Session killswitch listener notice:", err);
-            });
-        } catch (e) {
-            return () => {};
-        }
-    },
-
-    /**
-     * Realtime listener for active branches and connected devices
-     */
-    listenActiveSessions: function(onUpdate) {
-        if (!this.db) return () => {};
-        try {
-            return this.db.collection('active_sessions').onSnapshot((snapshot) => {
-                const sessions = [];
-                snapshot.forEach(doc => sessions.push({ id: doc.id, ...doc.data() }));
-                if (typeof onUpdate === 'function') onUpdate(sessions);
-            }, (err) => {
-                console.warn("[Firebase] Active sessions listener error:", err);
-            });
-        } catch (e) {
-            return () => {};
-        }
-    },
-
-    /**
-     * Terminate or remove an active session
-     */
-    deleteActiveSession: async function(sessionId) {
-        if (this.db) {
-            try {
-                await this.db.collection('active_sessions').doc(sessionId).delete();
-            } catch (e) {}
-        }
-        try {
-            await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/active_sessions/${sessionId}`, {
-                method: "DELETE"
-            });
-        } catch (e) {}
-    },
-
-    // =================================================================
-    // GLOBAL DATABASE RESTORE & MULTI-DEVICE REALTIME BROADCAST ENGINE
-    // =================================================================
-
-    /**
-     * Save customer list document for fast bulk sync
-     */
-    saveCustomersList: async function(customersList) {
-        const payload = {
-            list: customersList || [],
-            updatedAt: new Date().toISOString()
-        };
-        if (this.db) {
-            try {
-                await this.db.collection('settings').doc('customersList').set(payload);
-            } catch (e) {}
-        }
-        try {
-            const fsDoc = this.toFirestoreDocument(payload);
-            await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/settings/customersList`, {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(fsDoc)
-            });
-        } catch (e) {}
-    },
-
-    /**
-     * Send global sync signal to all connected branch devices
-     */
-    sendGlobalSyncSignal: async function(signalData = {}) {
-        const payload = {
-            signalId: `SIG_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
-            restoreTimestamp: Date.now(),
-            restoreTimeISO: new Date().toISOString(),
-            action: signalData.action || "DATABASE_RESTORE_GLOBAL",
-            restoreType: signalData.restoreType || "EXCEL_RESTORE",
-            restoredBy: signalData.restoredBy || (window.state?.currentSession?.name) || "HEAD OFFICE",
-            summary: signalData.summary || {},
-            updatedAt: new Date().toISOString()
-        };
-
-        if (this.db) {
-            try {
-                await this.db.collection('settings').doc('global_sync_signal').set(payload);
-            } catch (e) {}
-        }
-        try {
-            const fsDoc = this.toFirestoreDocument(payload);
-            await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/settings/global_sync_signal`, {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(fsDoc)
-            });
-        } catch (e) {}
-
-        return payload;
-    },
-
-    /**
-     * Realtime listener for global database restore & update signal
-     */
-    listenGlobalSyncSignal: function(onSignal) {
-        if (!this.db || typeof onSignal !== "function") return () => {};
-        return this.db.collection('settings').doc('global_sync_signal').onSnapshot((doc) => {
-            if (doc.exists) {
-                onSignal(doc.data());
-            }
-        }, (err) => {
-            console.warn("[Firebase] Global sync signal listener notice:", err);
-        });
-    },
-
-    /**
-     * Get latest global sync signal
-     */
-    getGlobalSyncSignal: async function() {
-        try {
-            const res = await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/settings/global_sync_signal`);
-            if (res.ok) {
-                const data = await res.json();
-                return this.fromFirestoreDocument(data);
-            }
-        } catch (e) {}
-        if (this.db) {
-            try {
-                const doc = await this.db.collection('settings').doc('global_sync_signal').get();
-                if (doc.exists) return doc.data();
-            } catch (e) {}
-        }
-        return null;
-    },
-
-    /**
-     * PERMANENT GLOBAL DATABASE RESTORE TO FIREBASE FIRESTORE
-     * Writes all restored collections, chunked batches, settings, masters, and triggers realtime broadcast
-     */
-    restoreFullDatabaseToFirebase: async function(restoredData = {}, onProgress = null) {
-        const report = (stage, pct, msg) => {
-            console.log(`[Firebase Restore ${pct}%] [${stage}]: ${msg}`);
-            if (typeof onProgress === "function") {
-                try { onProgress(stage, pct, msg); } catch (e) {}
-            }
-        };
-
-        report("START", 5, "Firebase ક્લાઉડ ડેટાબેઝ સાથે કનેક્શન સ્થાપિત થઈ રહ્યું છે...");
-
-        try {
-            // 1. Daily Rates & Rate History
-            if (restoredData.goldRates || (restoredData.rateHistory && restoredData.rateHistory.length > 0)) {
-                report("RATES", 12, "દૈનિક સોનાના ભાવ અને રેટ હિસ્ટ્રી ક્લાઉડ પર સેવ થઈ રહ્યા છે...");
-                const latestRate = (restoredData.rateHistory && restoredData.rateHistory.length > 0)
-                    ? restoredData.rateHistory[0]
-                    : { rate22K: restoredData.goldRates?.["22K"] || 0, rate24K: restoredData.goldRates?.["24K"] || 0 };
-
-                await this.saveDailyRates({
-                    rate22K: parseFloat(latestRate.rate22K || latestRate.rate || 0),
-                    rate24K: parseFloat(latestRate.rate24K || 0),
-                    date: latestRate.date || new Date().toISOString().split("T")[0],
-                    isLocked: Boolean(restoredData.goldRates?.isLocked),
-                    lockedAt: restoredData.goldRates?.lockedAt || null,
-                    lockedBy: restoredData.goldRates?.lockedBy || "HEAD OFFICE"
-                });
-
-                if (Array.isArray(restoredData.rateHistory)) {
-                    const rhPayload = { list: restoredData.rateHistory, updatedAt: new Date().toISOString() };
-                    if (this.db) {
-                        try { await this.db.collection('settings').doc('rateHistory').set(rhPayload); } catch (e) {}
-                    }
-                    try {
-                        const fsDoc = this.toFirestoreDocument(rhPayload);
-                        await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/settings/rateHistory`, {
-                            method: "PATCH",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify(fsDoc)
-                        });
-                    } catch (e) {}
-                }
-            }
-
-            // 2. Rules Master & Custom Charges
-            if (restoredData.rules) {
-                report("RULES", 22, "બેંકિંગ રૂલ્સ, વેલ્યુએશન સ્લેબ્સ અને કસ્ટમ ચાર્જીસ ક્લાઉડ પર સેવ થઈ રહ્યા છે...");
-                await this.saveRules(restoredData.rules);
-            }
-
-            // 3. Settings & Branch Seeds
-            if (restoredData.settings) {
-                report("SETTINGS", 32, "શાખા એકાઉન્ટ નંબર અને પેકેટ સીડ્સ કન્ફિગરેશન ક્લાઉડ પર સેવ થઈ રહ્યા છે...");
-                await this.saveSettings(restoredData.settings);
-            }
-
-            // 4. Sony Valuers Master
-            if (Array.isArray(restoredData.valuers)) {
-                report("VALUERS", 42, `અધિકૃત ${restoredData.valuers.length} સોની વેલ્યુઅર્સ ક્લાઉડ પર સેવ થઈ રહ્યા છે...`);
-                await this.saveValuersList(restoredData.valuers, restoredData.deletedValuerIds || []);
-            }
-
-            // 5. Product Schemes Master
-            if (Array.isArray(restoredData.products)) {
-                report("PRODUCTS", 50, `કુલ ${restoredData.products.length} લોન પ્રોડક્ટ સ્કીમ્સ ક્લાઉડ પર સેવ થઈ રહી છે...`);
-                await this.saveProductsList(restoredData.products);
-            }
-
-            // 6. Branches Master
-            if (Array.isArray(restoredData.branches)) {
-                report("BRANCHES", 58, `તમામ ${restoredData.branches.length} બેંક શાખાઓ અને પાસવર્ડ્સ ક્લાઉડ પર સેવ થઈ રહ્યા છે...`);
-                await this.saveBranchesList(restoredData.branches);
-                for (const b of restoredData.branches) {
-                    try {
-                        await this.saveBranch(b);
-                    } catch (e) {}
-                }
-            }
-
-            // 7. Customers & Member Directory
-            if (Array.isArray(restoredData.customers) && restoredData.customers.length > 0) {
-                report("CUSTOMERS", 68, `કુલ ${restoredData.customers.length} સભાસદ/ગ્રાહક પ્રોફાઈલ્સ ક્લાઉડ પર સેવ થઈ રહી છે...`);
-                await this.saveCustomersList(restoredData.customers);
-                
-                // Also write individual docs in chunked batches
-                const custBatchSize = 300;
-                for (let i = 0; i < restoredData.customers.length; i += custBatchSize) {
-                    const chunk = restoredData.customers.slice(i, i + custBatchSize);
-                    if (this.db) {
-                        try {
-                            const batch = this.db.batch();
-                            chunk.forEach(c => {
-                                const cId = String(c.customerNo || c.id || `CUST_${i}`).trim();
-                                const ref = this.db.collection('customers').doc(cId);
-                                batch.set(ref, { ...c, id: cId, customerNo: c.customerNo || cId, updatedAt: new Date().toISOString() }, { merge: true });
-                            });
-                            await batch.commit();
-                        } catch (e) {
-                            console.warn("[Firebase] Customers chunk SDK write error, moving on:", e);
-                        }
-                    }
-                }
-            }
-
-            // 8. Clean up deleted_loans tombstones for all restored active loans
-            const restoredLoanIdsSet = new Set((Array.isArray(restoredData.loans) ? restoredData.loans : []).map(l => String(l.id || l.loanId || "").trim()));
-            if (restoredLoanIdsSet.size > 0 && this.db) {
-                try {
-                    const cleanBatch = this.db.batch();
-                    let cCount = 0;
-                    for (const lId of restoredLoanIdsSet) {
-                        if (lId) {
-                            cleanBatch.delete(this.db.collection('deleted_loans').doc(lId));
-                            cCount++;
-                            if (cCount >= 400) break;
-                        }
-                    }
-                    await cleanBatch.commit();
-                } catch (e) {}
-            }
-
-            // Save only genuine deleted loans (excluding any restored active loans)
-            const trueDeletedIds = (Array.isArray(restoredData.deletedLoanIds) ? restoredData.deletedLoanIds : []).filter(dId => !restoredLoanIdsSet.has(String(dId).trim()));
-            if (trueDeletedIds.length > 0) {
-                report("DELETED", 75, "ડિલીટ કરેલ લોન ટૂમ્બસ્ટોન્સ સિંક થઈ રહ્યા છે...");
-                if (this.db) {
-                    try {
-                        const batch = this.db.batch();
-                        trueDeletedIds.forEach(dId => {
-                            if (dId) {
-                                const ref = this.db.collection('deleted_loans').doc(String(dId).trim());
-                                batch.set(ref, { id: String(dId).trim(), deletedAt: new Date().toISOString(), deletedBy: "HEAD_OFFICE_RESTORE" }, { merge: true });
-                            }
-                        });
-                        await batch.commit();
-                    } catch (e) {}
-                }
-            }
-
-            // 9. All Loan Records (Chunked Batch Upload with Photo Compression)
-            const loans = Array.isArray(restoredData.loans) ? restoredData.loans : [];
-            const totalLoans = loans.length;
-            report("LOANS", 80, `કુલ ${totalLoans} લોન ખાતાઓ Firebase Firestore પર અપલોડ થઈ રહ્યા છે...`);
-
-            const loanBatchSize = 100;
-            for (let i = 0; i < totalLoans; i += loanBatchSize) {
-                const chunk = loans.slice(i, i + loanBatchSize);
-                const currentProgress = Math.round(80 + ((i + chunk.length) / totalLoans) * 15);
-                report("LOANS_CHUNK", currentProgress, `લોન રેકોર્ડ્સ અપલોડ થઈ રહ્યા છે: ${i + chunk.length} / ${totalLoans}...`);
-
-                // Prepare payloads with photo compression
-                const processedChunk = await Promise.all(chunk.map(async (loanItem) => {
-                    const loanId = String(loanItem.id || loanItem.loanId || `GL_${Date.now()}_${loanItem.branchCode || '01'}`).trim();
-                    let custPhoto = loanItem.customerPhoto || "";
-                    let ornPhoto = loanItem.ornamentPhoto || "";
-
-                    if (typeof custPhoto === "string" && custPhoto.startsWith("data:image") && custPhoto.length > 120000) {
-                        try { custPhoto = await this.compressBase64Image(custPhoto, 400, 0.6); } catch (e) {}
-                    }
-                    if (typeof ornPhoto === "string" && ornPhoto.startsWith("data:image") && ornPhoto.length > 120000) {
-                        try { ornPhoto = await this.compressBase64Image(ornPhoto, 400, 0.6); } catch (e) {}
-                    }
-
-                    return {
-                        ...loanItem,
-                        id: loanId,
-                        loanId: loanId,
-                        customerPhoto: custPhoto,
-                        ornamentPhoto: ornPhoto,
-                        branchId: String(loanItem.branchCode || loanItem.branchId || '01'),
-                        updatedAt: loanItem.updatedAt || new Date().toISOString()
-                    };
-                }));
-
-                // 1. Write chunk via SDK batch
-                let chunkSaved = false;
-                if (this.db) {
-                    try {
-                        const batch = this.db.batch();
-                        processedChunk.forEach(pLoan => {
-                            const ref = this.db.collection('loans').doc(pLoan.id);
-                            batch.set(ref, pLoan, { merge: true });
-                        });
-                        await batch.commit();
-                        chunkSaved = true;
-                    } catch (sdkErr) {
-                        console.warn("[Firebase SDK] Loan chunk batch error, falling back to REST:", sdkErr);
-                    }
-                }
-
-                // 2. Fallback to REST API if SDK batch failed
-                if (!chunkSaved) {
-                    await Promise.all(processedChunk.map(async (pLoan) => {
-                        try {
-                            const fsDoc = this.toFirestoreDocument(pLoan);
-                            await fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/loans/${pLoan.id}`, {
-                                method: "PATCH",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify(fsDoc)
-                            });
-                        } catch (e) {}
-                    }));
-                }
-            }
-
-            // 10. Broadcast Global Sync Signal to All Devices & Log Audit Event
-            report("BROADCAST", 98, "તમામ કનેક્ટેડ બ્રાન્ચ કમ્પ્યુટર્સ પર લાઈવ ગ્લોબલ સિગ્નલ મોકલાઈ રહ્યો છે...");
-            await this.sendGlobalSyncSignal({
-                action: "DATABASE_RESTORE_GLOBAL",
-                restoreType: restoredData.restoreType || "EXCEL_RESTORE",
-                restoredBy: (window.state?.currentSession?.name) || "HEAD OFFICE",
-                summary: restoredData.summary || {
-                    loans: totalLoans,
-                    customers: (restoredData.customers || []).length,
-                    valuers: (restoredData.valuers || []).length,
-                    products: (restoredData.products || []).length,
-                    branches: (restoredData.branches || []).length
-                }
-            });
-
-            await this.logAuditEvent("DATABASE_RESTORE_GLOBAL", `Full database restored globally (${totalLoans} loans, ${(restoredData.customers || []).length} customers) by Head Office`, {
-                totalLoans: totalLoans,
-                totalCustomers: (restoredData.customers || []).length,
-                totalValuers: (restoredData.valuers || []).length,
-                totalBranches: (restoredData.branches || []).length,
-                operator: (window.state?.currentSession?.name) || "HEAD OFFICE"
-            });
-
-            report("COMPLETE", 100, "સંપૂર્ણ ડેટાબેઝ સફળતાપૂર્વક Firebase ક્લાઉડ પર કાયમી સેવ થઈ ગયો અને તમામ કમ્પ્યુટર્સ પર લાઈવ થઈ ગયો!");
-            return true;
-        } catch (fatalError) {
-            console.error("[Firebase Restore] Fatal error during cloud restore:", fatalError);
-            report("ERROR", 100, "ક્લાઉડ સેવ દરમિયાન ક્ષતિ: " + fatalError.message);
-            throw fatalError;
-        }
-    },
-
-    // =================================================================
-    // CLOUD STORAGE UPLOADS (ORNAMENTS & KYC)
-    // =================================================================
-
-    /**
-     * Upload gold ornament photo to Firebase Storage
-     */
-    uploadOrnamentPhoto: async function(branchCode, loanId, fileBlob, fileName) {
-        if (!this.storage) throw new Error("Firebase Storage not initialized.");
-        const path = `branches/${branchCode}/loans/${loanId}/${Date.now()}_${fileName || 'ornament.jpg'}`;
-        const storageRef = this.storage.ref().child(path);
-        const snapshot = await storageRef.put(fileBlob);
-        const downloadUrl = await snapshot.ref.getDownloadURL();
-        return { path, downloadUrl };
-    }
+    // Local listeners (no-op or immediate callback with zero cloud calls)
+    listenDailyRates: function(cb) { if (typeof cb === "function") cb(getLocalState()?.goldRates || null); },
+    listenDeletedLoans: function(cb) { },
+    listenLoans: function(branchCode, cb) { if (typeof cb === "function") cb(getLocalState()?.loans || []); },
+    listenSettings: function(cb) { if (typeof cb === "function") cb(getLocalState()?.settings || null); },
+    listenRules: function(cb) { if (typeof cb === "function") cb(getLocalState()?.rules || null); },
+    listenBranches: function(cb) { if (typeof cb === "function") cb(getLocalState()?.branches || DEFAULT_JCCB_BRANCHES); },
+    listenValuers: function(cb) { if (typeof cb === "function") cb(getLocalState()?.valuers || [], getLocalState()?.deletedValuerIds || []); },
+    listenProducts: function(cb) { if (typeof cb === "function") cb(getLocalState()?.products || null); },
+    listenCustomers: function(cb) { if (typeof cb === "function") cb(getLocalState()?.customers || []); },
+    listenGlobalSyncSignal: function(cb) { },
+    getGlobalSyncSignal: async function() { return null; },
+    broadcastGlobalSyncSignal: async function() { return true; },
+    terminateDeviceSession: async function() { return true; }
 };
 
-// Expose globally
-window.FirebaseService = FirebaseService;
+// Global backward-compatible aliases
+window.FirebaseService = LocalDBService;
+window.LocalDBService = LocalDBService;
