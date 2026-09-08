@@ -43,6 +43,37 @@ const server = http.createServer((req, res) => {
 
     let reqUrl = req.url.split('?')[0];
 
+    // API Routes for Gold Rate Synchronization
+    if (reqUrl === '/api/gold-rate' || reqUrl === '/api/gold-rates') {
+        const rateFilePath = path.join(PUBLIC_DIR, 'gold_rate.json');
+        if (req.method === 'POST') {
+            let body = '';
+            req.on('data', chunk => { body += chunk; });
+            req.on('end', () => {
+                try {
+                    const parsed = JSON.parse(body);
+                    fs.writeFileSync(rateFilePath, JSON.stringify(parsed, null, 2), 'utf8');
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ success: true, message: "Gold rate updated on server", data: parsed }));
+                } catch (e) {
+                    res.writeHead(400, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ success: false, error: e.message }));
+                }
+            });
+            return;
+        } else if (req.method === 'GET') {
+            if (fs.existsSync(rateFilePath)) {
+                const data = fs.readFileSync(rateFilePath, 'utf8');
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(data);
+            } else {
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ rate22K: 75000, rate24K: 81818, rateDate: new Date().toISOString().split('T')[0] }));
+            }
+            return;
+        }
+    }
+
     // Route rewriting
     if (reqUrl === '/' || reqUrl === '') {
         reqUrl = '/index.html';

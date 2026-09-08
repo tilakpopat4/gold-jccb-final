@@ -780,17 +780,33 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-// Centralized Standalone Local Storage Synchronizer (100% Offline)
+// Centralized Standalone Local Storage & Cloud Gold Rate Synchronizer
 async function syncLocalData(isManual = false) {
     const spinIcon = document.getElementById("cloud-sync-spin-icon");
     const syncText = document.getElementById("cloud-sync-text");
     const syncDot = document.getElementById("cloud-sync-dot");
 
     if (spinIcon) spinIcon.classList.add("fa-spin");
-    if (syncText && isManual) syncText.textContent = "Checking...";
+    if (syncText && isManual) syncText.textContent = "Syncing Rate...";
 
     try {
-        // Ensure state is updated from IndexedDB if available
+        // 1. Sync Today's Gold Rate from Cloud / Server (Set by Head Office)
+        let rateSynced = false;
+        let activeRateVal = getActiveGoldRate22K();
+        if (window.LocalDBService && typeof window.LocalDBService.fetchDailyGoldRate === "function") {
+            try {
+                const cloudRate = await window.LocalDBService.fetchDailyGoldRate();
+                if (cloudRate && (cloudRate.rate22K > 0 || cloudRate.rate24K > 0)) {
+                    applyDailyGoldRate(cloudRate.rate22K, cloudRate.rateDate || cloudRate.date, cloudRate);
+                    activeRateVal = cloudRate.rate22K;
+                    rateSynced = true;
+                }
+            } catch (rErr) {
+                console.warn("[GoldRateSync] Notice:", rErr);
+            }
+        }
+
+        // 2. Ensure state is updated from IndexedDB if available
         if (typeof syncFromIndexedDBOnInit === "function") {
             await syncFromIndexedDBOnInit();
         }
@@ -805,7 +821,11 @@ async function syncLocalData(isManual = false) {
         if (syncDot) syncDot.style.background = "#22c55e";
 
         if (isManual) {
-            showToast(`✅ Local Storage Active: All loans & settings saved on this PC`);
+            if (rateSynced) {
+                showToast(`✅ Today's Gold Rate Synced: ₹${activeRateVal.toLocaleString("en-IN")}/10g (Set by Head Office)`);
+            } else {
+                showToast(`✅ Local Storage Active (Rate: ₹${activeRateVal.toLocaleString("en-IN")}/10g)`);
+            }
         }
     } catch (e) {
         console.warn("[LocalSync] Storage check notice:", e);

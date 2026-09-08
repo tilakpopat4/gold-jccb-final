@@ -31,6 +31,122 @@ const LEGACY_STORAGE_KEY = "jccb_gold_state";
 const LOCAL_AUDIT_KEY = "jccb_local_audit_logs";
 const LOCAL_PRESENCE_KEY = "jccb_local_presence";
 
+const FIREBASE_CONFIG = {
+    apiKey: "AIzaSyAdIRywb7xDw9xbTzgE2fl9sn2d4LduTKs",
+    authDomain: "project-484328444876485620.firebaseapp.com",
+    projectId: "project-484328444876485620"
+};
+
+/**
+ * Cloud & Local Network Gold Rate Service
+ * Head Office publishes today's rate to Cloud Firestore & Local Server.
+ * All distant branches sync today's rate seamlessly with 1-click or auto-refresh.
+ */
+const CloudGoldRateService = {
+    firestoreDocUrl: `https://firestore.googleapis.com/v1/projects/${FIREBASE_CONFIG.projectId}/databases/(default)/documents/system_config/gold_rates?key=${FIREBASE_CONFIG.apiKey}`,
+
+    toFirestoreFields: function(obj) {
+        const fields = {};
+        for (const [k, v] of Object.entries(obj)) {
+            if (typeof v === "number") fields[k] = { doubleValue: v };
+            else if (typeof v === "boolean") fields[k] = { booleanValue: v };
+            else fields[k] = { stringValue: String(v || "") };
+        }
+        return { fields };
+    },
+
+    fromFirestoreFields: function(fields = {}) {
+        const obj = {};
+        for (const [k, v] of Object.entries(fields)) {
+            if (v.doubleValue !== undefined) obj[k] = Number(v.doubleValue);
+            else if (v.integerValue !== undefined) obj[k] = Number(v.integerValue);
+            else if (v.booleanValue !== undefined) obj[k] = Boolean(v.booleanValue);
+            else if (v.stringValue !== undefined) obj[k] = String(v.stringValue);
+        }
+        return obj;
+    },
+
+    publishRate: async function(rateData) {
+        const payload = {
+            rate22K: parseFloat(rateData["22K"] || rateData.rate22K || 0),
+            rate24K: parseFloat(rateData["24K"] || rateData.rate24K || 0),
+            date: rateData.rateDate || rateData.date || new Date().toISOString().split("T")[0],
+            rateDate: rateData.rateDate || rateData.date || new Date().toISOString().split("T")[0],
+            isLocked: Boolean(rateData.isLocked),
+            lockedAt: rateData.lockedAt || new Date().toISOString(),
+            lockedBy: rateData.lockedBy || "HEAD OFFICE",
+            updatedBy: rateData.updatedBy || "HEAD OFFICE",
+            lastUpdated: new Date().toISOString()
+        };
+
+        // 1. Post to Firebase Cloud Firestore REST API (for distant branches across internet)
+        try {
+            const fsDoc = this.toFirestoreFields(payload);
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 6000);
+            await fetch(this.firestoreDocUrl, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(fsDoc),
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+            console.log("[GoldRateSync] Published today's rate to Cloud Firestore successfully.");
+        } catch (cloudErr) {
+            console.warn("[GoldRateSync] Cloud Firestore publish notice (offline or network issue):", cloudErr);
+        }
+
+        // 2. Post to Local Node Server endpoint (for LAN/Local host)
+        try {
+            await fetch('/api/gold-rate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+        } catch (e) {}
+
+        return payload;
+    },
+
+    fetchRate: async function() {
+        // 1. Try fetching from Cloud Firestore
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 4500);
+            const res = await fetch(this.firestoreDocUrl, {
+                method: "GET",
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+            if (res.ok) {
+                const data = await res.json();
+                if (data && data.fields) {
+                    const parsed = this.fromFirestoreFields(data.fields);
+                    if (parsed && (parsed.rate22K > 0 || parsed.rate24K > 0)) {
+                        console.log("[GoldRateSync] Fetched today's rate from Cloud Firestore:", parsed.rate22K);
+                        return parsed;
+                    }
+                }
+            }
+        } catch (cloudErr) {
+            console.warn("[GoldRateSync] Cloud fetch notice:", cloudErr.message || cloudErr);
+        }
+
+        // 2. Try fetching from Local Host Server
+        try {
+            const localRes = await fetch('/api/gold-rate');
+            if (localRes.ok) {
+                const localData = await localRes.json();
+                if (localData && (localData.rate22K > 0 || localData.rate24K > 0)) {
+                    return localData;
+                }
+            }
+        } catch (e) {}
+
+        return null;
+    }
+};
+
 /**
  * Helper to get local state safely
  */
@@ -347,7 +463,7 @@ const LocalDBService = {
     },
 
     // =================================================================
-    // DAILY GOLD RATES (100% Local PC Persistence)
+    // DAILY GOLD RATES (Local PC Persistence + Cloud/LAN Sync)
     // =================================================================
 
     saveDailyRates: async function(ratesData) {
@@ -355,7 +471,7 @@ const LocalDBService = {
         state.goldRates = { ...(state.goldRates || {}), ...ratesData };
         if (!Array.isArray(state.rateHistory)) state.rateHistory = [];
         
-        const todayStr = ratesData.rateDate || new Date().toISOString().split("T")[0];
+        const todayStr = ratesData.rateDate || ratesData.date || new Date().toISOString().split("T")[0];
         const existingIdx = state.rateHistory.findIndex(r => r.date === todayStr);
         const histItem = {
             date: todayStr,
@@ -363,19 +479,38 @@ const LocalDBService = {
             rate24K: parseFloat(ratesData["24K"] || ratesData.rate24K || 0),
             isLocked: ratesData.isLocked || false,
             lockedAt: ratesData.lockedAt || new Date().toISOString(),
-            lockedBy: ratesData.lockedBy || "LOCAL_ADMIN",
-            updatedBy: ratesData.updatedBy || "LOCAL_ADMIN"
+            lockedBy: ratesData.lockedBy || "HEAD OFFICE",
+            updatedBy: ratesData.updatedBy || "HEAD OFFICE"
         };
         if (existingIdx >= 0) {
             state.rateHistory[existingIdx] = histItem;
         } else {
-            state.rateHistory.push(histItem);
+            state.rateHistory.unshift(histItem);
         }
         setLocalState(state);
+
+        // Publish to Cloud & Local server so distant branches receive the new rate
+        CloudGoldRateService.publishRate(ratesData).catch(e => console.warn("[LocalDB] Gold rate cloud broadcast warning:", e));
+
         return state.goldRates;
     },
 
+    publishDailyGoldRate: async function(ratesData) {
+        return this.saveDailyRates(ratesData);
+    },
+
+    fetchDailyGoldRate: async function() {
+        return CloudGoldRateService.fetchRate();
+    },
+
     getDailyRates: async function() {
+        const cloudRate = await CloudGoldRateService.fetchRate();
+        if (cloudRate && (cloudRate.rate22K > 0 || cloudRate.rate24K > 0)) {
+            const state = getLocalState() || {};
+            state.goldRates = { ...(state.goldRates || {}), ...cloudRate };
+            setLocalState(state);
+            return state.goldRates;
+        }
         const state = getLocalState() || {};
         return state.goldRates || null;
     },
@@ -442,8 +577,39 @@ const LocalDBService = {
         }];
     },
 
-    // Local listeners (no-op or immediate callback with zero cloud calls)
-    listenDailyRates: function(cb) { if (typeof cb === "function") cb(getLocalState()?.goldRates || null); },
+    // Live Gold Rate listener (Immediate local cache + Background cloud check)
+    listenDailyRates: function(cb) {
+        if (typeof cb !== "function") return;
+        // 1. Return current local state immediately
+        cb(getLocalState()?.goldRates || null);
+
+        // 2. Perform instant background cloud check
+        CloudGoldRateService.fetchRate().then(cloudRate => {
+            if (cloudRate && (cloudRate.rate22K > 0 || cloudRate.rate24K > 0)) {
+                const state = getLocalState() || {};
+                state.goldRates = { ...(state.goldRates || {}), ...cloudRate };
+                setLocalState(state);
+                cb(state.goldRates);
+            }
+        }).catch(() => {});
+
+        // 3. Periodic background check every 60 seconds
+        if (!window._goldRateCheckInterval) {
+            window._goldRateCheckInterval = setInterval(() => {
+                CloudGoldRateService.fetchRate().then(cloudRate => {
+                    if (cloudRate && (cloudRate.rate22K > 0 || cloudRate.rate24K > 0)) {
+                        const state = getLocalState() || {};
+                        const current22 = state.goldRates?.["22K"] || state.goldRates?.rate22K;
+                        if (current22 !== cloudRate.rate22K) {
+                            state.goldRates = { ...(state.goldRates || {}), ...cloudRate };
+                            setLocalState(state);
+                            cb(state.goldRates);
+                        }
+                    }
+                }).catch(() => {});
+            }, 60000);
+        }
+    },
     listenDeletedLoans: function(cb) { },
     listenLoans: function(branchCode, cb) { if (typeof cb === "function") cb(getLocalState()?.loans || []); },
     listenSettings: function(cb) { if (typeof cb === "function") cb(getLocalState()?.settings || null); },
