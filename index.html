@@ -2596,7 +2596,11 @@
         }
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
-    <script src="firebase-config.js?v=20260908_local"></script>
-    <script src="app_gold.js?v=20260908_local"></script>
+    <!-- Firebase SDK v9 compat for Real-Time Head Office Gold Rate Sync ONLY -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js?v=20260908_live_rate"></script>
+    <script src="app_gold.js?v=20260908_live_rate"></script>
 </body>
 </html>

@@ -5665,6 +5665,25 @@ function initGoldRateMaster() {
     if (searchInput) {
         searchInput.oninput = () => renderGoldRateMaster();
     }
+
+    // Attach Live Realtime Listener for Gold Rates published by Head Office
+    if (window.FirebaseService && typeof window.FirebaseService.listenDailyRates === "function") {
+        try {
+            window.FirebaseService.listenDailyRates((cloudRate) => {
+                if (cloudRate && (parseFloat(cloudRate.rate22K || cloudRate.rate) > 0 || parseFloat(cloudRate.rate24K) > 0)) {
+                    const r22 = parseFloat(cloudRate.rate22K || cloudRate.rate || 0);
+                    const rDate = cloudRate.rateDate || cloudRate.date || getTodayDateYMD();
+                    const curRate = getActiveGoldRate22K();
+                    if (curRate !== r22) {
+                        console.log("[LiveRateListener] Updated gold rate from Head Office:", r22);
+                        applyDailyGoldRate(r22, rDate, cloudRate);
+                    }
+                }
+            });
+        } catch (e) {
+            console.warn("[LiveRateListener] Listener notice:", e);
+        }
+    }
 }
 
 function renderGoldRateMaster() {
