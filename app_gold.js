@@ -587,6 +587,9 @@ if (state && state.rules && state.rules.serviceCharge) {
     state.rules.serviceCharge.slab2Rate = 0.50;
     state.rules.serviceCharge.godAbove2LCap = 5000;
     state.rules.serviceCharge.slab2Cap = 5000;
+    try {
+        saveState();
+    } catch (e) { }
 }
 let cropperInstance = null;
 let currentPhotoTarget = null;
