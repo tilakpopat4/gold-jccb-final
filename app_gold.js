@@ -2795,19 +2795,10 @@ function calculateAllCharges() {
         const isScheme3553 = (isCompulsoryOD || schemeSelectVal === "3553" || schemeSelectVal === "GOD-3553" || (document.getElementById("loan-category-display") && document.getElementById("loan-category-display").value.includes("3553")) || (typeof selectedProdCode !== "undefined" && String(selectedProdCode).includes("3553")));
 
         // If Compulsory OD is checked, or Scheme is 3553, or loan amount is >= 200,000:
-        // Service charge strictly follows the 0.50% rule, capped at maximum ₹5,000
+        // Service charge strictly follows the 0.50% rule, capped at maximum ₹5,000 (NEVER 0.75%)
         if (isCompulsoryOD || isScheme3553 || loanAmt >= parseFloat(srvRules.threshold ?? 200000)) {
-            let rate = 0.50;
-            if (isScheme3553 || isCompulsoryOD) {
-                const r = parseFloat(srvRules.godAbove2LRate);
-                rate = (!isNaN(r) && r > 0 && r <= 0.50) ? r : 0.50;
-            } else {
-                const r = parseFloat(srvRules.slab2Rate);
-                rate = (!isNaN(r) && r > 0 && r <= 0.50) ? r : 0.50;
-            }
-            const cap = Math.min(5000, parseFloat((isScheme3553 || isCompulsoryOD ? srvRules.godAbove2LCap : srvRules.slab2Cap) ?? 5000) || 5000);
-            const raw = Math.round(loanAmt * (rate / 100));
-            serviceChg = Math.min(cap, raw);
+            const raw = Math.round(loanAmt * (0.50 / 100));
+            serviceChg = Math.min(5000, raw);
         } else {
             // Standard loan < 200,000 without Compulsory OD:
             const raw = Math.round(loanAmt * (parseFloat(srvRules.slab1Rate ?? 0.25) / 100));
