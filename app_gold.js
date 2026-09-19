@@ -583,14 +583,10 @@ async function syncFromIndexedDBOnInit() {
 
 let state = loadState();
 if (state && state.rules && state.rules.serviceCharge) {
-    if (state.rules.serviceCharge.godAbove2LRate > 0.50 || state.rules.serviceCharge.godAbove2LRate === 0.75) {
-        state.rules.serviceCharge.godAbove2LRate = 0.50;
-    }
-    if (state.rules.serviceCharge.slab2Rate > 0.50) {
-        state.rules.serviceCharge.slab2Rate = 0.50;
-    }
-    state.rules.serviceCharge.godAbove2LCap = Math.min(5000, state.rules.serviceCharge.godAbove2LCap || 5000);
-    state.rules.serviceCharge.slab2Cap = Math.min(5000, state.rules.serviceCharge.slab2Cap || 5000);
+    state.rules.serviceCharge.godAbove2LRate = 0.50;
+    state.rules.serviceCharge.slab2Rate = 0.50;
+    state.rules.serviceCharge.godAbove2LCap = 5000;
+    state.rules.serviceCharge.slab2Cap = 5000;
 }
 let cropperInstance = null;
 let currentPhotoTarget = null;
@@ -634,18 +630,10 @@ function loadState() {
                 rules.stampDuty.exemptLimit = 50000;
             }
             if (rules && rules.serviceCharge) {
-                if (rules.serviceCharge.godAbove2LRate === 0.75 || rules.serviceCharge.godAbove2LRate > 0.50 || rules.serviceCharge.godAbove2LRate === undefined) {
-                    rules.serviceCharge.godAbove2LRate = 0.50;
-                }
-                if (rules.serviceCharge.slab2Rate > 0.50 || rules.serviceCharge.slab2Rate === undefined) {
-                    rules.serviceCharge.slab2Rate = 0.50;
-                }
-                if (rules.serviceCharge.godAbove2LCap > 5000 || !rules.serviceCharge.godAbove2LCap) {
-                    rules.serviceCharge.godAbove2LCap = 5000;
-                }
-                if (rules.serviceCharge.slab2Cap > 5000 || !rules.serviceCharge.slab2Cap) {
-                    rules.serviceCharge.slab2Cap = 5000;
-                }
+                rules.serviceCharge.godAbove2LRate = 0.50;
+                rules.serviceCharge.slab2Rate = 0.50;
+                rules.serviceCharge.godAbove2LCap = 5000;
+                rules.serviceCharge.slab2Cap = 5000;
             }
             if (!Array.isArray(rules.customCharges)) {
                 rules.customCharges = [];
@@ -2804,24 +2792,26 @@ function calculateAllCharges() {
     let serviceChg = 0;
     const srvRules = rules.serviceCharge || DEFAULT_RULES.serviceCharge;
     if (loanAmt > 0) {
-        if (loanAmt < parseFloat(srvRules.threshold ?? 200000)) {
-            const raw = Math.round(loanAmt * (parseFloat(srvRules.slab1Rate ?? 0.25) / 100));
-            serviceChg = Math.min(parseFloat(srvRules.slab1Cap ?? 500), raw);
-        } else {
-            // When loanAmt >= 200,000 (applies to all loan types including 3553 Overdraft & 3527 Installment)
-            // Even if loan type is 3553, service charge is strictly 0.50%, max cap ₹5,000
-            const isScheme3553 = (isCompulsoryOD || schemeSelectVal === "3553" || schemeSelectVal === "GOD-3553" || (document.getElementById("loan-category-display") && document.getElementById("loan-category-display").value.includes("3553")) || (typeof selectedProdCode !== "undefined" && String(selectedProdCode).includes("3553")));
+        const isScheme3553 = (isCompulsoryOD || schemeSelectVal === "3553" || schemeSelectVal === "GOD-3553" || (document.getElementById("loan-category-display") && document.getElementById("loan-category-display").value.includes("3553")) || (typeof selectedProdCode !== "undefined" && String(selectedProdCode).includes("3553")));
+
+        // If Compulsory OD is checked, or Scheme is 3553, or loan amount is >= 200,000:
+        // Service charge strictly follows the 0.50% rule, capped at maximum ₹5,000
+        if (isCompulsoryOD || isScheme3553 || loanAmt >= parseFloat(srvRules.threshold ?? 200000)) {
             let rate = 0.50;
-            if (isScheme3553) {
+            if (isScheme3553 || isCompulsoryOD) {
                 const r = parseFloat(srvRules.godAbove2LRate);
                 rate = (!isNaN(r) && r > 0 && r <= 0.50) ? r : 0.50;
             } else {
                 const r = parseFloat(srvRules.slab2Rate);
                 rate = (!isNaN(r) && r > 0 && r <= 0.50) ? r : 0.50;
             }
-            const cap = Math.min(5000, parseFloat((isScheme3553 ? srvRules.godAbove2LCap : srvRules.slab2Cap) ?? 5000) || 5000);
+            const cap = Math.min(5000, parseFloat((isScheme3553 || isCompulsoryOD ? srvRules.godAbove2LCap : srvRules.slab2Cap) ?? 5000) || 5000);
             const raw = Math.round(loanAmt * (rate / 100));
             serviceChg = Math.min(cap, raw);
+        } else {
+            // Standard loan < 200,000 without Compulsory OD:
+            const raw = Math.round(loanAmt * (parseFloat(srvRules.slab1Rate ?? 0.25) / 100));
+            serviceChg = Math.min(parseFloat(srvRules.slab1Cap ?? 500), raw);
         }
     }
 
