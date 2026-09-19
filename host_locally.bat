@@ -13,13 +13,28 @@ echo.
 REM Open browser after 1 second delay in background
 start "" cmd /c "timeout /t 2 /nobreak >nul & start http://localhost:5000"
 
-REM Run Node.js local host server
-node server.js
-
-if errorlevel 1 (
-    echo.
-    echo [Notice] Node.js server stopped or encountered an error.
-    echo Trying fallback local launch directly in browser...
-    start "" index.html
-    pause
+where node >nul 2>nul
+if %errorlevel% equ 0 (
+    node server.js
+    goto done
 )
+
+where py >nul 2>nul
+if %errorlevel% equ 0 (
+    py server.py
+    goto done
+)
+
+where python >nul 2>nul
+if %errorlevel% equ 0 (
+    python server.py
+    goto done
+)
+
+echo.
+echo [Notice] Neither Node.js nor Python was found.
+echo Opening Gold Loan Portal directly in default browser...
+start "" index.html
+
+:done
+pause
